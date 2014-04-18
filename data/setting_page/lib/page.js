@@ -1,4 +1,4 @@
-angular.module('subscription_checker', ['ngRoute','ngAnimate'])
+angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
     .config(['$routeProvider', '$locationProvider',
         function($routeProvider, $locationProvider) {
             $routeProvider
@@ -21,5 +21,5 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate'])
     .controller('subscription', function($scope) {
         $scope.a = 100;
         $scope.b = 200;
-        $scope.videos = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+        $scope.videos = [1,2,3,4,5,6,7,8,9,10,11,12,13,12,15,16,17,18,19,20];
     });

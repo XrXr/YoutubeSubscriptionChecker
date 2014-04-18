@@ -8,7 +8,12 @@
     background-color: grey;
     color: white;
 }
-
+.video{
+    list-style-type: none;
+}
+.setting{
+    margin-top: 10px
+}
 .animate-repeat.ng-move, .animate-repeat.ng-enter, .animate-repeat.ng-leave {
     transition: all linear 0.5s;
 }
