@@ -12,9 +12,13 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
                 });
         }
     ])
-    .controller('frame', function($scope, $routeParams) {
-        $scope.a = 1;
-        $scope.b = 2;
+    .controller('frame', function($scope, $routeParams, $modal) {
+        $scope.open_settings = function() {
+            var modalInstance = $modal.open({
+              templateUrl: 'partials/settings.html',
+              controller: settings,
+            });
+        };
         $scope.params = $routeParams;
         $scope.channels = [{name:"LinusTechTips"}, {name:"sxephil"}, {name:"SourceFed"}];
     })
@@ -23,3 +27,13 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         $scope.b = 200;
         $scope.videos = [1,2,3,4,5,6,7,8,9,10,11,12,13,12,15,16,17,18,19,20];
     });
+
+function settings($scope, $modalInstance) {
+    $scope.save = function () {
+        $modalInstance.close();
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+}
