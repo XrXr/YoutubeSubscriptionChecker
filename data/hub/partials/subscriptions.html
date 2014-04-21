@@ -1,0 +1,20 @@
+<div class="modal-header">
+    <h3>Subscriptions</h3>
+    <span class="fine-print">These subscriptions are compeletly seperate from the ones tied to your Youtube account.<span>
+    <br>
+    <span class="fine-print">The data is stored on this computer only</span>
+</div>
+<div class="modal-body">
+    <div class="channel-search-result"></div>
+    <input ng-keypress="search_channel($event)" id="channel_search" class="form-control" ng-model="interval" type="text" placeholder="Channel username to add" style="width: 40%">
+    <br>
+    <div ng-repeat="channel in channels track by $index">
+        {{channel.name}}
+        <img height="30" width="30" tooltip="Remove channel" tooltip-placement="right" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+Cjxzdmcgd2lkdGg9IjU4MiIgaGVpZ2h0PSI0MDIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiA8IS0tIENyZWF0ZWQgd2l0aCBNZXRob2QgRHJhdyAtIGh0dHA6Ly9naXRodWIuY29tL2R1b3BpeGVsL01ldGhvZC1EcmF3LyAtLT4KCiA8Zz4KICA8dGl0bGU+YmFja2dyb3VuZDwvdGl0bGU+CiAgPHJlY3QgZmlsbD0iI2ZmZiIgaWQ9ImNhbnZhc19iYWNrZ3JvdW5kIiBoZWlnaHQ9IjQwNCIgd2lkdGg9IjU4NCIgeT0iLTEiIHg9Ii0xIi8+CiAgPGcgZGlzcGxheT0ibm9uZSIgb3ZlcmZsb3c9InZpc2libGUiIHk9IjAiIHg9IjAiIGhlaWdodD0iMTAwJSIgd2lkdGg9IjEwMCUiIGlkPSJjYW52YXNHcmlkIj4KICAgPHJlY3QgZmlsbD0idXJsKCNncmlkcGF0dGVybikiIHN0cm9rZS13aWR0aD0iMCIgeT0iMSIgeD0iMSIgaGVpZ2h0PSI0MDAiIHdpZHRoPSI1ODAiLz4KICA8L2c+CiA8L2c+CiA8Zz4KICA8dGl0bGU+TGF5ZXIgMTwvdGl0bGU+CiAgPHBhdGggaWQ9InN2Z18xIiBkPSJtMTE4Ljc1LDE3MGwzMjAsMGwwLDYybC0zMjAsMGwwLC02MnoiIHN0cm9rZS1saW5lY2FwPSJudWxsIiBzdHJva2UtbGluZWpvaW49Im51bGwiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSIjOTk5OTk5Ii8+CiAgPGVsbGlwc2UgaWQ9InN2Z180IiBjeT0iNTE2LjUiIGN4PSI0OTcuNSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZT0iIzAwMCIgZmlsbD0iI2ZmZiIvPgogIDxlbGxpcHNlIGlkPSJzdmdfNSIgY3k9IjQ0NC41IiBjeD0iMTczLjUiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2U9IiMwMDAiIGZpbGw9IiNmZmYiLz4KICA8ZWxsaXBzZSByeT0iMzEuMDAwMDAxIiByeD0iMzEuMDAwMDAxIiBpZD0ic3ZnXzgiIGN5PSIyMDEuMDAwMDAxIiBjeD0iMTIzLjUwMDAwMSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9IiM5OTk5OTkiLz4KICA8ZWxsaXBzZSByeT0iMzEuMDAwMDAxIiByeD0iMzEuMDAwMDAxIiBpZD0ic3ZnXzkiIGN5PSIyMDEuMDAwMDAxIiBjeD0iNDM1LjAwMDAwMSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9IiM5OTk5OTkiLz4KIDwvZz4KPC9zdmc+">
+    </div>
+<!--     <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGhlaWdodD0iMTZweCIgaWQ9IkxheWVyXzEiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDE2IDE2OyIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMTYgMTYiIHdpZHRoPSIxNnB4IiB4bWw6c3BhY2U9InByZXNlcnZlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48cGF0aCBkPSJNMTUsNmgtNVYxYzAtMC41NS0wLjQ1LTEtMS0xSDdDNi40NSwwLDYsMC40NSw2LDF2NUgxQzAuNDUsNiwwLDYuNDUsMCw3djJjMCwwLjU1LDAuNDUsMSwxLDFoNXY1YzAsMC41NSwwLjQ1LDEsMSwxaDIgIGMwLjU1LDAsMS0wLjQ1LDEtMXYtNWg1YzAuNTUsMCwxLTAuNDUsMS0xVjdDMTYsNi40NSwxNS41NSw2LDE1LDZ6Ii8+PC9zdmc+">
+ --></div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="save()">Save</button>
+    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

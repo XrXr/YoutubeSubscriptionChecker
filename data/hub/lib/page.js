@@ -3,11 +3,11 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         function($routeProvider, $locationProvider) {
             $routeProvider
                 .when('/:channel', {
-                    templateUrl: 'partials/subscription.html',
+                    templateUrl: 'partials/videos.html',
                     controller: 'subscription'
                 })
                 .otherwise({
-                    templateUrl: 'partials/subscription.html',
+                    templateUrl: 'partials/videos.html',
                     controller: 'subscription'
                 });
         }
