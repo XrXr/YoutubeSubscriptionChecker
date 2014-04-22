@@ -1,19 +1,25 @@
 <div class="modal-header">
     <h3>Subscriptions</h3>
-    <span class="fine-print">These subscriptions are compeletly seperate from the ones tied to your Youtube account.<span>
-    <br>
+    <span class="fine-print">These subscriptions are compeletly seperate from the ones tied to your Youtube account.</span>
+    <br/>
     <span class="fine-print">The data is stored on this computer only</span>
 </div>
-<div class="modal-body">
-    <div class="channel-search-result"></div>
-    <input ng-keypress="search_channel($event)" id="channel_search" class="form-control" ng-model="interval" type="text" placeholder="Channel username to add" style="width: 40%">
+<div ng-style="fit(body_height, result_height)" bind-height="body_height" bind-width="body_width" class="modal-body">
+    <div class="channel-search-result" bind-height="result_height" bind-width="result_width">
+        <p ng-repeat="channel in search_result track by $index">
+        <img src="{{channel.thumbnail}}" width="70px" height="70px" alt="{{channel.title}}">
+        <label style="position: relative;">{{channel.title}}
+            <img width="20" height="20" style="top:-1px" tooltip="Subscribe to {{channel.title}}" tooltip-placement="right" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+Cjxzdmcgd2lkdGg9IjQwMCIgaGVpZ2h0PSI0MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6c3ZnPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiA8IS0tIENyZWF0ZWQgd2l0aCBNZXRob2QgRHJhdyAtIGh0dHA6Ly9naXRodWIuY29tL2R1b3BpeGVsL01ldGhvZC1EcmF3LyAtLT4KIDxnPgogIDx0aXRsZT5iYWNrZ3JvdW5kPC90aXRsZT4KICA8cmVjdCB4PSItMSIgeT0iLTEiIHdpZHRoPSI0MDIiIGhlaWdodD0iNDAyIiBpZD0iY2FudmFzX2JhY2tncm91bmQiIGZpbGw9IiNmZmYiLz4KICA8ZyBpZD0iY2FudmFzR3JpZCIgZGlzcGxheT0ibm9uZSI+CiAgIDxyZWN0IGlkPSJzdmdfMiIgd2lkdGg9IjU4MCIgaGVpZ2h0PSI0MDAiIHg9IjIiIHk9IjIiIHN0cm9rZS13aWR0aD0iMCIgZmlsbD0idXJsKCNncmlkcGF0dGVybikiLz4KICA8L2c+CiA8L2c+CiA8Zz4KICA8dGl0bGU+TGF5ZXIgMTwvdGl0bGU+CiAgPGVsbGlwc2UgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjEuNSIgY3g9IjQ5OC41IiBjeT0iNTE3LjUiIGlkPSJzdmdfNCIvPgogIDxlbGxpcHNlIGZpbGw9IiNmZmYiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIGN4PSIxNzQuNSIgY3k9IjQ0NS41IiBpZD0ic3ZnXzUiLz4KICA8ZyBpZD0ic3ZnXzMiPgogICA8cGF0aCBmaWxsPSIjOTk5OTk5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJudWxsIiBzdHJva2UtbGluZWNhcD0ibnVsbCIgZD0ibTM5LjUsMTY5bDMyMCwwbDAsNjJsLTMyMCwwbDAsLTYyeiIgaWQ9InN2Z18xIi8+CiAgIDxlbGxpcHNlIGZpbGw9IiM5OTk5OTkiIHN0cm9rZS13aWR0aD0iMS41IiBjeD0iNDQuMjUiIGN5PSIyMDAiIGlkPSJzdmdfOCIgcng9IjMxIiByeT0iMzEiLz4KICAgPGVsbGlwc2UgZmlsbD0iIzk5OTk5OSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGN4PSIzNTUuNzUiIGN5PSIyMDAiIGlkPSJzdmdfOSIgcng9IjMxIiByeT0iMzEiLz4KICA8L2c+CiAgPGcgaWQ9InN2Z182IiB0cmFuc2Zvcm09InJvdGF0ZSg5MCAyMDAgMjAwKSI+CiAgIDxwYXRoIGZpbGw9IiM5OTk5OTkiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWpvaW49Im51bGwiIHN0cm9rZS1saW5lY2FwPSJudWxsIiBkPSJtMzkuNSwxNjlsMzIwLDBsMCw2MmwtMzIwLDBsMCwtNjJ6IiBpZD0ic3ZnXzciLz4KICAgPGVsbGlwc2UgZmlsbD0iIzk5OTk5OSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGN4PSI0NC4yNSIgY3k9IjIwMCIgcng9IjMxIiByeT0iMzEiIGlkPSJzdmdfMTAiLz4KICAgPGVsbGlwc2UgZmlsbD0iIzk5OTk5OSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGN4PSIzNTUuNzUiIGN5PSIyMDAiIHJ4PSIzMSIgcnk9IjMxIiBpZD0ic3ZnXzExIi8+CiAgPC9nPgogPC9nPgo8L3N2Zz4=">
+        </label>
+        </p>
+    </div>
+    <input ng-keypress="search_channel($event)" id="channel_search" class="form-control" ng-model="interval" type="text" placeholder="Channel to add" style="width: 40%">
     <br>
     <div ng-repeat="channel in channels track by $index">
-        {{channel.name}}
+        <label>{{channel.name}}</label>
         <img height="30" width="30" tooltip="Remove channel" tooltip-placement="right" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+Cjxzdmcgd2lkdGg9IjU4MiIgaGVpZ2h0PSI0MDIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiA8IS0tIENyZWF0ZWQgd2l0aCBNZXRob2QgRHJhdyAtIGh0dHA6Ly9naXRodWIuY29tL2R1b3BpeGVsL01ldGhvZC1EcmF3LyAtLT4KCiA8Zz4KICA8dGl0bGU+YmFja2dyb3VuZDwvdGl0bGU+CiAgPHJlY3QgZmlsbD0iI2ZmZiIgaWQ9ImNhbnZhc19iYWNrZ3JvdW5kIiBoZWlnaHQ9IjQwNCIgd2lkdGg9IjU4NCIgeT0iLTEiIHg9Ii0xIi8+CiAgPGcgZGlzcGxheT0ibm9uZSIgb3ZlcmZsb3c9InZpc2libGUiIHk9IjAiIHg9IjAiIGhlaWdodD0iMTAwJSIgd2lkdGg9IjEwMCUiIGlkPSJjYW52YXNHcmlkIj4KICAgPHJlY3QgZmlsbD0idXJsKCNncmlkcGF0dGVybikiIHN0cm9rZS13aWR0aD0iMCIgeT0iMSIgeD0iMSIgaGVpZ2h0PSI0MDAiIHdpZHRoPSI1ODAiLz4KICA8L2c+CiA8L2c+CiA8Zz4KICA8dGl0bGU+TGF5ZXIgMTwvdGl0bGU+CiAgPHBhdGggaWQ9InN2Z18xIiBkPSJtMTE4Ljc1LDE3MGwzMjAsMGwwLDYybC0zMjAsMGwwLC02MnoiIHN0cm9rZS1saW5lY2FwPSJudWxsIiBzdHJva2UtbGluZWpvaW49Im51bGwiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSIjOTk5OTk5Ii8+CiAgPGVsbGlwc2UgaWQ9InN2Z180IiBjeT0iNTE2LjUiIGN4PSI0OTcuNSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZT0iIzAwMCIgZmlsbD0iI2ZmZiIvPgogIDxlbGxpcHNlIGlkPSJzdmdfNSIgY3k9IjQ0NC41IiBjeD0iMTczLjUiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2U9IiMwMDAiIGZpbGw9IiNmZmYiLz4KICA8ZWxsaXBzZSByeT0iMzEuMDAwMDAxIiByeD0iMzEuMDAwMDAxIiBpZD0ic3ZnXzgiIGN5PSIyMDEuMDAwMDAxIiBjeD0iMTIzLjUwMDAwMSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9IiM5OTk5OTkiLz4KICA8ZWxsaXBzZSByeT0iMzEuMDAwMDAxIiByeD0iMzEuMDAwMDAxIiBpZD0ic3ZnXzkiIGN5PSIyMDEuMDAwMDAxIiBjeD0iNDM1LjAwMDAwMSIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9IiM5OTk5OTkiLz4KIDwvZz4KPC9zdmc+">
     </div>
-<!--     <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGhlaWdodD0iMTZweCIgaWQ9IkxheWVyXzEiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDE2IDE2OyIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMTYgMTYiIHdpZHRoPSIxNnB4IiB4bWw6c3BhY2U9InByZXNlcnZlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48cGF0aCBkPSJNMTUsNmgtNVYxYzAtMC41NS0wLjQ1LTEtMS0xSDdDNi40NSwwLDYsMC40NSw2LDF2NUgxQzAuNDUsNiwwLDYuNDUsMCw3djJjMCwwLjU1LDAuNDUsMSwxLDFoNXY1YzAsMC41NSwwLjQ1LDEsMSwxaDIgIGMwLjU1LDAsMS0wLjQ1LDEtMXYtNWg1YzAuNTUsMCwxLTAuNDUsMS0xVjdDMTYsNi40NSwxNS41NSw2LDE1LDZ6Ii8+PC9zdmc+">
- --></div>
+</div>
 <div class="modal-footer">
     <button class="btn btn-primary" ng-click="save()">Save</button>
     <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
