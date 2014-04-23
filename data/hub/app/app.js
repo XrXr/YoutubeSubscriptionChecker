@@ -19,6 +19,7 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
               controller: settings,
             });
         };
+
         $scope.open_subscriptions = function() {
             var modalInstance = $modal.open({
               templateUrl: 'partials/subscriptions.html',
@@ -30,8 +31,11 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
               }
             });
         };
-        $scope.params = $routeParams;
-        $scope.channels = [{name:"LinusTechTips"}, {name:"sxephil"}, {name:"sxephil"}, {name:"SourceFed"}];
+        document.documentElement.addEventListener("subscribed-channels", function(event) {
+            $scope.channels = JSON.parse(event.detail); 
+            $scope.$apply();
+        }, false);
+        // $scope.channels = [{title:"LinusTechTips"}, {title:"sxephil"}, {title:"sxephil"}, {title:"SourceFed"}];
     })
     .controller('subscription', function($scope) {
         $scope.a = 100;
@@ -50,21 +54,8 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
                 );    
             }
         };
-    })
-    .directive("bindWidth", function() {
-        return {
-            link: function(scope, iElement, iAttrs) {
-                scope.$watch(
-                    function() {
-                        return iElement[0].clientWidth;},
-                    function(newVal, oldVal) {
-                        scope[iAttrs.bindWidth] = newVal;
-                    }
-                );    
-            }
-        };
     });
-
+    
 function settings($scope, $modalInstance) {
     $scope.save = function () {
         $modalInstance.close();
@@ -77,9 +68,18 @@ function settings($scope, $modalInstance) {
 
 function subscriptions($scope, $modalInstance, $modal, channels) {
     $scope.channels = channels;
+    $scope.search_result = [];
+    $scope.show_loading = false;
+    $scope.no_result = false;
+    $scope.duplicate = false;
+    var clear = false;
     $scope.fit = function(body_height, result_height) {
-        return {height: Math.max(body_height, result_height + 10) + 'px'};
+        if (clear){
+            return {};
+        }
+        return {height: Math.max(body_height, (result_height + 10)) + 'px'};
     };
+
     $scope.save = function () {
         $modalInstance.close();
     };
@@ -88,32 +88,61 @@ function subscriptions($scope, $modalInstance, $modal, channels) {
         $modalInstance.dismiss('cancel');
     };
 
+    function channel_listeners(channel){
+        //register listeners for channel updates
+        function add_listener() {
+            document.documentElement.removeEventListener("channel-added", arguments.callee, false);
+            $scope.channels.push(channel);
+        }
+
+        function duplicate_listener() {
+            document.documentElement.removeEventListener("channel-added", add_listener, false);
+            document.documentElement.removeEventListener("channel-duplicate", arguments.callee, false);
+            $scope.duplicate = true;
+            $scope.$apply();
+        }
+        document.documentElement.addEventListener("channel-added", add_listener, false);
+        document.documentElement.addEventListener("channel-duplicate", duplicate_listener, false);
+    }
+
+    $scope.add_channel = function(channel) {
+        $scope.duplicate = false;
+        var event = new CustomEvent('subscriptions');
+        event.initCustomEvent("add", true, true, channel);
+        document.documentElement.dispatchEvent(event); // tell content script to add the channel
+        channel_listeners(channel);
+    };
+
+    function search_result_listener (event) {
+        var results = JSON.parse(event.detail);
+        if (results.length === 0 || results[0] === null){
+            clear = true;
+            $scope.no_result = true;
+        } else {
+            $scope.search_result = results;
+            clear = false;
+            $scope.no_result = false;
+        }
+        $scope.show_loading = false;
+        $scope.$apply();
+    }
+
     $scope.search_channel = function($event) {
         if($event.keyCode == 13){
             var event = new CustomEvent('subscriptions');
             event.initCustomEvent("search", true, true, {});
             document.documentElement.dispatchEvent(event); // tell content script to start the search
+            document.documentElement.addEventListener("search-result", search_result_listener, false);
+            $scope.search_result = [];
+            $scope.show_loading = true;
+            $scope.duplicate = false;
+            clear = true;
+            //super long channel name will extend out of the modal window.
+
             // $scope.search_result = [{title: "cactus", thumbnail: "http://placekitten.com/200/200"},
             //     {title: "cactuasdasdasdasdasdasdasdaasdasdasdasdsds", thumbnail: "http://placekitten.com/200/200"},
             //     {title: "cactus", thumbnail: "http://placekitten.com/200/200"}
             // ];
         }
-        document.documentElement.addEventListener("search-result", function(event) {
-            // $scope.search_result = [{title: "cactus", thumbnail: "http://placekitten.com/200/200"},
-            //         {title: "cactuasdasdasdasdasdasdasdaasdasdasdasdsds", thumbnail: "http://placekitten.com/200/200"},
-            //         {title: "cactus", thumbnail: "http://placekitten.com/200/200"}
-            //     ];
-            $scope.search_result = JSON.parse(event.detail);
-            $scope.$apply();
-        }, false);
     };
-}
-
-function clone(obj) {
-    if (null === obj || "object" != typeof obj) return obj;
-    var copy = obj.constructor();
-    for (var attr in obj) {
-        if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
-    }
-    return copy;
 }

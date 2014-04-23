@@ -31,6 +31,15 @@
 .subscription-edit{
     margin-right: 9.5%
 }
+.no-result.ng-leave, .no-result.ng-enter{
+    transition: opacity linear 0.5s;
+}
+.no-result.ng-enter{
+    opacity: 0;
+}
+.no-result.ng-enter-active{
+    opacity: 1;
+}
 .animate-repeat.ng-move, .animate-repeat.ng-enter, .animate-repeat.ng-leave {
     transition: all linear 0.5s;
 }
