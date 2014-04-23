@@ -6,12 +6,20 @@ document.documentElement.addEventListener("add", function(event) {
     add_channel(event.detail);
 }, false);
 
+document.documentElement.addEventListener("remove", function(event) {
+    remove_channel(event.detail);
+}, false);
+
 function start_search() {
     self.port.emit("search-channel", document.getElementById('channel_search').value);
 }
 
 function add_channel (channel) {
     self.port.emit("add-channel", channel);
+}
+
+function remove_channel (channel) {
+    self.port.emit("remove-channel", channel);
 }
 
 self.port.on('search-result', function(pay_load) {

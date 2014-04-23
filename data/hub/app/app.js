@@ -93,6 +93,7 @@ function subscriptions($scope, $modalInstance, $modal, channels) {
         function add_listener() {
             document.documentElement.removeEventListener("channel-added", arguments.callee, false);
             $scope.channels.push(channel);
+            $scope.$apply();
         }
 
         function duplicate_listener() {
@@ -111,6 +112,13 @@ function subscriptions($scope, $modalInstance, $modal, channels) {
         event.initCustomEvent("add", true, true, channel);
         document.documentElement.dispatchEvent(event); // tell content script to add the channel
         channel_listeners(channel);
+    };
+
+    $scope.remove_channel = function(channel) {
+        var event = new CustomEvent('subscriptions');
+        event.initCustomEvent("remove", true, true, channel);
+        document.documentElement.dispatchEvent(event); 
+        $scope.channels.splice($scope.channels.indexOf(channel), 1);
     };
 
     function search_result_listener (event) {
