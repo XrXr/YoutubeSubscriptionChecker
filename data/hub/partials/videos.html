@@ -1,17 +1,15 @@
 <div class="container-fluid">
     <div ng-repeat="video in vs.videos track by $index" style="margin-bottom:10px; margin-top:10px;">
-        <ul class="col-md-2 col-xs-2 video" style="width:20%">
-            <li>
+        <ul class="col-md-2 col-xs-2 video" style="width:20%;">
+            <li class="video">
                 <div>
-                    <img width="200" height="150" src="{{video.snippet.thumbnails.medium.url}}">
-                    </img>
+                    <a ng-href="https://www.youtube.com/watch?v={{video.id.videoId}}" target="_blank">
+                        <img class="video" width="100%" height="100%" src="{{video.snippet.thumbnails.medium.url}}"></img>
+                    </a>
                 </div>                
             </li>
-            <li>
-                <span ng-bind="video.snippet.channelTitle"></span>
-            </li>
-            <li>
-                <span ng-bind="video.duration"></span>
+            <li class="video">
+                <span style="float:left" ng-bind="video.snippet.channelTitle">&nbsp;&nbsp;</span><span style="float:right" ng-bind="video.duration"></span>
             </li>
         </ul>
         <div class="row" ng-if="($index+1) % 5 == 0" style="width:80%">

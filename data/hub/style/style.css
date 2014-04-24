@@ -10,6 +10,8 @@
 }
 .video {
     list-style-type: none;
+    min-width: 240px;
+    min-height: 150px;
 }
 .setting {
     margin-top: 10px
