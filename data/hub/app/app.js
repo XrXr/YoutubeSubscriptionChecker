@@ -12,7 +12,8 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
                 });
         }
     ])
-    .controller('frame', function($scope, $routeParams, $modal) {
+
+    .controller('frame', function($scope, $routeParams, $modal, VideoStorage) {
         $scope.open_settings = function() {
             var modalInstance = $modal.open({
               templateUrl: 'partials/settings.html',
@@ -31,17 +32,28 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
               }
             });
         };
+
+        $scope.switch_channel = function(channel_id) {
+            var event = new CustomEvent('subscriptions');
+            event.initCustomEvent("get-videos", true, true, channel_id);
+            document.documentElement.dispatchEvent(event); 
+        };
+
+        document.documentElement.addEventListener("videos", function(event) {
+            VideoStorage.update_videos(JSON.parse(event.detail)); 
+        });
+
         document.documentElement.addEventListener("subscribed-channels", function(event) {
             $scope.channels = JSON.parse(event.detail); 
             $scope.$apply();
         }, false);
         // $scope.channels = [{title:"LinusTechTips"}, {title:"sxephil"}, {title:"sxephil"}, {title:"SourceFed"}];
     })
-    .controller('subscription', function($scope) {
-        $scope.a = 100;
-        $scope.b = 200;
-        $scope.videos = [1,2,3,4,5,6,7,8,9,10,11,12,13,12,15,16,17,18,19,20];
+
+    .controller('subscription', function($scope, $routeParams, VideoStorage) {
+        $scope.vs = VideoStorage;
     })
+
     .directive("bindHeight", function() {
         return {
             link: function(scope, iElement, iAttrs) {
@@ -53,6 +65,14 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
                     }
                 );    
             }
+        };
+    })
+    .service("VideoStorage", function($rootScope) {
+        this.videos = [1,2];
+        this.update_videos = function(new_list) {
+            this.videos = new_list;
+            console.log(new_list);
+            $rootScope.$apply();
         };
     });
     

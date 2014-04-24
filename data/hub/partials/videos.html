@@ -1,16 +1,17 @@
 <div class="container-fluid">
-    <div ng-repeat="video in videos track by $index" style="margin-bottom:10px; margin-top:10px;">
+    <div ng-repeat="video in vs.videos track by $index" style="margin-bottom:10px; margin-top:10px;">
         <ul class="col-md-2 col-xs-2 video" style="width:20%">
             <li>
                 <div>
-                    <img src="http://placekitten.com/g/200/150"></img>
+                    <img width="200" height="150" src="{{video.snippet.thumbnails.medium.url}}">
+                    </img>
                 </div>                
             </li>
             <li>
-                Uploaded by {{$index}}
+                <span ng-bind="video.snippet.channelTitle"></span>
             </li>
             <li>
-                40:20
+                <span ng-bind="video.duration"></span>
             </li>
         </ul>
         <div class="row" ng-if="($index+1) % 5 == 0" style="width:80%">

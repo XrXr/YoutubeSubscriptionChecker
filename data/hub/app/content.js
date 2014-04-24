@@ -10,6 +10,10 @@ document.documentElement.addEventListener("remove", function(event) {
     remove_channel(event.detail);
 }, false);
 
+document.documentElement.addEventListener("get-videos", function(event) {
+    self.port.emit("get-videos", event.detail);
+}, false);
+
 function start_search() {
     self.port.emit("search-channel", document.getElementById('channel_search').value);
 }
@@ -21,6 +25,13 @@ function add_channel (channel) {
 function remove_channel (channel) {
     self.port.emit("remove-channel", channel);
 }
+
+self.port.on('videos', function(pay_load) {
+    var result = JSON.stringify(pay_load); 
+    var result_event = new CustomEvent('frame');
+    result_event.initCustomEvent("videos", true, true, result);
+    document.documentElement.dispatchEvent(result_event);    
+});
 
 self.port.on('search-result', function(pay_load) {
     var result = JSON.stringify(pay_load); 
@@ -49,3 +60,5 @@ self.port.on("channel-duplicate", function() {
     result_event.initCustomEvent("channel-duplicate", true, true, null);
     document.documentElement.dispatchEvent(result_event);
 });
+
+self.port.emit("get-videos", null); //get all videos once contentscript loads
