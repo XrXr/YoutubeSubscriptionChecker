@@ -4,11 +4,11 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
             $routeProvider
                 .when('/:channel', {
                     templateUrl: 'partials/videos.html',
-                    controller: 'subscription'
+                    controller: 'videos'
                 })
                 .otherwise({
                     templateUrl: 'partials/videos.html',
-                    controller: 'subscription'
+                    controller: 'videos'
                 });
         }
     ])
@@ -50,8 +50,17 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         // $scope.channels = [{title:"LinusTechTips"}, {title:"sxephil"}, {title:"sxephil"}, {title:"SourceFed"}];
     })
 
-    .controller('subscription', function($scope, $routeParams, VideoStorage) {
+    .controller('videos', function($scope, $routeParams, VideoStorage) {
         $scope.vs = VideoStorage;
+
+        $scope.open_video = function(video) {
+            VideoStorage.remove_video(video);
+            
+            //https://www.youtube.com/watch?v={{video.id.videoId}}
+            //remove the video from video storage
+            //tell main to remove
+            //main open the link in new tab
+        };
     })
 
     .directive("bindHeight", function() {
@@ -68,11 +77,25 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         };
     })
     .service("VideoStorage", function($rootScope) {
-        this.videos = [1,2];
+        this.videos = [];
         this.update_videos = function(new_list) {
             this.videos = new_list;
-            console.log(new_list);
             $rootScope.$apply();
+        };
+        var parent = this;
+        this.remove_video = function(video) {
+            parent.videos.some(function(element, index) {
+                if (element.id.videoId == video.id.videoId){
+                    parent.videos.splice(index, 1);
+                    $rootScope.$apply();
+                    return true;
+                }
+                return false;
+            });
+            var event = new CustomEvent('videos');
+            event.initCustomEvent("remove-video", true, true, video);
+            document.documentElement.dispatchEvent(event);
+
         };
     });
     
@@ -129,14 +152,14 @@ function subscriptions($scope, $modalInstance, $modal, channels) {
     $scope.add_channel = function(channel) {
         $scope.duplicate = false;
         var event = new CustomEvent('subscriptions');
-        event.initCustomEvent("add", true, true, channel);
+        event.initCustomEvent("add-channel", true, true, channel);
         document.documentElement.dispatchEvent(event); // tell content script to add the channel
         channel_listeners(channel);
     };
 
     $scope.remove_channel = function(channel) {
         var event = new CustomEvent('subscriptions');
-        event.initCustomEvent("remove", true, true, channel);
+        event.initCustomEvent("remove-channel", true, true, channel);
         document.documentElement.dispatchEvent(event); 
         $scope.channels.splice($scope.channels.indexOf(channel), 1);
     };
@@ -158,7 +181,7 @@ function subscriptions($scope, $modalInstance, $modal, channels) {
     $scope.search_channel = function($event) {
         if($event.keyCode == 13){
             var event = new CustomEvent('subscriptions');
-            event.initCustomEvent("search", true, true, {});
+            event.initCustomEvent("search-channel", true, true, {});
             document.documentElement.dispatchEvent(event); // tell content script to start the search
             document.documentElement.addEventListener("search-result", search_result_listener, false);
             $scope.search_result = [];

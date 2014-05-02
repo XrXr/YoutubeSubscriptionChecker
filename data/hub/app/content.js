@@ -1,30 +1,22 @@
-document.documentElement.addEventListener("search", function(event) {
-    start_search();
+document.documentElement.addEventListener("search-channel", function(event) {
+    self.port.emit("search-channel", document.getElementById('channel_search').value);
 }, false);
 
-document.documentElement.addEventListener("add", function(event) {
-    add_channel(event.detail);
+document.documentElement.addEventListener("add-channel", function(event) {
+    self.port.emit("add-channel", channel);
 }, false);
 
-document.documentElement.addEventListener("remove", function(event) {
-    remove_channel(event.detail);
+document.documentElement.addEventListener("remove-channel", function(event) {
+    self.port.emit("remove-channel", channel);
 }, false);
 
 document.documentElement.addEventListener("get-videos", function(event) {
     self.port.emit("get-videos", event.detail);
 }, false);
 
-function start_search() {
-    self.port.emit("search-channel", document.getElementById('channel_search').value);
-}
-
-function add_channel (channel) {
-    self.port.emit("add-channel", channel);
-}
-
-function remove_channel (channel) {
-    self.port.emit("remove-channel", channel);
-}
+document.documentElement.addEventListener("remove-video", function(event) {
+    self.port.emit("remove-video", event.detail);
+}, false);
 
 self.port.on('videos', function(pay_load) {
     var result = JSON.stringify(pay_load); 
