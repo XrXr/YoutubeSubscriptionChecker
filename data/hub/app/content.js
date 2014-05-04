@@ -1,3 +1,12 @@
+function send_dom_event (type, name, data) {
+    // passing pay_load as reference directly would result in cross-origin problems
+    // passing the stringified version circumvents it.
+    var result = JSON.stringify(data); 
+    var result_event = new CustomEvent(type);
+    result_event.initCustomEvent(name, true, true, result);
+    document.documentElement.dispatchEvent(result_event);    
+}
+
 document.documentElement.addEventListener("search-channel", function(event) {
     self.port.emit("search-channel", document.getElementById('channel_search').value);
 }, false);
@@ -22,14 +31,6 @@ document.documentElement.addEventListener("update_configs", function(event) {
     self.port.emit("update_configs", event.detail);
 }, false);
 
-function send_dom_event (type, name, data) {
-    // passing pay_load as reference directly would result in cross-origin problems
-    // passing the stringified version circumvents it.
-    var result = JSON.stringify(data); 
-    var result_event = new CustomEvent(type);
-    result_event.initCustomEvent(name, true, true, result);
-    document.documentElement.dispatchEvent(result_event);    
-}
 
 self.port.on('videos', function(pay_load) {
     send_dom_event("frame", "videos", pay_load);
@@ -54,5 +55,6 @@ self.port.on("channel-added", function() {
 self.port.on("channel-duplicate", function() {
     send_dom_event("subscriptions", "channel-duplicate", null);
 });
+
 
 self.port.emit("get-videos", null); //get all videos once contentscript loads

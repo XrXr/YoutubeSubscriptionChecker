@@ -1,3 +1,9 @@
+function send_dom_event (type, name, data) {
+    var result_event = new CustomEvent(type);
+    result_event.initCustomEvent(name, true, true, data);
+    document.documentElement.dispatchEvent(result_event);    
+}
+
 angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
     .config(['$routeProvider', '$locationProvider',
         function($routeProvider, $locationProvider) {
@@ -26,9 +32,7 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
             });
             modalInstance.result.then(function (configs) {
                 $scope.configs = configs;
-                var event = new CustomEvent('settings');
-                event.initCustomEvent("update_configs", true, true, configs);
-                document.documentElement.dispatchEvent(event); 
+                send_dom_event('settings', "update_configs", configs);
             }, function () {});
         };
 
@@ -45,9 +49,7 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         };
 
         $scope.switch_channel = function(channel_id) {
-            var event = new CustomEvent('subscriptions');
-            event.initCustomEvent("get-videos", true, true, channel_id);
-            document.documentElement.dispatchEvent(event); 
+            send_dom_event('subscriptions', "get-videos", channel_id);
         };
 
         document.documentElement.addEventListener("videos", function(event) {
@@ -102,10 +104,15 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
                 }
                 return false;
             });
-            var event = new CustomEvent('videos');
-            event.initCustomEvent("remove-video", true, true, video);
-            document.documentElement.dispatchEvent(event);
-
+            send_dom_event("videos", "remove-video", video);
+        };
+        this.remove_video_by_channel = function(channel_id) {
+            for (var i = parent.videos.length - 1; i >= 0; i--) {
+                if (parent.videos[i].snippet.channelId == channel_id){
+                    parent.videos.splice(i, 1);
+                }
+            }
+            $rootScope.$apply();
         };
     });
     
@@ -151,7 +158,7 @@ function settings($modalInstance, configs) {
     this.valid = true;
 }
 
-function subscriptions($scope, $modalInstance, $modal, channels) {
+function subscriptions($scope, $modalInstance, $modal, channels, VideoStorage) {
     $scope.channels = channels;
     $scope.search_result = [];
     $scope.show_loading = false;
@@ -173,7 +180,7 @@ function subscriptions($scope, $modalInstance, $modal, channels) {
         $modalInstance.dismiss('cancel');
     };
 
-    function channel_listeners(channel){
+    function register_channel_listeners(channel){
         //register listeners for channel updates
         function add_listener() {
             document.documentElement.removeEventListener("channel-added", arguments.callee, false);
@@ -193,17 +200,14 @@ function subscriptions($scope, $modalInstance, $modal, channels) {
 
     $scope.add_channel = function(channel) {
         $scope.duplicate = false;
-        var event = new CustomEvent('subscriptions');
-        event.initCustomEvent("add-channel", true, true, channel);
-        document.documentElement.dispatchEvent(event); // tell content script to add the channel
-        channel_listeners(channel);
+        send_dom_event('subscriptions', "add-channel", channel);
+        register_channel_listeners(channel);
     };
 
     $scope.remove_channel = function(channel) {
-        var event = new CustomEvent('subscriptions');
-        event.initCustomEvent("remove-channel", true, true, channel);
-        document.documentElement.dispatchEvent(event); 
+        send_dom_event('subscriptions', "remove-channel", channel);
         $scope.channels.splice($scope.channels.indexOf(channel), 1);
+        VideoStorage.remove_video_by_channel(channel.id);
     };
 
     function search_result_listener (event) {
@@ -222,9 +226,7 @@ function subscriptions($scope, $modalInstance, $modal, channels) {
 
     $scope.search_channel = function($event) {
         if($event.keyCode == 13){
-            var event = new CustomEvent('subscriptions');
-            event.initCustomEvent("search-channel", true, true, {});
-            document.documentElement.dispatchEvent(event); // tell content script to start the search
+            send_dom_event('subscriptions', "search-channel", null);
             document.documentElement.addEventListener("search-result", search_result_listener, false);
             $scope.search_result = [];
             $scope.show_loading = true;
