@@ -17,8 +17,19 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         $scope.open_settings = function() {
             var modalInstance = $modal.open({
               templateUrl: 'partials/settings.html',
-              controller: settings,
+              controller: "settings as s",
+              resolve: {
+                configs: function () {
+                    return $scope.configs;
+                }
+              }
             });
+            modalInstance.result.then(function (configs) {
+                $scope.configs = configs;
+                var event = new CustomEvent('settings');
+                event.initCustomEvent("update_configs", true, true, configs);
+                document.documentElement.dispatchEvent(event); 
+            }, function () {});
         };
 
         $scope.open_subscriptions = function() {
@@ -43,11 +54,14 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
             VideoStorage.update_videos(JSON.parse(event.detail)); 
         });
 
+        document.documentElement.addEventListener("configs", function(event) {
+            $scope.configs = JSON.parse(event.detail); 
+        });
+
         document.documentElement.addEventListener("subscribed-channels", function(event) {
             $scope.channels = JSON.parse(event.detail); 
             $scope.$apply();
         }, false);
-        // $scope.channels = [{title:"LinusTechTips"}, {title:"sxephil"}, {title:"sxephil"}, {title:"SourceFed"}];
     })
 
     .controller('videos', function($scope, $routeParams, VideoStorage) {
@@ -55,11 +69,6 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
 
         $scope.open_video = function(video) {
             VideoStorage.remove_video(video);
-            
-            //https://www.youtube.com/watch?v={{video.id.videoId}}
-            //remove the video from video storage
-            //tell main to remove
-            //main open the link in new tab
         };
     })
 
@@ -76,6 +85,7 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
             }
         };
     })
+
     .service("VideoStorage", function($rootScope) {
         this.videos = [];
         this.update_videos = function(new_list) {
@@ -99,14 +109,46 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         };
     });
     
-function settings($scope, $modalInstance) {
-    $scope.save = function () {
-        $modalInstance.close();
+function settings($modalInstance, configs) {
+    this.configs = {};
+    angular.extend(this.configs, configs);  // clone it
+    this.interval_class = "";
+    this.less_than_5 = false;
+    this.bad_input = false;
+    this.valid = true;
+
+    function isNumber(n) {
+        return !isNaN(parseFloat(n)) && isFinite(n);
+    }
+
+    var parent = this;
+    this.validate = function(value) {
+        parent.interval_class = "";
+        parent.less_than_5 = false;
+        parent.bad_input = false;
+        parent.valid = true;
+        if (isNumber(value)){
+            if (Number(value) < 5){
+                parent.valid = false;
+                parent.less_than_5 = true;
+                parent.interval_class = "has-error";
+            }
+        }else{
+            parent.valid = false;
+            parent.bad_input = true;
+            parent.interval_class = "has-error";
+        }
     };
 
-    $scope.cancel = function () {
+    this.save = function () {
+        $modalInstance.close(parent.configs);
+    };
+
+    this.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
+
+    this.valid = true;
 }
 
 function subscriptions($scope, $modalInstance, $modal, channels) {
@@ -189,11 +231,6 @@ function subscriptions($scope, $modalInstance, $modal, channels) {
             $scope.duplicate = false;
             clear = true;
             //super long channel name will extend out of the modal window.
-
-            // $scope.search_result = [{title: "cactus", thumbnail: "http://placekitten.com/200/200"},
-            //     {title: "cactuasdasdasdasdasdasdasdaasdasdasdasdsds", thumbnail: "http://placekitten.com/200/200"},
-            //     {title: "cactus", thumbnail: "http://placekitten.com/200/200"}
-            // ];
         }
     };
 }

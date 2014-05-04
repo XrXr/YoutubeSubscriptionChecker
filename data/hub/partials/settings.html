@@ -2,14 +2,28 @@
     <h3>Settings</h3>
 </div>
 <div class="modal-body">
-    <form class="form-horizontal" role="form">
-        <label class="col-sm-3 control-label">Check Interval</label>
-        <input class="form-control" ng-model="interval" type="text" placeholder="Time in minutes" style="width: 40%">
-        <label class="control-label">Notification Sound</label>
-        <input type="checkbox" class="setting-check-box">
+    <form class="form-inline" ng-class="s.interval_class" role="form">
+            <label class="control-label">Check Interval &nbsp;</label>
+            <input class="form-control" ng-model="s.configs.interval" ng-change="s.validate(s.configs.interval)" type="text" placeholder="Time in minutes" style="width: 40%">
+            &nbsp;
+            <label class="control-label" for="apple">minutes</label>
+    </form>
+    <br>
+    <form class="form-inline" role="form">
+        <label class="control-label">Notification Sound
+            <input type="checkbox" ng-model = "s.configs.play_sound" class="setting-check-box">
+        </label>
+    </form>
+    <br>
+    <form class="form-inline" role="form">
+        <label class="control-label">Open Video in Background Tab
+            <input type="checkbox" ng-model="s.configs.in_background" class="setting-check-box">
+        </label>
     </form>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" ng-click="save()">Save</button>
-    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    <div class="alert alert-danger setting-warning" ng-if="s.less_than_5">Check interval cannot be lower than 5 minutes</div>
+    <div class="alert alert-danger setting-warning" ng-if="s.bad_input">Check interval must be a positive number</div>
+    <button class="btn btn-primary" ng-click="s.save()" ng-disabled="!s.valid">Save</button>
+    <button class="btn btn-warning" ng-click="s.cancel()">Cancel</button>
 </div>
