@@ -92,7 +92,6 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         this.videos = [];
         this.update_videos = function(new_list) {
             this.videos = new_list;
-            console.log(this.videos);
             $rootScope.$apply();
         };
         var parent = this;
