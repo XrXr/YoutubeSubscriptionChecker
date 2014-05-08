@@ -1,6 +1,7 @@
 .channel-button {
     font-size: 18px;
     cursor: default;
+    -moz-user-select: none;
     transition: all 0.2s;
 
 }
@@ -12,6 +13,7 @@
     list-style-type: none;
     min-width: 240px;
     min-height: 150px;
+    height: 150px; 
 }
 .video-title{
     white-space: nowrap;

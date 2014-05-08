@@ -37,6 +37,7 @@
         </div>
         <div class="row animate-repeat" style="margin:10px 0 10px 0;" ng-repeat="channel in channels | filter:channel_search ">
             <div class="col-xs-2 col-md-2 channel-button" ng-click="switch_channel(channel.id)">{{channel.title}}</div>
+            <!-- {{channel.last_checked}} -->
         </div>
     </div>
 </body>

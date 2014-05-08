@@ -61,7 +61,12 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         });
 
         document.documentElement.addEventListener("subscribed-channels", function(event) {
-            $scope.channels = JSON.parse(event.detail); 
+            $scope.channels = JSON.parse(event.detail);
+            // $scope.channels.forEach(function(element) {
+            //     var d = new Date();
+            //     d.setTime(element.last_checked);
+            //     element.last_checked = d;
+            // });
             $scope.$apply();
         }, false);
     })
