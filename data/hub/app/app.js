@@ -104,7 +104,6 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
             parent.videos.some(function(element, index) {
                 if (element.id.videoId == video.id.videoId){
                     parent.videos.splice(index, 1);
-                    $rootScope.$apply();
                     return true;
                 }
                 return false;
