@@ -19,24 +19,27 @@
         <h1></h1>
         <div ng-view style="position:absolute; left:15.75%; top:1.5%; width:83%"></div>
         <div class="row">
-            <div class="col-xs-2 col-md-2">
+            <div class="hub-ui col-xs-2 col-md-2">
                 <input class="form-control" ng-model="channel_search" type="text" placeholder="Filter channels">
             </div>
         </div>
         <div class="row">
-            <div class="setting col-xs-2 col-md-1" style="width: 12%">
+            <div class="setting hub-ui col-xs-2 col-md-2">
                 <img ng-click="open_subscriptions()" tooltip="Edit subscriptions" tooltip-placement="right" tooltip-append-to-body="true"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACO0lEQVRYhe2Xv2sUURDHJ2gTC220EESNoriwvpuZ77zbXJdgE7AwzVWC2NgppBEipDIiUdIE/ANsVLS0EyLGv0AQCwtBjKU/YuEPlGBs3h7vLnebzV32IODAF5a38973szOztxwREXnvvYisqOp3ABtVSFXfA1hsNBqjFIf33gP4U5Vxp8xsmYhGWgAisjIs86gaUy2AKsveSyIy1wKIbvwC8K1i5V4L3QBmqeKIIP4D7AIA59wYgDMADudrSZKcCmtldaBvAABvw/r9LgeUEjNf3r0AzrlzAKYBaJR7PqyV1dG+AaqIbQGISM05Nw7gZL6Wpqk558bLSkQOdQH4AWB+S4AqZkBEas1mc09nWYYG0KsvQ2tBkiTHzOwugMktAXY6wg/bavBaZ+aLhQCDvIZmdgHAvvg8Zp7paNE6gOmqZmA22nM2byOAm3Geqj6vAqB1jojUAHwC8NF7fyJU4lbbkBa0oJ+PUWtgmZkBfI7OX3XOjQWw28x8vXAGBgkACuBLl+p8YObjnck7CpCmqanq14IWLfUCuDGouffeq+pagfmTiYmJvW2bwj+WDTN7mWXZ/n7NVTUpGlJVfbzJnIgIwGKU9FtV18oKwKv8HGa+Y2ZPzewqgBexuYg82vQNyKPRaIya2XLJ97tNZnYvepDXAJrhejLKe9jTPIoRVZ0SkTkAC2XFzExElGXZEVX9C+BgeKBLwfxBGfOBg5mvBMM3AH4CeAdgfijmREQicg3AM2aeqdfrp7ez9x8onwm4USX8zgAAAABJRU5ErkJggg==">
-            </div>
-            <div class="setting col-xs-2 col-md-1">
-                <img ng-click="open_settings()" tooltip="Settings" tooltip-placement="left" tooltip-append-to-body="true"src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACwklEQVRYhdVWz0tUURR+Fk4EaaAS1iYwoSiyJoQQLCSCeNS793zncBOx2giPqCgoImpRY7WQ/oWaoKgggmjjSmhTtGvRxlWoYS3aWFD0w9JaOMLrcu99M/6CLpzVfOd83/nxzpwo+h+fiHQAKAN4VbGy1nrnSvHXARgH8Mey8RVhB2Ac5POml404juNGZi4B+BkQ8A3A2TiO1ywZsTGmAOASgKkAsW3vAZxYEKFSqoGIepRS7cysALyugdi2pyLSmSRJC4AupVRDXratngHz2ScAX2rATyilNnkFAHiSE2CGiO6LyME0Teszwtczcy+AF1WIeOYk11rvzVPPzHvyWkhExyrDGIrV5cr+ps+BiN4x88Y88oyIntDXwsw3XE5HfWUXkc5qyTMJnQ8I6PU5PXY4PHBhtdbbiegMgJMi0mb/bowpMPOYI97tkOrTjvL32DhmPgXgVwb33ZUVEV1zCDgSEnDRAv8wxqzOYpRS7QCmHWX9miRJixWv2yHAv64rq/afyXdgjvt6KyKHLOxmR0X7QhUYtBwmHRgOfF7dWayItDkw/aEKXLHA0/YfSxzHjZjb9XbgUWNMwRJ7wFEBCQm44OjtYRtXWVpvM7g3IrLDUa1bNQkgomGHw7ALm6ZpvYhsU0q124MaRVFkjFkH4KOjUo985AO+3hJR7FXteQCGAvEGXAKuB4ZrylXiAHk/gNlAvEGX064cp88AOERcOV6uApgJxJkVkaJP+b2A47y9JKJUKbXVGNMEYIOIFInoMqq4JYjoYSiDJgCjVYhYqI0CaA72zxizlpn3E9EWIuoDMLEIwuda630AmkWkY0HHqjGmQETnMHd+VUXMzGNa66Rmshwhrcx8J2dQfwMYyj0+F/MqN4BPgH/PL9UrlUqrAHxwkE9GUVS37AKiKIpEpAjgLhGNENEIgDIR7V4R8qV+fwHLEWuXrdjLAQAAAABJRU5ErkJggg==">
-                
+                <img ng-click="open_settings()" tooltip="Settings" tooltip-placement="left" tooltip-append-to-body="true" style="float: right" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACwklEQVRYhdVWz0tUURR+Fk4EaaAS1iYwoSiyJoQQLCSCeNS793zncBOx2giPqCgoImpRY7WQ/oWaoKgggmjjSmhTtGvRxlWoYS3aWFD0w9JaOMLrcu99M/6CLpzVfOd83/nxzpwo+h+fiHQAKAN4VbGy1nrnSvHXARgH8Mey8RVhB2Ac5POml404juNGZi4B+BkQ8A3A2TiO1ywZsTGmAOASgKkAsW3vAZxYEKFSqoGIepRS7cysALyugdi2pyLSmSRJC4AupVRDXratngHz2ScAX2rATyilNnkFAHiSE2CGiO6LyME0Teszwtczcy+AF1WIeOYk11rvzVPPzHvyWkhExyrDGIrV5cr+ps+BiN4x88Y88oyIntDXwsw3XE5HfWUXkc5qyTMJnQ8I6PU5PXY4PHBhtdbbiegMgJMi0mb/bowpMPOYI97tkOrTjvL32DhmPgXgVwb33ZUVEV1zCDgSEnDRAv8wxqzOYpRS7QCmHWX9miRJixWv2yHAv64rq/afyXdgjvt6KyKHLOxmR0X7QhUYtBwmHRgOfF7dWayItDkw/aEKXLHA0/YfSxzHjZjb9XbgUWNMwRJ7wFEBCQm44OjtYRtXWVpvM7g3IrLDUa1bNQkgomGHw7ALm6ZpvYhsU0q124MaRVFkjFkH4KOjUo985AO+3hJR7FXteQCGAvEGXAKuB4ZrylXiAHk/gNlAvEGX064cp88AOERcOV6uApgJxJkVkaJP+b2A47y9JKJUKbXVGNMEYIOIFInoMqq4JYjoYSiDJgCjVYhYqI0CaA72zxizlpn3E9EWIuoDMLEIwuda630AmkWkY0HHqjGmQETnMHd+VUXMzGNa66Rmshwhrcx8J2dQfwMYyj0+F/MqN4BPgH/PL9UrlUqrAHxwkE9GUVS37AKiKIpEpAjgLhGNENEIgDIR7V4R8qV+fwHLEWuXrdjLAQAAAABJRU5ErkJggg==">
             </div>
         </div>
         <div class="row" style="margin:10px 0 20px 0;">
-            <div class="col-xs-2 col-md-2 channel-button" ng-click="switch_channel(null)">All Videos</div>
+            <div class="col-xs-2 col-md-2 channel-button" ng-click="switch_channel(null)">
+                All Videos
+                <span class="video-count" ng-bind="total_video_count()"></span>
+            </div>
         </div>
         <div class="row animate-repeat" style="margin:10px 0 10px 0;" ng-repeat="channel in channels | filter:channel_search ">
-            <div class="col-xs-2 col-md-2 channel-button" ng-click="switch_channel(channel.id)">{{channel.title}}</div>
+            <div class="col-xs-2 col-md-2 channel-button" ng-click="switch_channel(channel.id)">
+                {{channel.title}}
+                <span class="video-count" ng-if="channel.video_count - 0 > 0">{{channel.video_count - 0}}</span>
+            </div>
             <!-- {{channel.last_checked}} -->
         </div>
     </div>

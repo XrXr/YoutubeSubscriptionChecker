@@ -1,9 +1,9 @@
 .channel-button {
     font-size: 18px;
     cursor: default;
+    width: calc(16.6667% - 25px);
     -moz-user-select: none;
     transition: all 0.2s;
-
 }
 .channel-button:hover {
     background-color: grey;
@@ -14,7 +14,42 @@
     min-width: 240px;
     min-height: 150px;
 }
-.video-title{
+.no-videos {
+    color: gainsboro;
+    font-size: 38px;
+    width: 250px;
+    position: fixed;
+    left: 50%;
+    top: 30%;
+    cursor: default;
+    -moz-user-select: none;
+}
+@media (max-width:768px) {
+    .no-videos {
+        display: none;
+    }
+}
+.video-count {
+    color: grey;
+    position: absolute;
+    right: 5px;
+    width: 100%;
+    text-align: right;
+}
+.video-count:hover {
+    color: white;
+    -moz-user-select: none;
+    transition: all 0.2s;
+}
+@media (max-width:768px) {
+    .video-count {
+        display: none;
+    }
+}
+.hub-ui {
+    min-width: 98px;
+}
+.video-title {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -24,19 +59,19 @@
 .setting {
     margin-top: 10px
 }
-.setting-check-box{
-    position: absolute !important; 
-    margin-left: 2.7% !important; 
-    margin-top: .7% !important; 
+.setting-check-box {
+    position: absolute !important;
+    margin-left: 2.7% !important;
+    margin-top: .7% !important;
 }
-.setting-warning{
+.setting-warning {
     width: 55%;
     position: absolute;
     text-align: center;
     bottom: -3%;
     left: 12%;
 }
-.fine-print{
+.fine-print {
     color: grey;
     font-size: 13px;
     font-style: italic;
@@ -45,27 +80,34 @@
     position: absolute;
     left: 50%;
 }
-.subscription-edit{
+.subscription-edit {
     margin-right: 9.5%
 }
-.no-result.ng-leave, .no-result.ng-enter{
+.no-result.ng-leave,
+.no-result.ng-enter {
     transition: opacity linear 0.5s;
 }
-.no-result.ng-enter{
+.no-result.ng-enter {
     opacity: 0;
 }
-.no-result.ng-enter-active{
+.no-result.ng-enter-active {
     opacity: 1;
 }
-.animate-repeat.ng-move, .animate-repeat.ng-enter, .animate-repeat.ng-leave {
+.animate-repeat.ng-move,
+.animate-repeat.ng-enter,
+.animate-repeat.ng-leave {
     transition: all linear 0.5s;
 }
-.animate-repeat.ng-leave.ng-leave-active, .animate-repeat.ng-move, .animate-repeat.ng-enter {
+.animate-repeat.ng-leave.ng-leave-active,
+.animate-repeat.ng-move,
+.animate-repeat.ng-enter {
     opacity: 0;
 }
-.animate-repeat.ng-leave, .animate-repeat.ng-move.ng-move-active, .animate-repeat.ng-enter.ng-enter-active {
+.animate-repeat.ng-leave,
+.animate-repeat.ng-move.ng-move-active,
+.animate-repeat.ng-enter.ng-enter-active {
     opacity: 1;
 }
 .modal {
-  overflow-y: auto;
+    overflow-y: auto;
 }
