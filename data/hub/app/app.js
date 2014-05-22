@@ -126,7 +126,6 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
                     parent.videos.splice(i, 1);
                 }
             }
-            $rootScope.$apply();
         };
     });
     
