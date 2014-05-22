@@ -1,7 +1,7 @@
 function send_dom_event (type, name, data) {
     var result_event = new CustomEvent(type);
     result_event.initCustomEvent(name, true, true, data);
-    document.documentElement.dispatchEvent(result_event);    
+    document.documentElement.dispatchEvent(result_event);
 }
 
 angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
@@ -49,11 +49,11 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         };
 
         document.documentElement.addEventListener("videos", function(event) {
-            VideoStorage.update_videos(JSON.parse(event.detail)); 
+            VideoStorage.update_videos(JSON.parse(event.detail));
         });
 
         document.documentElement.addEventListener("configs", function(event) {
-            $scope.configs = JSON.parse(event.detail); 
+            $scope.configs = JSON.parse(event.detail);
         });
 
         document.documentElement.addEventListener("subscribed-channels", function(event) {
@@ -79,7 +79,7 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
                     function(newVal, oldVal) {
                         scope[iAttrs.bindHeight] = newVal;
                     }
-                );    
+                );
             }
         };
     })
@@ -166,7 +166,7 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
             return sum;
         };
     });
-    
+
 function settings($modalInstance, configs) {
     this.configs = {};
     angular.extend(this.configs, configs);  // clone it

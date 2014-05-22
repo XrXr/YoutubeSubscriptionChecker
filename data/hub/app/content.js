@@ -1,10 +1,10 @@
 function send_dom_event (type, name, data) {
     // passing pay_load as reference directly would result in cross-origin problems
     // passing the stringified version circumvents it.
-    var result = JSON.stringify(data); 
+    var result = JSON.stringify(data);
     var result_event = new CustomEvent(type);
     result_event.initCustomEvent(name, true, true, result);
-    document.documentElement.dispatchEvent(result_event);    
+    document.documentElement.dispatchEvent(result_event);
 }
 
 document.documentElement.addEventListener("search-channel", function(event) {
