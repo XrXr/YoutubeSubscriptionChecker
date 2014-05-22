@@ -19,7 +19,8 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         }
     ])
 
-    .controller('frame', function($scope, $routeParams, $modal, VideoStorage) {
+    .controller('frame', function($scope, $routeParams, $modal, VideoStorage, ChannelList) {
+        $scope.chnl = ChannelList;
         $scope.open_settings = function() {
             var modalInstance = $modal.open({
               templateUrl: 'partials/settings.html',
@@ -39,28 +40,8 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         $scope.open_subscriptions = function() {
             var modalInstance = $modal.open({
               templateUrl: 'partials/subscriptions.html',
-              controller: subscriptions,
-              resolve: {
-                channels: function () {
-                    return $scope.channels;
-                }
-              }
+              controller: subscriptions
             });
-        };
-
-        $scope.total_video_count = function() {
-            var sum = 0;
-            if ($scope.channels){
-                $scope.channels.forEach(function(elem) {
-                    if (elem.video_count){
-                        sum += elem.video_count;
-                    }
-                });                
-            }
-            if (sum <= 0){
-                return "";
-            }
-            return sum;
         };
 
         $scope.switch_channel = function(channel_id) {
@@ -76,16 +57,16 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         });
 
         document.documentElement.addEventListener("subscribed-channels", function(event) {
-            $scope.channels = JSON.parse(event.detail);
-            $scope.$apply();
+            ChannelList.update_channels(JSON.parse(event.detail));
         }, false);
     })
 
-    .controller('videos', function($scope, $routeParams, VideoStorage) {
+    .controller('videos', function($scope, $routeParams, VideoStorage, ChannelList) {
         $scope.vs = VideoStorage;
 
         $scope.open_video = function(video) {
             VideoStorage.remove_video(video);
+            ChannelList.decrease_video_count(video.snippet.channelId);
         };
     })
 
@@ -126,6 +107,63 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
                     parent.videos.splice(i, 1);
                 }
             }
+        };
+    })
+
+    .service("ChannelList", function($rootScope) {
+        this.channels = [];
+        var parent = this;
+        function get_channel_by_id (id) {
+            var channel = null;
+            parent.channels.some(function (element) {
+                if (element.id == id) {
+                    channel = element;
+                    return true;
+                }
+                return false;
+            });
+            return channel;
+        }
+
+        this.update_channels = function(new_list) {
+            new_list.forEach(function(element) {
+                var matching = get_channel_by_id(element.id);
+                if (matching){
+                    matching.video_count = element.video_count;
+                }else{
+                    parent.channels.push(element);
+                }
+            });
+            $rootScope.$apply();
+        };
+
+        this.decrease_video_count = function(channel_id){
+            parent.channels.some(function (element) {
+                if (element.id == channel_id) {
+                    element.video_count = Math.max(element.video_count - 1, 0);
+                    return true;
+                }
+                return false;
+            });
+        };
+
+        this.remove_channel = function(channel) {
+            parent.channels.splice(parent.channels.indexOf(channel), 1);
+        };
+
+        this.total_video_count = function() {
+            var sum = 0;
+            if (parent.channels){
+                parent.channels.forEach(function(elem) {
+                    if (elem.video_count){
+                        sum += elem.video_count;
+                    }
+                });
+            }
+            if (sum <= 0){
+                return "";
+            }
+            return sum;
         };
     });
     
@@ -171,8 +209,8 @@ function settings($modalInstance, configs) {
     this.valid = true;
 }
 
-function subscriptions($scope, $modalInstance, $modal, channels, VideoStorage) {
-    $scope.channels = channels;
+function subscriptions($scope, $modalInstance, $modal, VideoStorage, ChannelList) {
+    $scope.chnl = ChannelList;
     $scope.search_result = [];
     $scope.show_loading = false;
     $scope.no_result = false;
@@ -197,8 +235,7 @@ function subscriptions($scope, $modalInstance, $modal, channels, VideoStorage) {
         //register listeners for channel updates
         function add_listener() {
             document.documentElement.removeEventListener("channel-added", arguments.callee, false);
-            $scope.channels.push(channel);
-            $scope.$apply();
+            ChannelList.channels.push(channel);
         }
 
         function duplicate_listener() {
@@ -219,7 +256,7 @@ function subscriptions($scope, $modalInstance, $modal, channels, VideoStorage) {
 
     $scope.remove_channel = function(channel) {
         send_dom_event('subscriptions', "remove-channel", channel);
-        $scope.channels.splice($scope.channels.indexOf(channel), 1);
+        ChannelList.remove_channel(channel);
         VideoStorage.remove_video_by_channel(channel.id);
     };
 
