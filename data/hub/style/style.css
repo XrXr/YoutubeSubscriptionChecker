@@ -2,6 +2,9 @@
     font-size: 18px;
     cursor: default;
     width: calc(16.6667% - 25px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     -moz-user-select: none;
     transition: all 0.2s;
 }
