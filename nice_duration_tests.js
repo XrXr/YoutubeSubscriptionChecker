@@ -8,3 +8,5 @@ console.log(nice_duration("05H11M11S") == "05:11:11");
 console.log(nice_duration("5H0M0S") == "5:00:00");
 console.log(nice_duration("5H1M0S") == "5:01:00");
 console.log(nice_duration("5H0M1S") == "5:00:01");
+console.log(nice_duration("32S") == "00:32");
+console.log(nice_duration("7S") == "00:07");
