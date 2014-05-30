@@ -21,6 +21,7 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
 
     .controller('frame', function($scope, $routeParams, $modal, VideoStorage, ChannelList) {
         $scope.chnl = ChannelList;
+        $scope.selected_button = null;
         $scope.open_settings = function() {
             var modalInstance = $modal.open({
               templateUrl: 'partials/settings.html',
@@ -36,7 +37,6 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
                 send_dom_event('settings', "update_configs", configs);
             }, function () {});
         };
-
         $scope.open_subscriptions = function() {
             var modalInstance = $modal.open({
               templateUrl: 'partials/subscriptions.html',
@@ -45,6 +45,7 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         };
 
         $scope.switch_channel = function(channel_id) {
+            $scope.selected_button = channel_id;
             send_dom_event('subscriptions', "get-videos", channel_id);
         };
 

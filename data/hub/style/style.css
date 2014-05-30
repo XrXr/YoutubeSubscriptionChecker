@@ -9,6 +9,10 @@
     transition: all 0.2s;
 }
 .channel-button:hover {
+    background-color: gainsboro;
+    color: grey;
+}
+.selected-button {
     background-color: grey;
     color: white;
 }

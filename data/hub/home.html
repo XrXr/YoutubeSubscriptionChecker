@@ -30,15 +30,15 @@
             </div>
         </div>
         <div class="row" style="margin:10px 0 20px 0;">
-            <div class="col-xs-2 col-md-2 channel-button" ng-click="switch_channel(null)">
+            <div class="col-xs-2 col-md-2 channel-button" ng-click="switch_channel(null)" ng-class="selected_button === null ? 'selected-button': ''">
                 All Videos
-                <span class="video-count" ng-bind="chnl.total_video_count()"></span>
+                <span class="video-count" ng-bind="chnl.total_video_count()" ng-style="selected_button === null ? {color: 'white'} : ''"></span>
             </div>
         </div>
         <div class="row animate-repeat" style="margin:10px 0 10px 0;" ng-repeat="channel in chnl.channels | filter:channel_search ">
-            <div class="col-xs-2 col-md-2 channel-button" ng-click="switch_channel(channel.id)">
+            <div class="col-xs-2 col-md-2 channel-button" ng-click="switch_channel(channel.id)" ng-class="selected_button === channel.id ? 'selected-button': ''">
                 {{channel.title}}
-                <span class="video-count" ng-if="channel.video_count - 0 > 0">{{channel.video_count - 0}}</span>
+                <span class="video-count" ng-if="channel.video_count - 0 > 0" ng-style="selected_button === channel.id ? {color: 'white'} : ''">{{channel.video_count - 0}}</span>
             </div>
             <!-- {{channel.last_checked}} -->
         </div>
