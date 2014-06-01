@@ -94,7 +94,7 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         var parent = this;
         this.remove_video = function(video) {
             parent.videos.some(function(element, index) {
-                if (element.id.videoId == video.id.videoId){
+                if (element.id == video.id){
                     parent.videos.splice(index, 1);
                     return true;
                 }
