@@ -19,7 +19,22 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         }
     ])
 
-    .controller('frame', function($scope, $routeParams, $modal, VideoStorage, ChannelList) {
+    .directive("bindHeight", function() {
+        return {
+            link: function(scope, iElement, iAttrs) {
+                scope.$watch(
+                    function() {
+                        return iElement[0].clientHeight;
+                    },
+                    function(newVal, oldVal) {
+                        scope[iAttrs.bindHeight] = newVal;
+                    }
+                );
+            }
+        };
+    })
+
+    .controller('frame', function($scope, $routeParams, $modal, ChannelList) {
         $scope.chnl = ChannelList;
         $scope.selected_button = null;
         $scope.open_settings = function() {
@@ -37,6 +52,7 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
                 send_dom_event('settings', "update_configs", configs);
             }, function () {});
         };
+
         $scope.open_subscriptions = function() {
             var modalInstance = $modal.open({
               templateUrl: 'partials/subscriptions.html',
@@ -49,10 +65,6 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
             send_dom_event('subscriptions', "get-videos", channel_id);
         };
 
-        document.documentElement.addEventListener("videos", function(event) {
-            VideoStorage.update_videos(JSON.parse(event.detail));
-        });
-
         document.documentElement.addEventListener("configs", function(event) {
             $scope.configs = JSON.parse(event.detail);
         });
@@ -62,33 +74,38 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         }, false);
     })
 
-    .controller('videos', function($scope, $routeParams, VideoStorage, ChannelList) {
+    .controller('videos', function($scope, $routeParams, $timeout, VideoStorage, ChannelList) {
         $scope.vs = VideoStorage;
+
+        var flow = new Masonry(document.querySelector('#video-container'), {
+            itemSelector: ".video",
+            gutter: 19,
+            "isFitWidth": true
+        });
+
+        function update_flow() {
+            flow.reloadItems();
+            flow.layout();
+        }
 
         $scope.open_video = function(video) {
             VideoStorage.remove_video(video);
             ChannelList.decrease_video_count(video.snippet.channelId);
+            $timeout(update_flow);
         };
+
+        document.documentElement.addEventListener("videos", function(event) {
+            VideoStorage.update_videos(JSON.parse(event.detail));
+            $timeout(update_flow);
+        });
     })
 
-    .directive("bindHeight", function() {
-        return {
-            link: function(scope, iElement, iAttrs) {
-                scope.$watch(
-                    function() {
-                        return iElement[0].clientHeight;},
-                    function(newVal, oldVal) {
-                        scope[iAttrs.bindHeight] = newVal;
-                    }
-                );
-            }
-        };
-    })
 
     .service("VideoStorage", function($rootScope) {
         this.videos = [];
         this.update_videos = function(new_list) {
             this.videos = new_list;
+            console.log(new_list);
             $rootScope.$apply();
         };
         var parent = this;
