@@ -18,8 +18,13 @@
 }
 .video {
     list-style-type: none;
-    min-width: 240px;
-    min-height: 150px;
+    position: relative;
+    width:300px;
+    margin-bottom: 40px
+}
+.video-ul{
+    list-style-type: none;
+    padding-left: 0px;
 }
 .no-videos {
     color: gainsboro;
