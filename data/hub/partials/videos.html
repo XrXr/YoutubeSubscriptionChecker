@@ -1,8 +1,8 @@
 <div id="video-container" class="container-fluid" style="margin-left:0; margin-right:0">
-    <div ng-repeat="video in vs.videos" class="video">
-        <ul class="video-ul" title="{{video.snippet.title}}">
+    <div ng-repeat="video in vs" class="video">
+        <ul class="flat-ul" title="{{video.snippet.title}}">
             <li>
-                <img ng-click="open_video(video)" width="300px" height="169px" ng-src="{{video.snippet.thumbnails.medium.url}}"></img>
+                <img ng-click="open_video(video, $event)" width="300px" height="169px" src="http://placekitten.com/300/169" ng-src="{{video.snippet.thumbnails.medium.url}}"></img>
             </li>
             <li class="video-title">
                 <span ng-bind="video.snippet.title"></span>
@@ -15,6 +15,6 @@
     </div>
     <div id="hahah" style="width:280px"></div>
 </div>
-<span class="no-videos" ng-if="!(vs.videos.length)">
+<span class="no-videos" ng-if="!(v.videos.length)">
     No new videos
 </span>

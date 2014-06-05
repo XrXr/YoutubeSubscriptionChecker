@@ -74,50 +74,55 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         }, false);
     })
 
-    .controller('videos', function($scope, $routeParams, $timeout, VideoStorage, ChannelList) {
-        $scope.vs = VideoStorage;
+    .controller('videos', function($scope, $routeParams, $timeout, $animate, VideoStorage, ChannelList) {
+        // this will only bind the dom to what the Array is currenly
+        $scope.vs = JSON.parse(JSON.stringify(VideoStorage.videos));
+        $scope.v = VideoStorage;
 
-        var flow = new Masonry(document.querySelector('#video-container'), {
+        window.flow = new Masonry(document.querySelector('#video-container'), {
             itemSelector: ".video",
             gutter: 19,
             "isFitWidth": true
         });
 
         function update_flow() {
-            flow.reloadItems();
-            flow.layout();
+            flow.prepended(document.getElementsByClassName("video"));
         }
 
-        $scope.open_video = function(video) {
+        $scope.open_video = function(video, event) {
+            send_dom_event("videos", "remove-video", video);
+            var video_div = event.target.parentElement.parentElement.parentElement;
+            $timeout(() => {
+                flow.remove(video_div);
+                flow.layout();
+            });
             VideoStorage.remove_video(video);
             ChannelList.decrease_video_count(video.snippet.channelId);
-            $timeout(update_flow);
         };
 
         document.documentElement.addEventListener("videos", function(event) {
             VideoStorage.update_videos(JSON.parse(event.detail));
+            $scope.vs = JSON.parse(JSON.stringify(VideoStorage.videos));
+            $scope.$apply();
             $timeout(update_flow);
         });
     })
 
 
-    .service("VideoStorage", function($rootScope) {
-        this.videos = [];
+    .service("VideoStorage", function($rootScope, $timeout) {
+        this.videos = [{id:{videoId:123}},{id:{videoId:125}},{id:{videoId:124},snippet:{title:"asdasd"}}];
         this.update_videos = function(new_list) {
             this.videos = new_list;
-            console.log(new_list);
             $rootScope.$apply();
         };
         var parent = this;
         this.remove_video = function(video) {
-            parent.videos.some(function(element, index) {
-                if (element.id.videoId == video.id.videoId){
-                    parent.videos.splice(index, 1);
-                    return true;
+            for (var i = parent.videos.length - 1; i >= 0; i--) {
+                if (parent.videos[i].id.videoId == video.id.videoId){
+                    parent.videos.splice(i, 1);
+                    return;
                 }
-                return false;
-            });
-            send_dom_event("videos", "remove-video", video);
+            }
         };
         this.remove_video_by_channel = function(channel_id) {
             for (var i = parent.videos.length - 1; i >= 0; i--) {
