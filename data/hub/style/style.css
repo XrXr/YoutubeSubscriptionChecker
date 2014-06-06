@@ -30,16 +30,21 @@ body{
 }
 .channel-button {
     cursor: default;
-    white-space: nowrap;
     overflow: hidden;
     padding-left: 15px;
     padding-right: 15px;
-    text-overflow: ellipsis;
     -moz-user-select: none;
 }
 .channel-button:hover {
     background-color: gainsboro;
     color: grey;
+}
+.channel-title{
+    float: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 1.2em);
 }
 .video-count {
     color: grey;
@@ -65,7 +70,7 @@ body{
     width:300px;
     margin-bottom: 15px;
 }
-.enlarge-then-leave{
+.video.ng-leave{
     transform-origin: 50% 50%;
     animation: leave 700ms;
 }

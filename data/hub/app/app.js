@@ -18,6 +18,52 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
                 });
         }
     ])
+    .directive('masonry', function($parse, $timeout) {
+        return {
+            restrict: 'AC',
+            link: function(scope, elem, attrs) {
+                scope.$watch(function() {
+                  return elem[0].childElementCount;
+                }, function (n, v) {
+                    console.log(n, v);
+                    $timeout( function () {
+                        scope.obj.reloadItems();
+                        scope.obj.layout();
+                    });
+                });
+                scope.items = [];
+                var container = elem[0];
+                var options = angular.extend({
+                    itemSelector: '.item'
+                }, JSON.parse(attrs.masonry));
+
+                scope.obj = new Masonry(container, options);
+                scope.obj.on("layoutComplete", function () {
+                    scope.in_progress = false;
+                });
+            }
+        };
+    })
+
+    .directive('masonryTile', function($timeout) {
+        return {
+            restrict: 'AC',
+            link: function(scope, elem) {
+                var master = elem.parent('*[masonry]:first').scope();
+                var masonry = master.obj;
+
+                elem.ready(function() {
+                    masonry.appended(elem);
+                });
+                elem[0].addEventListener("animationend", function() {
+                    $timeout( function () {
+                        masonry.reloadItems();
+                        masonry.layout();
+                    });
+                });
+            }
+        };
+    })
 
     .directive("bindHeight", function() {
         return {
@@ -34,9 +80,8 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         };
     })
 
-    .controller('frame', function($scope, $routeParams, $modal, ChannelList) {
+    .controller('frame', function($scope, $routeParams, $modal, $timeout, ChannelList) {
         $scope.chnl = ChannelList;
-        $scope.selected_button = null;
         $scope.open_settings = function() {
             var modalInstance = $modal.open({
               templateUrl: 'partials/settings.html',
@@ -61,8 +106,7 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         };
 
         $scope.switch_channel = function(channel_id) {
-            $scope.selected_button = channel_id;
-            send_dom_event('subscriptions', "get-videos", channel_id);
+            ChannelList.current_channel = channel_id;
         };
 
         document.documentElement.addEventListener("configs", function(event) {
@@ -75,39 +119,23 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
     })
 
     .controller('videos', function($scope, $routeParams, $timeout, $animate, VideoStorage, ChannelList) {
-        // this will only bind the dom to what the Array is currenly
-        $scope.vs = JSON.parse(JSON.stringify(VideoStorage.videos));
         $scope.v = VideoStorage;
-
-        window.flow = new Masonry(document.querySelector('#video-container'), {
-            itemSelector: ".video",
-            gutter: 19,
-            "isFitWidth": true
-        });
 
         function update_flow() {
             flow.prepended(document.getElementsByClassName("video"));
         }
 
         $scope.open_video = function(video, event) {
-            send_dom_event("videos", "remove-video", video);
-            var video_div = event.target.parentElement.parentElement.parentElement;
-            $timeout(() => {
-                flow.remove(video_div);
-                flow.layout();
-            });
+            // send_dom_event("videos", "remove-video", video);
             VideoStorage.remove_video(video);
             ChannelList.decrease_video_count(video.snippet.channelId);
+            var s = event.target.parentElement.parentElement.parentElement;
         };
 
         document.documentElement.addEventListener("videos", function(event) {
             VideoStorage.update_videos(JSON.parse(event.detail));
-            $scope.vs = JSON.parse(JSON.stringify(VideoStorage.videos));
-            $scope.$apply();
-            $timeout(update_flow);
         });
     })
-
 
     .service("VideoStorage", function($rootScope, $timeout) {
         this.videos = [{id:{videoId:123}},{id:{videoId:125}},{id:{videoId:124},snippet:{title:"asdasd"}}];
@@ -160,6 +188,8 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
             $rootScope.$apply();
         };
 
+        this.current_channel = "";
+
         this.decrease_video_count = function(channel_id){
             parent.channels.some(function (element) {
                 if (element.id == channel_id) {
@@ -173,6 +203,7 @@ angular.module('subscription_checker', ['ngRoute','ngAnimate', 'ui.bootstrap'])
         this.remove_channel = function(channel) {
             parent.channels.splice(parent.channels.indexOf(channel), 1);
         };
+
 
         this.total_video_count = function() {
             var sum = 0;
