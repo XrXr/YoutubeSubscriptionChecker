@@ -69,9 +69,9 @@ body{
     position: relative;
     width:300px;
     margin-bottom: 15px;
-}
-.video.ng-leave{
     transform-origin: 50% 50%;
+}
+.open-animation{
     animation: leave 700ms;
 }
 .no-videos {
