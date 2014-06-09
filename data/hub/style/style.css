@@ -30,16 +30,21 @@ body{
 }
 .channel-button {
     cursor: default;
-    white-space: nowrap;
     overflow: hidden;
     padding-left: 15px;
     padding-right: 15px;
-    text-overflow: ellipsis;
     -moz-user-select: none;
 }
 .channel-button:hover {
     background-color: gainsboro;
     color: grey;
+}
+.channel-title{
+    float: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 1.2em);
 }
 .video-count {
     color: grey;
@@ -64,9 +69,9 @@ body{
     position: relative;
     width:300px;
     margin-bottom: 15px;
-}
-.enlarge-then-leave{
     transform-origin: 50% 50%;
+}
+.open-animation{
     animation: leave 700ms;
 }
 .no-videos {
@@ -86,6 +91,13 @@ body{
 }
 .no-videos.ng-enter-active {
     opacity: 1;
+}
+.disappear{
+  opacity: 0 !important;
+  transform-origin: 50% 50% !important;
+  transform: scale(0.001) !important;
+  transition: transform, opacity !important;
+  transition-duration: 400ms !important;
 }
 @media (max-width:768px) {
     .no-videos {
