@@ -71,9 +71,10 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                         }else{
                             var arr = [].splice.call(elem[0].children);
                             scope.obj.prepended(arr.slice(0, intersection_start));
-                            scope.obj.prepended(arr.slice(intersection_end + 1));
+                            scope.obj.appended(arr.slice(intersection_end + 1));
                         }
                         scope.obj.reloadItems();
+                        scope.obj.layout();
                     });
                 }
 
@@ -81,16 +82,17 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                     // Create clone elements that are not effected;
                     // by ng-repeat and masonry play a leave animation on them then
                     // destroy them
+                    angular.element(document.querySelector("#dummy")).empty();
                     function make_clone (e) {
                         if (!e["$$NG_REMOVED"]){
                             var clone = angular.element(e).clone();
-                            clone.css("opacity", "1 !important");
-                            clone.on("transitionend", function() {
+                            clone.on("animationend", function() {
                                 clone.remove();
                             });
+                            // save angular some work
+                            clone.removeAttr("masonry-tile");
                             angular.element(document.querySelector("#dummy")).append(clone);
                             clone.ready(function() {
-                                clone.css("opacity", 0);
                                 clone.addClass("disappear");
                             });
                         }
@@ -129,10 +131,11 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                                         return v["$$NG_REMOVED"];
                                     });
                                     scope.obj.remove(garbage);
-                                    scope.obj.layout();
+                                    garbage.forEach((e)=>{angular.element(e).remove();});
                                     scope.obj.prepended(arr.slice(0, intersection_start));
                                     scope.obj.appended(arr.slice(intersection_end + 1));
-                                    scope.obj.reloadItems();
+                                    scope.obj.layout();
+                                    // $timeout(scope.obj.reloadItems);
                                 });
                             } else {
                                 crude_update(new_list);
@@ -159,8 +162,9 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                                         return v["$$NG_REMOVED"];
                                     });
                                     scope.obj.remove(garbage);
+                                    garbage.forEach((e)=>{angular.element(e).remove();});
                                     scope.obj.layout();
-                                    scope.obj.reloadItems();
+                                    // $timeout(scope.obj.reloadItems);
                                 });
                             }else{
                                 crude_update(new_list);
@@ -185,7 +189,7 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                 // });
                 var master = elem.parent('*[masonry]:first').scope();
                 var masonry = master.obj;
-                elem.css("opacity", "0 !important");
+                elem.css("opacity", 0);
                 elem.ready(function() {
                     elem.css("opacity", 1);
                 });
@@ -285,16 +289,17 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
         };
 
         document.documentElement.addEventListener("videos", function(event) {
+            var masonry_container = document.querySelector("[masonry]");
+            var masonry = Masonry.data(masonry_container);
             VideoStorage.update_videos(JSON.parse(event.detail));
             VideoStorage.current_view = angular.copy(VideoStorage.videos);
             ChannelList.current_channel = "";
-            $scope.$apply();
-            $timeout(function() {
-                var masonry_container = document.querySelector("[masonry]");
-                var masonry = Masonry.data(masonry_container);
-                masonry.prepended(masonry_container.children);
-                masonry.reloadItems();
-                masonry.layout();
+            $scope.$apply(function() {
+                $timeout(function() {
+                    masonry.remove(masonry.getItemElements());
+                    masonry.layout();
+                    masonry.prepended(masonry_container.children);
+                });
             });
         });
     })

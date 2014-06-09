@@ -93,11 +93,18 @@ body{
     opacity: 1;
 }
 .disappear{
-  opacity: 0 !important;
   transform-origin: 50% 50% !important;
-  transform: scale(0.001) !important;
-  transition: transform, opacity !important;
-  transition-duration: 400ms !important;
+  animation: leave 400ms !important;
+}
+@keyframes leave{
+    from{
+        opacity: 1;
+        transform: scale(1);
+    }
+    to{
+        opacity: 0;
+        transform: scale(0.001);
+    }
 }
 @media (max-width:768px) {
     .no-videos {
