@@ -3,7 +3,7 @@
     "gutter": 19,
     "isFitWidth": true
     }' class="container-fluid" style="margin-left:0; margin-right:0">
-    <div masonry-tile ng-repeat="video in vc | filter: {snippet: {channelId: chnl.current_channel}}" class="video">
+    <div masonry-tile ng-repeat="video in v.current_view" class="video" id="{{video.snippet.title}}">
         <ul class="flat-ul" title="{{video.snippet.title}}">
             <li>
                 <img ng-click="open_video(video, $event)" width="300px" height="169px" src="http://placekitten.com/300/169" ng-src="{{video.snippet.thumbnails.medium.url}}"></img>

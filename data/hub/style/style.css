@@ -92,6 +92,13 @@ body{
 .no-videos.ng-enter-active {
     opacity: 1;
 }
+.disappear{
+  opacity: 0 !important;
+  transform-origin: 50% 50% !important;
+  transform: scale(0.001) !important;
+  transition: transform, opacity !important;
+  transition-duration: 400ms !important;
+}
 @media (max-width:768px) {
     .no-videos {
         display: none;
