@@ -86,7 +86,7 @@ body{
 }
 .no-videos.ng-enter{
     transition: opacity linear 0.5s;
-    transition-delay: 700ms;
+    transition-delay: 400ms;
     opacity: 0;
 }
 .no-videos.ng-enter-active {

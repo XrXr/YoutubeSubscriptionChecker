@@ -35,20 +35,45 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                     // locate the index of a video in a video array
                     // returns -1 on fail
                     var r = -1;
-                    array.some(function(e, i) {
-                        if (e.id.videoId == video.id.videoId){
-                            r = i;
-                            return true;
-                        }
-                        return false;
-                    });
+                    if (video){
+                        array.some(function(e, i) {
+                            if (e.id.videoId == video.id.videoId){
+                                r = i;
+                                return true;
+                            }
+                            return false;
+                        });
+                    }
                     return r;
                 }
 
                 function crude_update (new_list) {
-                    VideoStorage.current_view = new_list;
+                    var intersection_start = indexOf(VideoStorage.current_view[0], new_list);
+                    if (intersection_start !== -1){
+                        var intersection_end = indexOf(VideoStorage.current_view
+                            [VideoStorage.current_view.length - 1], new_list);
+                        VideoStorage.current_view.push(...new_list.slice(intersection_end + 1));
+                        VideoStorage.current_view.splice(0, 0,
+                            ...new_list.slice(0, intersection_start));
+                    }else{
+                        VideoStorage.current_view = new_list;
+                    }
                     $timeout(()=>{
-                        scope.obj.prepended(elem.children());
+                        var garbage = scope.obj.getItemElements().filter(function(v) {
+                            return v["$$NG_REMOVED"];
+                        });
+                        garbage.forEach(function(e) {
+                            var w = angular.element(e);
+                            w.remove();
+                        });
+                        if (intersection_start === -1){
+                            scope.obj.prepended(elem.children());
+                        }else{
+                            var arr = [].splice.call(elem[0].children);
+                            scope.obj.prepended(arr.slice(0, intersection_start));
+                            scope.obj.prepended(arr.slice(intersection_end + 1));
+                        }
+                        scope.obj.reloadItems();
                     });
                 }
 
@@ -107,6 +132,7 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                                     scope.obj.layout();
                                     scope.obj.prepended(arr.slice(0, intersection_start));
                                     scope.obj.appended(arr.slice(intersection_end + 1));
+                                    scope.obj.reloadItems();
                                 });
                             } else {
                                 crude_update(new_list);
@@ -134,6 +160,7 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                                     });
                                     scope.obj.remove(garbage);
                                     scope.obj.layout();
+                                    scope.obj.reloadItems();
                                 });
                             }else{
                                 crude_update(new_list);
@@ -158,7 +185,7 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                 // });
                 var master = elem.parent('*[masonry]:first').scope();
                 var masonry = master.obj;
-                elem.css("opacity", 0);
+                elem.css("opacity", "0 !important");
                 elem.ready(function() {
                     elem.css("opacity", 1);
                 });
