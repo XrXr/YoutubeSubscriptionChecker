@@ -18,7 +18,7 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                 });
         }
     ])
-    .directive('masonry', function($timeout, ChannelList, $interval, VideoStorage) {
+    .directive('masonry', function($timeout, $interval, ChannelList, VideoStorage) {
         return {
             restrict: 'AC',
             link: function(scope, elem, attrs) {
@@ -30,6 +30,20 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
 
                 scope.obj = new Masonry(container, options);
                 window.expose = scope.obj;
+
+                function collect_garbage () {
+                    var garbage = scope.obj.getItemElements().
+                    filter(function(v) {
+                        return v["$$NG_REMOVED"];
+                    });
+                    scope.obj.remove(garbage);
+                    garbage.forEach((e)=>{angular.element(e).remove();});
+                    scope.obj.layout();
+                }
+
+                function v_eq (a, b) {
+                    return a.id.videoId == b.id.videoId;
+                }
 
                 function indexOf (video, array) {
                     // locate the index of a video in a video array
@@ -71,39 +85,46 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                         }else{
                             var arr = [].splice.call(elem[0].children);
                             scope.obj.prepended(arr.slice(0, intersection_start));
-                            scope.obj.prepended(arr.slice(intersection_end + 1));
+                            scope.obj.appended(arr.slice(intersection_end + 1));
                         }
                         scope.obj.reloadItems();
+                        scope.obj.layout();
                     });
                 }
 
-                function play_leave_animation (intersection_start, intersection_end) {
+                function play_leave_animation (intersection_start, intersection_end, len) {
                     // Create clone elements that are not effected;
                     // by ng-repeat and masonry play a leave animation on them then
                     // destroy them
+                    angular.element(document.querySelector("#dummy")).empty();
                     function make_clone (e) {
                         if (!e["$$NG_REMOVED"]){
                             var clone = angular.element(e).clone();
-                            clone.css("opacity", "1 !important");
-                            clone.on("transitionend", function() {
+                            clone.on("animationend", function() {
                                 clone.remove();
                             });
+                            // save angular some work
+                            clone.removeAttr("masonry-tile");
                             angular.element(document.querySelector("#dummy")).append(clone);
                             clone.ready(function() {
-                                clone.css("opacity", 0);
                                 clone.addClass("disappear");
                             });
                         }
                     }
-                    var a = scope.obj.getItemElements().slice(0, intersection_start);
-                    var b = scope.obj.getItemElements().slice(intersection_end + 1);
-                    a.forEach(make_clone);
-                    b.forEach(make_clone);
+                    var a, b;
+                    if (len){
+                        a = scope.obj.getItemElements().slice(intersection_end,
+                            intersection_end + len);
+                        a.forEach(make_clone);
+                    }else{
+                        a = scope.obj.getItemElements().slice(0, intersection_start);
+                        b = scope.obj.getItemElements().slice(intersection_end + 1);
+                        a.forEach(make_clone);
+                        b.forEach(make_clone);
+                    }
                 }
 
-                scope.$watch(function() {
-                    return ChannelList.current_channel;
-                }, function(new_ch) {
+                scope.switch_channel = function(new_ch) {
                     var new_list = VideoStorage.videos.filter(
                         function(v) {
                             return v.snippet.channelId == new_ch || new_ch === "";
@@ -123,16 +144,13 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                                 var after = new_list.slice(intersection_end + 1);
                                 VideoStorage.current_view.splice(0, 0, ...before);
                                 VideoStorage.current_view.push(...after);
+                                collect_garbage();
                                 $timeout(()=>{
                                     var arr = [].slice.call(elem.children());
-                                    var garbage = scope.obj.getItemElements().filter(function(v) {
-                                        return v["$$NG_REMOVED"];
-                                    });
-                                    scope.obj.remove(garbage);
-                                    scope.obj.layout();
                                     scope.obj.prepended(arr.slice(0, intersection_start));
                                     scope.obj.appended(arr.slice(intersection_end + 1));
-                                    scope.obj.reloadItems();
+                                    scope.obj.layout();
+                                    // $timeout(scope.obj.reloadItems);
                                 });
                             } else {
                                 crude_update(new_list);
@@ -148,19 +166,34 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                             if (intersection_start != -1){
                                 intersection_end = indexOf(l, VideoStorage.current_view);
                                 var delta = VideoStorage.current_view.length - 1 - intersection_end;
-                                play_leave_animation(intersection_start, intersection_end);
-                                VideoStorage.current_view.splice(-delta, delta);
-                                VideoStorage.current_view.splice(0, intersection_start);
+                                // this tests if the intersection is compelete.
+                                if (!v_eq(VideoStorage.current_view
+                                    [intersection_start + (new_list.length - 1)], l)){
+                                    // a block was removed from the middle
+                                    var intersecting = true;
+                                    var i = 0;
+                                    // walk through the list until intersection ends
+                                    while (intersecting){
+                                        i++;
+                                        intersecting = v_eq(new_list[i],
+                                            VideoStorage.current_view[intersection_start + i]);
+                                    }
+                                    var size_diff = VideoStorage.current_view.length - new_list.length;
+                                    play_leave_animation(null, i + intersection_start, size_diff);
+                                    VideoStorage.current_view.splice(
+                                        i + intersection_start, size_diff);
+                                } else {
+                                    // remove from front and/or back
+                                    play_leave_animation(intersection_start, intersection_end);
+                                    VideoStorage.current_view.splice(-delta, delta);
+                                    VideoStorage.current_view.splice(0, intersection_start);
+                                }
                                 $timeout(()=>{
                                     // var elems = scope.obj.getItemElements();
                                     // scope.obj.remove(elems.splice(-delta, delta));
                                     // scope.obj.remove(elems.splice(0, intersection_start));
-                                    var garbage = scope.obj.getItemElements().filter(function(v) {
-                                        return v["$$NG_REMOVED"];
-                                    });
-                                    scope.obj.remove(garbage);
+                                    collect_garbage();
                                     scope.obj.layout();
-                                    scope.obj.reloadItems();
                                 });
                             }else{
                                 crude_update(new_list);
@@ -171,7 +204,11 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                     } else {
                         crude_update(new_list);
                     }
-                });
+                };
+
+                scope.$watch(function() {
+                    return ChannelList.current_channel;
+                }, scope.switch_channel);
             }
         };
     })
@@ -185,7 +222,7 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                 // });
                 var master = elem.parent('*[masonry]:first').scope();
                 var masonry = master.obj;
-                elem.css("opacity", "0 !important");
+                elem.css("opacity", 0);
                 elem.ready(function() {
                     elem.css("opacity", 1);
                 });
@@ -285,16 +322,17 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
         };
 
         document.documentElement.addEventListener("videos", function(event) {
+            var masonry_container = document.querySelector("[masonry]");
+            var masonry = Masonry.data(masonry_container);
             VideoStorage.update_videos(JSON.parse(event.detail));
             VideoStorage.current_view = angular.copy(VideoStorage.videos);
             ChannelList.current_channel = "";
-            $scope.$apply();
-            $timeout(function() {
-                var masonry_container = document.querySelector("[masonry]");
-                var masonry = Masonry.data(masonry_container);
-                masonry.prepended(masonry_container.children);
-                masonry.reloadItems();
-                masonry.layout();
+            $scope.$apply(function() {
+                $timeout(function() {
+                    masonry.remove(masonry.getItemElements());
+                    masonry.layout();
+                    masonry.prepended(masonry_container.children);
+                });
             });
         });
     })
@@ -443,7 +481,7 @@ function settings($modalInstance, configs) {
     this.valid = true;
 }
 
-function subscriptions($scope, $modalInstance, $modal, VideoStorage, ChannelList) {
+function subscriptions($scope, $modalInstance, $modal, ChannelList, VideoStorage) {
     $scope.chnl = ChannelList;
     $scope.search_result = [];
     $scope.show_loading = false;
@@ -492,6 +530,12 @@ function subscriptions($scope, $modalInstance, $modal, VideoStorage, ChannelList
         send_dom_event('subscriptions', "remove-channel", channel);
         ChannelList.remove_channel(channel);
         VideoStorage.remove_video_by_channel(channel.id);
+        if (ChannelList.current_channel === ""){
+            var masonry_container = document.querySelector("[masonry]");
+            angular.element(masonry_container).scope().switch_channel("");
+            return;
+        }
+        ChannelList.current_channel = "";
     };
 
     function search_result_listener (event) {
