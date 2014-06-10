@@ -4,21 +4,13 @@ function send_dom_event (type, name, data) {
     document.documentElement.dispatchEvent(result_event);
 }
 
-angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
-    .config(['$routeProvider', '$locationProvider',
-        function($routeProvider, $locationProvider) {
-            $routeProvider
-                .when('/:channel', {
-                    templateUrl: 'partials/videos.html',
-                    controller: 'videos'
-                })
-                .otherwise({
-                    templateUrl: 'partials/videos.html',
-                    controller: 'videos'
-                });
-        }
-    ])
-    .directive('masonry', function($timeout, $interval, ChannelList, VideoStorage) {
+angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
+    .run(function(ConfigManager) {
+        document.documentElement.addEventListener("config", function(event) {
+            ConfigManager.update_config(JSON.parse(event.detail));
+        });
+    })
+    .directive('masonry', function($timeout, $interval, ChannelList, ConfigManager, VideoStorage) {
         return {
             restrict: 'AC',
             link: function(scope, elem, attrs) {
@@ -28,15 +20,37 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                     itemSelector: '.item'
                 }, JSON.parse(attrs.masonry));
 
-                scope.obj = new Masonry(container, options);
-                window.expose = scope.obj;
+                scope.create_instance = function (enable_transition) {
+                    if (scope.obj){
+                        scope.obj.destroy();
+                    }
+                    if (enable_transition){
+                        options.transitionDuration = '0.4s';
+                    }else{
+                        options.transitionDuration = 0;
+                    }
+                    scope.obj = new Masonry(container, options);
+                    window.expose = scope.obj;
+                };
+                //angular.element(document.querySelector('[masonry]')).scope().create_instance(true);
+                if (ConfigManager.config.animations === undefined){
+                    // Only set this if the single from add-on is not here yet
+                    // yay single threaded JavaScript
+                    ConfigManager.config.animations = true;
+                }
+                scope.create_instance(true);
 
                 function collect_garbage () {
                     var garbage = scope.obj.getItemElements().
                     filter(function(v) {
                         return v["$$NG_REMOVED"];
                     });
-                    scope.obj.remove(garbage);
+                    try{
+                        //this might fail when the element is already removed from the dom
+                        scope.obj.remove(garbage);
+                    }catch(_){
+                        scope.obj.reloadItems();
+                    }
                     garbage.forEach((e)=>{angular.element(e).remove();});
                     scope.obj.layout();
                 }
@@ -96,6 +110,9 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                     // Create clone elements that are not effected;
                     // by ng-repeat and masonry play a leave animation on them then
                     // destroy them
+                    if (!ConfigManager.config.animations){
+                        return;
+                    }
                     angular.element(document.querySelector("#dummy")).empty();
                     function make_clone (e) {
                         if (!e["$$NG_REMOVED"]){
@@ -217,9 +234,6 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
         return {
             restrict: 'AC',
             link: function(scope, elem) {
-                // scope.$on("$destroy", function() {
-                //     $animate.addClass(elem, "jojo");
-                // });
                 var master = elem.parent('*[masonry]:first').scope();
                 var masonry = master.obj;
                 elem.css("opacity", 0);
@@ -243,98 +257,6 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                 );
             }
         };
-    })
-
-    .controller('frame', function($scope, $routeParams, $modal, $timeout, ChannelList, VideoStorage) {
-        $scope.chnl = ChannelList;
-        $scope.open_settings = function() {
-            var modalInstance = $modal.open({
-              templateUrl: 'partials/settings.html',
-              controller: "settings as s",
-              resolve: {
-                configs: function () {
-                    return $scope.configs;
-                }
-              }
-            });
-            modalInstance.result.then(function (configs) {
-                $scope.configs = configs;
-                send_dom_event('settings', "update_configs", configs);
-            }, function () {});
-        };
-
-        $scope.open_subscriptions = function() {
-            var modalInstance = $modal.open({
-              templateUrl: 'partials/subscriptions.html',
-              controller: subscriptions
-            });
-        };
-
-        $scope.switch_channel = function(channel_id) {
-            var masonry_container = document.querySelector("[masonry]");
-            var masonry = Masonry.data(masonry_container);
-            ChannelList.current_channel = channel_id;
-            // $timeout(()=>{masonry.reloadItems(); masonry.layout();});
-            // $scope.vc = angular.copy(VideoStorage.videos);
-            // call layout once when initial list is recieved
-            // update the current list via delta
-            // change the filter
-        };
-
-        document.documentElement.addEventListener("configs", function(event) {
-            $scope.configs = JSON.parse(event.detail);
-        });
-
-        document.documentElement.addEventListener("subscribed-channels", function(event) {
-            ChannelList.update_channels(JSON.parse(event.detail));
-        }, false);
-    })
-
-    .controller('videos', function($scope, $routeParams, $timeout, $animate, VideoStorage, ChannelList) {
-        $scope.v = VideoStorage;
-
-        function update_flow() {
-            flow.prepended(document.getElementsByClassName("video"));
-        }
-
-        $scope.open_video = function(video, event) {
-            send_dom_event("videos", "remove-video", video);
-            VideoStorage.remove_video(video);
-            var masonry_container = document.querySelector("[masonry]");
-            var masonry = Masonry.data(masonry_container);
-            var video_div = event.target.parentElement.parentElement.parentElement;
-            VideoStorage.to_remove.push(angular.element(video_div).scope().video);
-            $timeout(()=>{
-                masonry.remove(video_div);
-                masonry.layout();
-                // VideoStorage.current_view.splice(angular.element(video_div).scope().$index, 1);
-                // VideoStorage.remove_from_view(video);
-            });
-            // $animate.addClass(angular.element(video_div), "open-animation", function() {
-            //     masonry_container.removeChild(video_div);
-            //     $timeout(()=>{
-            //         masonry.reloadItems();
-            //         masonry.layout();
-            //         VideoStorage.remove_from_view(video);
-            //     });
-            // });
-            ChannelList.decrease_video_count(video.snippet.channelId);
-        };
-
-        document.documentElement.addEventListener("videos", function(event) {
-            var masonry_container = document.querySelector("[masonry]");
-            var masonry = Masonry.data(masonry_container);
-            VideoStorage.update_videos(JSON.parse(event.detail));
-            VideoStorage.current_view = angular.copy(VideoStorage.videos);
-            ChannelList.current_channel = "";
-            $scope.$apply(function() {
-                $timeout(function() {
-                    masonry.remove(masonry.getItemElements());
-                    masonry.layout();
-                    masonry.prepended(masonry_container.children);
-                });
-            });
-        });
     })
 
     .service("VideoStorage", function($rootScope, $timeout) {
@@ -377,6 +299,21 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
                     parent.videos.splice(i, 1);
                 }
             }
+        };
+    })
+
+    .service("ConfigManager", function($animate) {
+        this.config = [];
+        var parent = this;
+        this.update_config = function(new_config) {
+            // call $animate.enabled
+            // remake masonry instance
+            $animate.enabled(new_config.animations);
+            if (new_config.animations != parent.config.animations){
+                angular.element(document.querySelector('[masonry]')).
+                    scope().create_instance(new_config.animations);
+            }
+            parent.config = new_config;
         };
     })
 
@@ -437,130 +374,198 @@ angular.module('subscription_checker', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
             }
             return sum;
         };
-    });
+    })
 
-function settings($modalInstance, configs) {
-    this.configs = {};
-    angular.extend(this.configs, configs);  // clone it
-    this.interval_class = "";
-    this.less_than_5 = false;
-    this.bad_input = false;
-    this.valid = true;
+    .controller('frame', function($scope, $modal, $timeout, ChannelList, VideoStorage) {
+        $scope.chnl = ChannelList;
+        $scope.open_settings = function() {
+            var modalInstance = $modal.open({
+              templateUrl: 'partials/settings.html',
+              controller: "settings as s"
+            });
+        };
 
-    function isNumber(n) {
-        return !isNaN(parseFloat(n)) && isFinite(n);
-    }
+        $scope.open_subscriptions = function() {
+            var modalInstance = $modal.open({
+              templateUrl: 'partials/subscriptions.html',
+              controller: "subscriptions"
+            });
+        };
 
-    var parent = this;
-    this.validate = function(value) {
-        parent.interval_class = "";
-        parent.less_than_5 = false;
-        parent.bad_input = false;
-        parent.valid = true;
-        if (isNumber(value)){
-            if (Number(value) < 5){
+        $scope.switch_channel = function(channel_id) {
+            ChannelList.current_channel = channel_id;
+        };
+
+        document.documentElement.addEventListener("subscribed-channels", function(event) {
+            ChannelList.update_channels(JSON.parse(event.detail));
+        }, false);
+    })
+
+    .controller('videos', function($scope, $timeout, VideoStorage, ChannelList) {
+        $scope.v = VideoStorage;
+
+        function update_flow() {
+            flow.prepended(document.getElementsByClassName("video"));
+        }
+
+        $scope.open_video = function(video, event) {
+            send_dom_event("videos", "remove-video", video);
+            VideoStorage.remove_video(video);
+            var masonry_container = document.querySelector("[masonry]");
+            var masonry = Masonry.data(masonry_container);
+            var video_div = event.target.parentElement.parentElement.parentElement;
+            VideoStorage.to_remove.push(angular.element(video_div).scope().video);
+            $timeout(()=>{
+                masonry.remove(video_div);
+                masonry.layout();
+            });
+            ChannelList.decrease_video_count(video.snippet.channelId);
+        };
+
+        document.documentElement.addEventListener("videos", function(event) {
+            var masonry_container = document.querySelector("[masonry]");
+            var masonry = Masonry.data(masonry_container);
+            VideoStorage.update_videos(JSON.parse(event.detail));
+            VideoStorage.current_view = angular.copy(VideoStorage.videos);
+            ChannelList.current_channel = "";
+            $scope.$apply(function() {
+                $timeout(function() {
+                    try{
+                    masonry.remove(masonry.getItemElements());
+                    masonry.layout();
+                    masonry.prepended(masonry_container.children);
+                    } catch(err) {
+                        masonry.reloadItems();
+                        masonry.layout();
+                    }
+                });
+            });
+        });
+    })
+
+    .controller ("settings" ,function ($modalInstance, ConfigManager) {
+        this.config = angular.copy(ConfigManager.config);  // clone it
+        this.interval_class = "";
+        this.less_than_5 = false;
+        this.bad_input = false;
+        this.valid = true;
+
+        function isNumber(n) {
+            return !isNaN(parseFloat(n)) && isFinite(n);
+        }
+
+        var parent = this;
+        this.validate = function(value) {
+            parent.interval_class = "";
+            parent.less_than_5 = false;
+            parent.bad_input = false;
+            parent.valid = true;
+            if (isNumber(value)){
+                if (Number(value) < 5){
+                    parent.valid = false;
+                    parent.less_than_5 = true;
+                    parent.interval_class = "has-error";
+                }
+            }else{
                 parent.valid = false;
-                parent.less_than_5 = true;
+                parent.bad_input = true;
                 parent.interval_class = "has-error";
             }
-        }else{
-            parent.valid = false;
-            parent.bad_input = true;
-            parent.interval_class = "has-error";
+        };
+
+        this.save = function () {
+            $modalInstance.close();
+            ConfigManager.update_config(parent.config);
+            send_dom_event('settings', "update_config", parent.config);
+        };
+
+        this.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+
+        this.valid = true;
+    })
+
+    .controller("subscriptions", function ($scope, $modalInstance, $modal, ChannelList, VideoStorage) {
+        $scope.chnl = ChannelList;
+        $scope.search_result = [];
+        $scope.show_loading = false;
+        $scope.no_result = false;
+        $scope.duplicate = false;
+        var clear = false;
+        $scope.fit = function(body_height, result_height) {
+            if (clear){
+                return {};
+            }
+            return {height: Math.max(body_height, (result_height + 10)) + 'px'};
+        };
+
+        $scope.save = function () {
+            $modalInstance.close();
+        };
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+
+        function register_channel_listeners(channel){
+            //register listeners for channel updates
+            function add_listener() {
+                document.documentElement.removeEventListener("channel-added", arguments.callee, false);
+                ChannelList.channels.push(channel);
+            }
+
+            function duplicate_listener() {
+                document.documentElement.removeEventListener("channel-added", add_listener, false);
+                document.documentElement.removeEventListener("channel-duplicate", arguments.callee, false);
+                $scope.duplicate = true;
+                $scope.$apply();
+            }
+            document.documentElement.addEventListener("channel-added", add_listener, false);
+            document.documentElement.addEventListener("channel-duplicate", duplicate_listener, false);
         }
-    };
 
-    this.save = function () {
-        $modalInstance.close(parent.configs);
-    };
+        $scope.add_channel = function(channel) {
+            $scope.duplicate = false;
+            send_dom_event('subscriptions', "add-channel", channel);
+            register_channel_listeners(channel);
+        };
 
-    this.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
+        $scope.remove_channel = function(channel) {
+            send_dom_event('subscriptions', "remove-channel", channel);
+            ChannelList.remove_channel(channel);
+            VideoStorage.remove_video_by_channel(channel.id);
+            if (ChannelList.current_channel === ""){
+                var masonry_container = document.querySelector("[masonry]");
+                angular.element(masonry_container).scope().switch_channel("");
+                return;
+            }
+            ChannelList.current_channel = "";
+        };
 
-    this.valid = true;
-}
-
-function subscriptions($scope, $modalInstance, $modal, ChannelList, VideoStorage) {
-    $scope.chnl = ChannelList;
-    $scope.search_result = [];
-    $scope.show_loading = false;
-    $scope.no_result = false;
-    $scope.duplicate = false;
-    var clear = false;
-    $scope.fit = function(body_height, result_height) {
-        if (clear){
-            return {};
-        }
-        return {height: Math.max(body_height, (result_height + 10)) + 'px'};
-    };
-
-    $scope.save = function () {
-        $modalInstance.close();
-    };
-
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-
-    function register_channel_listeners(channel){
-        //register listeners for channel updates
-        function add_listener() {
-            document.documentElement.removeEventListener("channel-added", arguments.callee, false);
-            ChannelList.channels.push(channel);
-        }
-
-        function duplicate_listener() {
-            document.documentElement.removeEventListener("channel-added", add_listener, false);
-            document.documentElement.removeEventListener("channel-duplicate", arguments.callee, false);
-            $scope.duplicate = true;
+        function search_result_listener (event) {
+            var results = JSON.parse(event.detail);
+            if (results.length === 0 || results[0] === null){
+                clear = true;
+                $scope.no_result = true;
+            } else {
+                $scope.search_result = results;
+                clear = false;
+                $scope.no_result = false;
+            }
+            $scope.show_loading = false;
             $scope.$apply();
         }
-        document.documentElement.addEventListener("channel-added", add_listener, false);
-        document.documentElement.addEventListener("channel-duplicate", duplicate_listener, false);
-    }
 
-    $scope.add_channel = function(channel) {
-        $scope.duplicate = false;
-        send_dom_event('subscriptions', "add-channel", channel);
-        register_channel_listeners(channel);
-    };
-
-    $scope.remove_channel = function(channel) {
-        send_dom_event('subscriptions', "remove-channel", channel);
-        ChannelList.remove_channel(channel);
-        VideoStorage.remove_video_by_channel(channel.id);
-        if (ChannelList.current_channel === ""){
-            var masonry_container = document.querySelector("[masonry]");
-            angular.element(masonry_container).scope().switch_channel("");
-            return;
-        }
-        ChannelList.current_channel = "";
-    };
-
-    function search_result_listener (event) {
-        var results = JSON.parse(event.detail);
-        if (results.length === 0 || results[0] === null){
-            clear = true;
-            $scope.no_result = true;
-        } else {
-            $scope.search_result = results;
-            clear = false;
-            $scope.no_result = false;
-        }
-        $scope.show_loading = false;
-        $scope.$apply();
-    }
-
-    $scope.search_channel = function($event) {
-        if($event.keyCode == 13){
-            send_dom_event('subscriptions', "search-channel", null);
-            document.documentElement.addEventListener("search-result", search_result_listener, false);
-            $scope.search_result = [];
-            $scope.show_loading = true;
-            $scope.duplicate = false;
-            clear = true;
-            //super long channel name will extend out of the modal window.
-        }
-    };
-}
+        $scope.search_channel = function($event) {
+            if($event.keyCode == 13){
+                send_dom_event('subscriptions', "search-channel", null);
+                document.documentElement.addEventListener("search-result", search_result_listener, false);
+                $scope.search_result = [];
+                $scope.show_loading = true;
+                $scope.duplicate = false;
+                //super long channel name will extend out of the modal window.
+                clear = true;
+            }
+        };
+    });

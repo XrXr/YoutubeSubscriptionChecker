@@ -4,20 +4,26 @@
 <div class="modal-body">
     <form class="form-inline" ng-class="s.interval_class" role="form">
             <label class="control-label">Check Interval &nbsp;</label>
-            <input class="form-control" ng-model="s.configs.interval" ng-change="s.validate(s.configs.interval)" type="text" placeholder="Time in minutes" style="width: 40%">
+            <input class="form-control" ng-model="s.config.interval" ng-change="s.validate(s.config.interval)" type="text" placeholder="Time in minutes" style="width: 40%">
             &nbsp;
             <label class="control-label" for="apple">minutes</label>
     </form>
     <br>
     <form class="form-inline" role="form">
         <label class="control-label">Notification Sound
-            <input type="checkbox" ng-model = "s.configs.play_sound" class="setting-check-box">
+            <input type="checkbox" ng-model = "s.config.play_sound" class="setting-check-box">
         </label>
     </form>
     <br>
     <form class="form-inline" role="form">
         <label class="control-label">Open Video in Background Tab
-            <input type="checkbox" ng-model="s.configs.in_background" class="setting-check-box">
+            <input type="checkbox" ng-model="s.config.in_background" class="setting-check-box">
+        </label>
+    </form>
+    <br>
+    <form class="form-inline" role="form">
+        <label class="control-label">Enable Animations
+            <input type="checkbox" ng-model="s.config.animations" class="setting-check-box">
         </label>
     </form>
 </div>

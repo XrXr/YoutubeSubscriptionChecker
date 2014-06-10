@@ -18,6 +18,6 @@
         </ul>
     </div>
 </div>
-<span class="no-videos" ng-if="!(v.current_view.length)">
+<span class="no-videos" ng-if="!(v.current_view.length) || v.to_remove.length >= v.current_view.length">
     No new videos
 </span>
