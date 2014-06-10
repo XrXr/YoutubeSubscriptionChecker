@@ -27,8 +27,8 @@ document.documentElement.addEventListener("remove-video", function(event) {
     self.port.emit("remove-video", event.detail);
 }, false);
 
-document.documentElement.addEventListener("update_configs", function(event) {
-    self.port.emit("update_configs", event.detail);
+document.documentElement.addEventListener("update_config", function(event) {
+    self.port.emit("update_config", event.detail);
 }, false);
 
 
@@ -36,8 +36,8 @@ self.port.on('videos', function(pay_load) {
     send_dom_event("frame", "videos", pay_load);
 });
 
-self.port.on('configs', function(pay_load) {
-    send_dom_event("frame", "configs", pay_load);
+self.port.on('config', function(pay_load) {
+    send_dom_event("frame", "config", pay_load);
 });
 
 self.port.on('search-result', function(pay_load) {
