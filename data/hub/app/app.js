@@ -289,9 +289,11 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             for (var i = parent.videos.length - 1; i >= 0; i--) {
                 if (parent.videos[i].id.videoId == video.id.videoId){
                     parent.videos.splice(i, 1);
-                    return;
+                    parent.to_remove.push(video);
+                    return true;
                 }
             }
+            return false;
         };
         this.remove_video_by_channel = function(channel_id) {
             for (var i = parent.videos.length - 1; i >= 0; i--) {
@@ -409,17 +411,17 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         }
 
         $scope.open_video = function(video, event) {
-            send_dom_event("videos", "remove-video", video);
-            VideoStorage.remove_video(video);
-            var masonry_container = document.querySelector("[masonry]");
-            var masonry = Masonry.data(masonry_container);
-            var video_div = event.target.parentElement.parentElement.parentElement;
-            VideoStorage.to_remove.push(angular.element(video_div).scope().video);
-            $timeout(()=>{
-                masonry.remove(video_div);
-                masonry.layout();
-            });
-            ChannelList.decrease_video_count(video.snippet.channelId);
+            if (VideoStorage.remove_video(video)){
+                send_dom_event("videos", "remove-video", video);
+                var masonry_container = document.querySelector("[masonry]");
+                var masonry = Masonry.data(masonry_container);
+                var video_div = event.target.parentElement.parentElement.parentElement;
+                $timeout(()=>{
+                    masonry.remove(video_div);
+                    masonry.layout();
+                });
+                ChannelList.decrease_video_count(video.snippet.channelId);
+            }
         };
 
         document.documentElement.addEventListener("videos", function(event) {
@@ -427,6 +429,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             var masonry = Masonry.data(masonry_container);
             VideoStorage.update_videos(JSON.parse(event.detail));
             VideoStorage.current_view = angular.copy(VideoStorage.videos);
+            VideoStorage.to_remove = [];
             ChannelList.current_channel = "";
             $scope.$apply(function() {
                 $timeout(function() {
