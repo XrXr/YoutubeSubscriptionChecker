@@ -10,6 +10,12 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             ConfigManager.update_config(JSON.parse(event.detail));
         });
     })
+    .directive('videoCanvas', function() {
+        return {
+            controller: "videos",
+            templateUrl: "partials/videos.html"
+        };
+    })
     .directive('masonry', function($timeout, $interval, ChannelList, ConfigManager, VideoStorage) {
         return {
             restrict: 'AC',
@@ -152,71 +158,65 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     var f,l;
                     if (new_list.length > VideoStorage.current_view.length){
                         f = VideoStorage.current_view[0];
-                        if (f !== undefined){
+                        intersection_start = indexOf(f, new_list);
+                        if (intersection_start != -1){
                             l = VideoStorage.current_view[VideoStorage.current_view.length - 1];
-                            intersection_start = indexOf(f, new_list);
-                            if (intersection_start != -1){
-                                intersection_end = indexOf(l, new_list);
-                                var before = new_list.slice(0, intersection_start);
-                                var after = new_list.slice(intersection_end + 1);
-                                VideoStorage.current_view.splice(0, 0, ...before);
-                                VideoStorage.current_view.push(...after);
-                                collect_garbage();
-                                $timeout(()=>{
-                                    var arr = [].slice.call(elem.children());
-                                    scope.obj.prepended(arr.slice(0, intersection_start));
-                                    scope.obj.appended(arr.slice(intersection_end + 1));
-                                    scope.obj.layout();
-                                    // $timeout(scope.obj.reloadItems);
-                                });
-                            } else {
-                                crude_update(new_list);
-                            }
+                            intersection_end = indexOf(l, new_list);
+                            var before = new_list.slice(0, intersection_start);
+                            var after = new_list.slice(intersection_end + 1);
+                            VideoStorage.current_view.splice(0, 0, ...before);
+                            VideoStorage.current_view.push(...after);
+                            collect_garbage();
+                            $timeout(()=>{
+                                var arr = [].slice.call(elem.children());
+                                scope.obj.prepended(arr.slice(0, intersection_start));
+                                scope.obj.appended(arr.slice(intersection_end + 1));
+                                scope.obj.layout();
+                                // $timeout(scope.obj.reloadItems);
+                            });
                         } else {
                             crude_update(new_list);
+                            return;  //squeeze some performance
                         }
                     } else if (new_list.length < VideoStorage.current_view.length){
                         f = new_list[0];
-                        if (f !== undefined){
+                        intersection_start = indexOf(f, VideoStorage.current_view);
+                        if (intersection_start != -1){
                             l = new_list[new_list.length - 1];
-                            intersection_start = indexOf(f, VideoStorage.current_view);
-                            if (intersection_start != -1){
-                                intersection_end = indexOf(l, VideoStorage.current_view);
-                                var delta = VideoStorage.current_view.length - 1 - intersection_end;
-                                // this tests if the intersection is compelete.
-                                if (!v_eq(VideoStorage.current_view
-                                    [intersection_start + (new_list.length - 1)], l)){
-                                    // a block was removed from the middle
-                                    var intersecting = true;
-                                    var i = 0;
-                                    // walk through the list until intersection ends
-                                    while (intersecting){
-                                        i++;
-                                        intersecting = v_eq(new_list[i],
-                                            VideoStorage.current_view[intersection_start + i]);
-                                    }
-                                    var size_diff = VideoStorage.current_view.length - new_list.length;
-                                    play_leave_animation(null, i + intersection_start, size_diff);
-                                    VideoStorage.current_view.splice(
-                                        i + intersection_start, size_diff);
-                                } else {
-                                    // remove from front and/or back
-                                    play_leave_animation(intersection_start, intersection_end);
-                                    VideoStorage.current_view.splice(-delta, delta);
-                                    VideoStorage.current_view.splice(0, intersection_start);
+                            intersection_end = indexOf(l, VideoStorage.current_view);
+                            var delta = VideoStorage.current_view.length - 1 - intersection_end;
+                            // this tests if the intersection is compelete.
+                            if (!v_eq(VideoStorage.current_view
+                                [intersection_start + (new_list.length - 1)], l)){
+                                // a block was removed from the middle
+                                var intersecting = true;
+                                var i = 0;
+                                // walk through the list until intersection ends
+                                while (intersecting){
+                                    i++;
+                                    intersecting = v_eq(new_list[i],
+                                        VideoStorage.current_view[intersection_start + i]);
                                 }
-                                $timeout(()=>{
-                                    // var elems = scope.obj.getItemElements();
-                                    // scope.obj.remove(elems.splice(-delta, delta));
-                                    // scope.obj.remove(elems.splice(0, intersection_start));
-                                    collect_garbage();
-                                    scope.obj.layout();
-                                });
-                            }else{
-                                crude_update(new_list);
+                                var size_diff = VideoStorage.current_view.length - new_list.length;
+                                play_leave_animation(null, i + intersection_start, size_diff);
+                                VideoStorage.current_view.splice(
+                                    i + intersection_start, size_diff);
+                            } else {
+                                // remove from front and/or back
+                                play_leave_animation(intersection_start, intersection_end);
+                                VideoStorage.current_view.splice(-delta, delta);
+                                VideoStorage.current_view.splice(0, intersection_start);
                             }
-                        } else {
+                            $timeout(()=>{
+                                // var elems = scope.obj.getItemElements();
+                                // scope.obj.remove(elems.splice(-delta, delta));
+                                // scope.obj.remove(elems.splice(0, intersection_start));
+                                collect_garbage();
+                                scope.obj.layout();
+                            });
+                        }else{
                             crude_update(new_list);
+                            return;
                         }
                     } else {
                         crude_update(new_list);
