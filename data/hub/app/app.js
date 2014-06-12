@@ -12,7 +12,6 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     })
     .directive('videoCanvas', function() {
         return {
-            controller: "videos",
             templateUrl: "partials/videos.html"
         };
     })
