@@ -41,10 +41,12 @@ body{
 }
 .channel-title{
     float: left;
+    max-width: calc(100% - 1.2em);
+}
+.ellipses{
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: calc(100% - 1.2em);
 }
 .video-count {
     color: grey;
@@ -153,15 +155,28 @@ body{
 .subscription-edit {
     margin-right: 9.5%
 }
-.no-result.ng-leave,
-.no-result.ng-enter {
+.modal-channel-title{
+    max-width: 195px;
+    display: inline-block;
+    position: absolute;
+    margin-top: 5px;
+}
+.modal-notice{
+    opacity:1;
+    position: absolute;
+    margin: 0px auto;
+    text-align: center;
+    left: 0px;
+    right: 0px;
+    bottom: 10px;
+}
+.modal-notice.ng-hide-add,
+.modal-notice.ng-hide-remove {
+    display:block!important;
     transition: opacity linear 0.5s;
 }
-.no-result.ng-enter {
+.modal-notice.ng-hide{
     opacity: 0;
-}
-.no-result.ng-enter-active {
-    opacity: 1;
 }
 .modal {
     overflow-y: auto;
