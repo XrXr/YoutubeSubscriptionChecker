@@ -566,7 +566,6 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 $scope.search_result = [];
                 $scope.show_loading = true;
                 $scope.duplicate = false;
-                //super long channel name will extend out of the modal window.
                 clear = true;
             }
         };
