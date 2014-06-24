@@ -1,3 +1,8 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+   - Author: XrXr
+-->
 <div masonry='{
     "itemSelector": ".video",
     "gutter": 19,
@@ -6,7 +11,7 @@
     <div masonry-tile ng-repeat="video in v.current_view" class="video" id="{{video.snippet.title}}">
         <ul class="flat-ul" title="{{video.snippet.title}}">
             <li>
-                <img ng-click="open_video(video, $event)" width="300px" height="169px" src="http://placekitten.com/300/169" ng-src="{{video.snippet.thumbnails.medium.url}}"></img>
+                <img ng-click="open_video(video, $event)" width="300px" height="169px" ng-src="{{video.snippet.thumbnails.medium.url}}"></img>
             </li>
             <li class="video-title">
                 <span ng-bind="video.snippet.title"></span>
