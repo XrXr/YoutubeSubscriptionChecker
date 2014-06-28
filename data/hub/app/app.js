@@ -275,6 +275,19 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             $rootScope.$apply();
         };
         var parent = this;
+
+        function get_video_by_id (id, array){
+            var video = null;
+            array.some(function(elem) {
+                if (elem.id.videoId == id){
+                    video = elem;
+                    return true;
+                }
+                return false;
+            });
+            return video;
+        }
+
         this.remove_from_view = function(video) {
             for (var i = parent.current_view.length - 1; i >= 0; i--) {
                 if (parent.current_view[i].id.videoId == video.id.videoId){
@@ -289,6 +302,19 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 parent.remove_from_view(v);
             });
             this.to_remove = [];
+        };
+
+        this.update_duration = function(id, duration) {
+            // update the video in the back storage
+            var video = get_video_by_id(id, parent.videos);
+            if (video && video.duration === ""){
+                video.duration = duration;
+            }
+            // update the video in current view
+            video = get_video_by_id(id, parent.current_view);
+            if (video && video.duration === ""){
+                video.duration = duration;
+            }
         };
 
         this.remove_video = function(video) {
@@ -449,6 +475,12 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     }
                 });
             });
+        });
+
+        document.documentElement.addEventListener("duration-update", function(event) {
+            var detail = JSON.parse(event.detail);
+            VideoStorage.update_duration(detail.id, detail.duration);
+            $scope.$apply();
         });
     })
 

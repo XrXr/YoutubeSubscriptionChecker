@@ -11,7 +11,7 @@
     <div masonry-tile ng-repeat="video in v.current_view" class="video" id="{{video.snippet.title}}">
         <ul class="flat-ul" title="{{video.snippet.title}}">
             <li>
-                <img ng-click="open_video(video, $event)" width="300px" height="169px" ng-src="{{video.snippet.thumbnails.medium.url}}"></img>
+                <img ng-click="open_video(video, $event)" width="300px" height="169px" src="loading.png" ng-src="{{video.snippet.thumbnails.medium.url}}"></img>
             </li>
             <li class="video-title">
                 <span ng-bind="video.snippet.title"></span>

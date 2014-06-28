@@ -44,7 +44,7 @@ self.port.on('videos', function(pay_load) {
 });
 
 self.port.on('config', function(pay_load) {
-    send_dom_event("frame", "config", pay_load);
+    send_dom_event(null, "config", pay_load);
 });
 
 self.port.on('search-result', function(pay_load) {
@@ -61,6 +61,10 @@ self.port.on("channel-added", function() {
 
 self.port.on("channel-duplicate", function() {
     send_dom_event("subscriptions", "channel-duplicate", null);
+});
+
+self.port.on("duration-update", function(pay_load) {
+    send_dom_event("videos", "duration-update", pay_load);
 });
 
 
