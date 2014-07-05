@@ -1,7 +1,7 @@
 {
   "name": "youtube-subscription-checker",
   "title": "Youtube Subscription Checker",
-  "id": "youtube-subscription-checker@xrxrxr",
+  "id": "youtube-subscription-checker@xrxr",
   "description": "Checks for new uploads from Youtube channels periodicly. Sends notification when there are new videos!",
   "author": "XrXrXr",
   "license": "MPL 2.0",
