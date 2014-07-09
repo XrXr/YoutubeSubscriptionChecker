@@ -22,7 +22,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             templateUrl: "partials/videos.html"
         };
     })
-    .directive('masonry', function($timeout, $interval, ChannelList, ConfigManager, VideoStorage) {
+    .directive('masonry', function($timeout, ChannelList, ConfigManager, VideoStorage) {
         return {
             restrict: 'AC',
             link: function(scope, elem, attrs) {
@@ -236,7 +236,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
     })
 
-    .directive('masonryTile', function($timeout, $animate) {
+    .directive('masonryTile', function() {
         return {
             restrict: 'AC',
             link: function(scope, elem) {
@@ -265,7 +265,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
     })
 
-    .service("VideoStorage", function($rootScope, $timeout) {
+    .service("VideoStorage", function($rootScope) {
         // this.videos = [{id:{videoId:123}},{id:{videoId:125}},{id:{videoId:124},snippet:{title:"asdasd"}}];
         this.videos = [];
         this.current_view = [];
@@ -410,7 +410,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
     })
 
-    .controller('frame', function($scope, $modal, $timeout, ChannelList, VideoStorage) {
+    .controller('frame', function($scope, $modal, ChannelList) {
         $scope.chnl = ChannelList;
         $scope.open_settings = function() {
             var modalInstance = $modal.open({
@@ -527,7 +527,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         this.valid = true;
     })
 
-    .controller("subscriptions", function ($scope, $modalInstance, $modal, ChannelList, VideoStorage) {
+    .controller("subscriptions", function ($scope, $modalInstance, ChannelList, VideoStorage) {
         $scope.chnl = ChannelList;
         $scope.search_result = [];
         $scope.show_loading = false;
