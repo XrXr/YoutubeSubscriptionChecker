@@ -369,6 +369,8 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         }
 
         this.update_channels = function(new_list) {
+            // This method will update the channel list
+            // returns whether the new_list is empty
             new_list.forEach(function(element) {
                 var matching = get_channel_by_id(element.id);
                 if (matching){
@@ -378,6 +380,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 }
             });
             $rootScope.$apply();
+            return new_list.length === 0;
         };
 
         this.decrease_video_count = function(channel_id){
@@ -431,7 +434,9 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
 
         document.documentElement.addEventListener("subscribed-channels", function(event) {
-            ChannelList.update_channels(JSON.parse(event.detail));
+            if (ChannelList.update_channels(JSON.parse(event.detail))){
+                $scope.open_subscriptions();
+            }
         }, false);
     })
 
