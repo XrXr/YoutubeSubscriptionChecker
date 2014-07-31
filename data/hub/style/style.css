@@ -8,6 +8,29 @@ Author: XrXr
 body{
     overflow-x: hidden;
 }
+.heading{
+    margin-left: 10px;
+    margin-bottom: 0;
+}
+.history-info{
+    position: fixed;
+    right: 2px;
+    bottom: 2px;
+    color: grey;
+    cursor: default;
+    -moz-user-select: none;
+    z-index: -9999;
+}
+.center-icon{
+    margin: auto;
+    width: 32px;
+    height: 32px;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    position: absolute;
+}
 .animate-li{
     width: calc(16.6667% - 25px);
     font-size: 18px;

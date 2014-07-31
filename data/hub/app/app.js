@@ -268,6 +268,9 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     .service("VideoStorage", function($rootScope) {
         // this.videos = [{id:{videoId:123}},{id:{videoId:125}},{id:{videoId:124},snippet:{title:"asdasd"}}];
         this.videos = [];
+        // for (var i = 0; i < 100; i++) {
+        //   this.videos.push({id:{videoId: i}, snippet: {channelId: i}});
+        // }
         this.current_view = [];
         this.to_remove = [];
         this.update_videos = function(new_list) {
