@@ -1,15 +1,15 @@
 A Firefox add-on that checks for new uploads from Youtube channels.
 
+[AMO](https://addons.mozilla.org/en-US/firefox/addon/youtube-subscription-checker/)
+
+Features:
+- Check for new uploads for your favorite channels
+- Gorgeous interface
+
+Features coming in the future:
+
+- Create filter for new videos
+- Custom alert sound
+- History
+
 __Licensed under MPL2__
-
-## Modified AngularJS
-
-The AngularJS included in this add-on is slightly modified.
-```js
-    {cache: $templateCache}
-```
-become
-```js
-    {cache: $templateCache, responseType: "text"}
-```
-to squelch a error message Firefox log due to fetching templates from `file:///`
