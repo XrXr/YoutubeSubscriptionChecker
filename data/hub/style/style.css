@@ -8,6 +8,21 @@ Author: XrXr
 body{
     overflow-x: hidden;
 }
+button{
+    outline: 0 !important;
+}
+.filter-input{
+    display: inline;
+    width: 77%
+}
+.filter-regex-checkbox{
+    margin-left: 5px;
+    display: inline-block;
+}
+.filter-select{
+    height: 100%;
+    margin-bottom: 10px;
+}
 .heading{
     margin-left: 10px;
     margin-bottom: 0;
@@ -170,7 +185,7 @@ body{
     width: 55%;
     position: absolute;
     text-align: center;
-    bottom: -3%;
+    bottom: -10px;
     left: 12%;
 }
 .fine-print {

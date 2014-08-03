@@ -357,7 +357,11 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     .service("ChannelList", function($rootScope) {
         this.channels = [];
         this.current_channel = "";
-
+        // for (var i = 0; i < 100; i++) {
+        //     this.channels.push({title: String.fromCharCode(65 + Math.random() * 57,
+        //                                  65 + Math.random() * 57,
+        //                                  65 + Math.random() * 57)});
+        // }
         var parent = this;
         function get_channel_by_id (id) {
             var channel = null;
@@ -492,7 +496,12 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         });
     })
 
-    .controller ("settings" ,function ($modalInstance, ConfigManager) {
+    .controller ("settings", function ($scope, $modalInstance, ConfigManager, ChannelList) {
+        $scope.tabs = {filter: false};
+        this.channels = ChannelList;
+        this.filter = {
+            filters: ["E Northernlion $northernlion live(r)"]
+        };
         this.config = angular.copy(ConfigManager.config);  // clone it
         this.interval_class = "";
         this.less_than_5 = false;

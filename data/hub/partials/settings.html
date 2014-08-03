@@ -4,6 +4,7 @@
    - Author: XrXr
 -->
 <h3 class="heading">Settings</h3>
+
 <div class="modal-body">
     <tabset>
       <tab heading="General">
@@ -33,16 +34,55 @@
             </label>
         </form>
       </tab>
-      <tab heading="Filters">
+
+      <tab heading="Filters" select="tabs.filter = true" deselect="tabs.filter = false" class="container-fluid">
         <br>
-        <form class="form-inline" role="form">
-            <button type="button" class="btn btn-success">Filter configuration</button>
-        </form>
+        <div class="row">
+          <div class="col-md-5">
+            <select multiple="true" class="form-control filter-select" size="10">
+              <option ng-repeat="f in s.filter.filters" class="ellipses">{{f}}</option>
+            </select>
+            <form class="form-inline" role="form">
+                <button type="button" class="btn btn-success">Add</button>
+                <button type="button" class="btn btn-danger">Remove</button>
+                <button type="button" class="btn btn-primary">&and;</button>
+                <button type="button" class="btn btn-primary">&or;</button>
+            </form>
+          </div>
+          <div class="col-md-7">
+            <h4>For channel that match...</h4>
+            <div>
+              <input class="form-control filter-input" type="text">
+              <div class="checkbox filter-regex-checkbox">
+                <label>
+                  <input type="checkbox"> RegEx
+                </label>
+              </div>
+            </div>
+            <h4>only videos with title that match...</h4>
+            <div>
+              <input class="form-control filter-input" type="text">
+              <div class="checkbox filter-regex-checkbox">
+                <label>
+                  <input type="checkbox"> RegEx
+                </label>
+              </div>
+            </div>
+            <h4>should be...</h4>
+            <label class="checkbox-inline">
+              <input type="radio" name="filter_option" checked>Excluded
+            </label>
+            <label class="checkbox-inline">
+              <input type="radio" name="filter_option">Included
+            </label>
+          </div>
+        </div>
       </tab>
     </tabset>
-
 </div>
+
 <div class="modal-footer" style="margin: 0">
+    <div class="alert alert-info setting-warning" ng-if="tabs.filter">Excluded videos can be found in history</div>
     <div class="alert alert-danger setting-warning" ng-if="s.less_than_5">Check interval cannot be lower than 5 minutes</div>
     <div class="alert alert-danger setting-warning" ng-if="s.bad_input">Check interval must be a positive number</div>
     <button class="btn btn-primary" ng-click="s.save()" ng-disabled="!s.valid">Save</button>
