@@ -497,51 +497,52 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     })
 
     .controller ("settings", function ($scope, $modalInstance, ConfigManager, ChannelList) {
-        $scope.tabs = {filter: false};
-        this.channels = ChannelList;
-        this.filter = {
+        $scope.channels = ChannelList;
+        $scope.filter = {
             filters: ["E Northernlion $northernlion live(r)"]
         };
-        this.config = angular.copy(ConfigManager.config);  // clone it
-        this.interval_class = "";
-        this.less_than_5 = false;
-        this.bad_input = false;
-        this.valid = true;
+        $scope.config = angular.copy(ConfigManager.config);  // clone it
+        $scope.ns = {
+            interval_class: "",
+            less_than_5: false,
+            bad_input: false,
+            valid: true,
+            filter_active: false
+        };
 
         function isNumber(n) {
             return !isNaN(parseFloat(n)) && isFinite(n);
         }
 
-        var parent = this;
-        this.validate = function(value) {
-            parent.interval_class = "";
-            parent.less_than_5 = false;
-            parent.bad_input = false;
-            parent.valid = true;
+        $scope.validate = function(value) {
+            $scope.ns.interval_class = "";
+            $scope.ns.less_than_5 = false;
+            $scope.ns.bad_input = false;
+            $scope.ns.valid = true;
             if (isNumber(value)){
                 if (Number(value) < 5){
-                    parent.valid = false;
-                    parent.less_than_5 = true;
-                    parent.interval_class = "has-error";
+                    $scope.ns.valid = false;
+                    $scope.ns.less_than_5 = true;
+                    $scope.ns.interval_class = "has-error";
                 }
             }else{
-                parent.valid = false;
-                parent.bad_input = true;
-                parent.interval_class = "has-error";
+                $scope.ns.valid = false;
+                $scope.ns.bad_input = true;
+                $scope.ns.interval_class = "has-error";
             }
         };
 
-        this.save = function () {
+        $scope.save = function () {
             $modalInstance.close();
-            ConfigManager.update_config(parent.config);
-            send_dom_event('settings', "update_config", parent.config);
+            ConfigManager.update_config($scope.config);
+            send_dom_event('settings', "update_config", $scope.config);
         };
 
-        this.cancel = function () {
+        $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
 
-        this.valid = true;
+        $scope.valid = true;
     })
 
     .controller("subscriptions", function ($scope, $modalInstance, ChannelList, VideoStorage) {
