@@ -11,6 +11,10 @@ body{
 button{
     outline: 0 !important;
 }
+.history-selected{
+    border: 2px solid grey;
+    border-radius: 10px;
+}
 .filter-input{
     display: inline;
     width: 77%

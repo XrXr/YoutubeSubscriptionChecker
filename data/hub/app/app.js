@@ -53,10 +53,9 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     if (scope.obj){
                         scope.obj.destroy();
                     }
+                    options.transitionDuration = 0;
                     if (enable_transition){
                         options.transitionDuration = '0.4s';
-                    }else{
-                        options.transitionDuration = 0;
                     }
                     scope.obj = new Masonry(container, options);
                     window.expose = scope.obj;
@@ -396,7 +395,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     })
 
     .service("ConfigManager", function($animate) {
-        this.config = [];
+        this.config = {};
         var parent = this;
         this.update_config = function(new_config) {
             // call $animate.enabled
@@ -485,7 +484,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
     })
 
-    .controller('frame', function($scope, $modal, $timeout, ChannelList, VideoStorage) {
+    .controller('frame', function($scope, $modal, $timeout, ChannelList, VideoStorage, ConfigManager) {
         $scope.chnl = ChannelList;
         $scope.vs = VideoStorage;
         $scope.open_settings = function() {
@@ -508,6 +507,10 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
         $scope.toggle_history = function(){
             VideoStorage.toggle_history();
+            angular.element(document.querySelector('[masonry]')).
+                    scope().create_instance(
+                        VideoStorage.history_mode ?
+                        false : ConfigManager.config.animations);
             ChannelList.current_channel = "";
             ChannelList.update_video_count();
             refresh_masonry();
