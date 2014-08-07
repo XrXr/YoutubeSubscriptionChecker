@@ -39,7 +39,8 @@ self.port.on('videos', function(pay_load) {
     send_dom_event("frame", "videos", pay_load);
 });
 
-self.port.on('config', function(pay_load) {
+self.port.on('config', function(pay_load, filters) {
+    pay_load.filters = filters;
     send_dom_event(null, "config", pay_load);
 });
 

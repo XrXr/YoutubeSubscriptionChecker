@@ -3,7 +3,7 @@ let Filter = main.Filter;
 let filter_videos = main.filter_videos;
 
 function get_title (Video) {
-    return Video.snippet.title;
+    return Video.snippet.title.toLowerCase();
 }
 
 function Video (title) {
@@ -16,8 +16,8 @@ function Video (title) {
 }
 
 function get_samples () {
-    return [Video("great"), Video("bad"), Video("greatness"),
-                      Video("happiness"), Video("greatness awaits")];
+    return [Video("gReat"), Video("Bad"), Video("gReaTness"),
+                      Video("happIness"), Video("greatness Awaits")];
 }
 
 exports["test filter_videos() include"] = {

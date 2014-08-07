@@ -430,6 +430,8 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             return channel;
         }
 
+        this.get_channel_by_id = get_channel_by_id;
+
         this.update_video_count = function() {
             for (var c of parent.channels){
                 c.video_count = 0;
@@ -577,6 +579,12 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             valid: true,
             filter_active: false
         };
+        $scope.new_filter = {
+            channel: "",
+            match: "",
+            regex: false,
+            include: "exclude"
+        };
 
         function isNumber(n) {
             return !isNaN(parseFloat(n)) && isFinite(n);
@@ -610,7 +618,22 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             $modalInstance.dismiss('cancel');
         };
 
-        $scope.valid = true;
+        $scope.current_filter = function(filter) {
+            $scope.new_filter.match = filter.match;
+            $scope.new_filter.channel = filter.channel;
+            $scope.new_filter.regex = filter.regex;
+            $scope.new_filter.include = filter.include ? "include" : "exclude";
+        };
+
+        $scope.add_filter = function() {
+            var filter = angular.copy($scope.new_filter);
+            filter.include = filter.include === "include";
+            $scope.config.filters.push(angular.copy($scope.new_filter));
+        };
+
+        $scope.remove_filter = function(filter) {
+            $scope.config.filters.splice($scope.config.filters.indexOf(filter), 1);
+        };
     })
 
     .controller("subscriptions", function ($scope, $modalInstance, ChannelList, VideoStorage) {
