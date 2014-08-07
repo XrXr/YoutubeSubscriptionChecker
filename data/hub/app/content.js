@@ -26,10 +26,6 @@ document.documentElement.addEventListener("remove-channel", function(event) {
     self.port.emit("remove-channel", event.detail);
 }, false);
 
-document.documentElement.addEventListener("get-videos", function(event) {
-    self.port.emit("get-videos", event.detail);
-}, false);
-
 document.documentElement.addEventListener("remove-video", function(event) {
     self.port.emit("remove-video", event.detail);
 }, false);
@@ -66,6 +62,5 @@ self.port.on("channel-duplicate", function() {
 self.port.on("duration-update", function(pay_load) {
     send_dom_event("videos", "duration-update", pay_load);
 });
-
 
 self.port.emit("get-videos", null); //get all videos once contentscript loads
