@@ -26,8 +26,6 @@ function refresh_masonry () {
     });
 }
 
-window.cat = refresh_masonry;
-
 angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     .run(function(ConfigManager) {
         document.documentElement.addEventListener("config", function(event) {
@@ -261,6 +259,20 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
     })
 
+    .directive("selectIndex", function ($parse) {
+        return {
+            link: function(scope, elem, attrs) {
+                var setter = $parse(attrs.selectIndex).assign;
+                scope.$watch(function() {
+                    console.log(elem[0].selectedIndex);
+                    return elem[0].selectedIndex;
+                }, function(newVal) {
+                    setter(scope, newVal);
+                });
+            }
+        };
+    })
+
     .directive('masonryTile', function() {
         return {
             restrict: 'AC',
@@ -282,7 +294,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     function() {
                         return iElement[0].clientHeight;
                     },
-                    function(newVal, oldVal) {
+                    function(newVal) {
                         scope[iAttrs.bindHeight] = newVal;
                     }
                 );
@@ -533,11 +545,12 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         }
 
         $scope.open_video = function(video, event) {
+            if (VideoStorage.history_mode){
+                return send_dom_event("videos", "open-video", video);
+            }
             if (VideoStorage.remove_video(video)){
-                send_dom_event("videos", "remove-video", video);
-                if (VideoStorage.history_mode){
-                    return;
-                }
+                var event_name = event.ctrlKey ? "skip-video" : "remove-video";
+                send_dom_event("videos", event_name, video);
                 var masonry_container = document.querySelector("[masonry]");
                 var masonry = Masonry.data(masonry_container);
                 var video_div = event.target.parentElement.parentElement.parentElement;
@@ -568,16 +581,14 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
     .controller ("settings", function ($scope, $modalInstance, ConfigManager, ChannelList) {
         $scope.channels = ChannelList;
-        $scope.filter = {
-            filters: ["E Northernlion $northernlion live(r)"]
-        };
         $scope.config = angular.copy(ConfigManager.config);  // clone it
         $scope.ns = {
             interval_class: "",
             less_than_5: false,
             bad_input: false,
             valid: true,
-            filter_active: false
+            filter_active: false,
+            dup_filters: false
         };
         $scope.new_filter = {
             channel: "",
@@ -618,21 +629,61 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             $modalInstance.dismiss('cancel');
         };
 
-        $scope.current_filter = function(filter) {
+        $scope.current_filter = function(filter, index) {
             $scope.new_filter.match = filter.match;
             $scope.new_filter.channel = filter.channel;
             $scope.new_filter.regex = filter.regex;
             $scope.new_filter.include = filter.include ? "include" : "exclude";
         };
 
-        $scope.add_filter = function() {
-            var filter = angular.copy($scope.new_filter);
+        function is_dup (filter) {
+            return $scope.config.filters.some(
+                e => e.match === filter.match &&
+                e.channel === filter.channel &&
+                e.regex === filter.regex &&
+                (e.include === filter.include ||
+                 e.include ? "include" : "exclude" === filter.include));
+        }
+
+        $scope.add_filter = function(filter) {
+            $scope.ns.dup_filter = false;
+            filter = angular.copy(filter);
             filter.include = filter.include === "include";
-            $scope.config.filters.push(angular.copy($scope.new_filter));
+            filter.match = filter.match.trim();
+            filter.channel = filter.channel.trim();
+            if (is_dup(filter)){
+                $scope.ns.dup_filter = true;
+                return;
+            }
+            $scope.config.filters.push(filter);
         };
 
-        $scope.remove_filter = function(filter) {
-            $scope.config.filters.splice($scope.config.filters.indexOf(filter), 1);
+        $scope.get_filter_class = function(filter) {
+            return filter.include === true || filter.include === "include" ?
+                "bg-success": "bg-danger";
+        };
+
+        $scope.move_up = function(index) {
+            if (index <= 0 || !index){
+                return;
+            }
+            var below = $scope.config.filters[index - 1];
+            $scope.config.filters[index - 1] = $scope.config.filters[index];
+            $scope.config.filters[index] = below;
+        };
+
+        $scope.move_down = function(index) {
+            if (index === $scope.config.filters.length - 1 ||
+                index === undefined || index < 0){
+                return;
+            }
+            var above = $scope.config.filters[index + 1];
+            $scope.config.filters[index + 1] = $scope.config.filters[index];
+            $scope.config.filters[index] = above;
+        };
+
+        $scope.remove_filter = function(index) {
+            $scope.config.filters.splice(index, 1);
         };
     })
 

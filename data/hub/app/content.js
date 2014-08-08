@@ -30,6 +30,14 @@ document.documentElement.addEventListener("remove-video", function(event) {
     self.port.emit("remove-video", event.detail);
 }, false);
 
+document.documentElement.addEventListener("skip-video", function(event) {
+    self.port.emit("remove-video", event.detail, true);
+}, false);
+
+document.documentElement.addEventListener("open-video", function(event) {
+    self.port.emit("open-video", event.detail);
+}, false);
+
 document.documentElement.addEventListener("update_config", function(event) {
     self.port.emit("update_config", event.detail);
 }, false);

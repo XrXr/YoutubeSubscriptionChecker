@@ -39,14 +39,14 @@
         <br>
         <div class="row">
           <div class="col-md-5">
-            <select multiple="true" class="form-control filter-select" size="10">
-              <option ng-repeat="f in config.filters" class="ellipses" ng-click="current_filter(f)">{{f.channel}}</option>
+            <select select-index="ns.current_filter" multiple="true" class="form-control filter-select" size="10">
+              <option ng-class="get_filter_class(f)" ng-repeat="f in config.filters" class="ellipses" ng-click="current_filter(f)" ng-value="$index">{{f.channel + " | " + f.match}}</option>
             </select>
             <form class="form-inline" role="form">
-                <button type="button" ng-click="add_filter()" class="btn btn-success">Add</button>
-                <button type="button" ng-click="remove_filter()" class="btn btn-danger">Remove</button>
-                <button type="button" class="btn btn-primary">&and;</button>
-                <button type="button" class="btn btn-primary">&or;</button>
+                <button type="button" ng-click="add_filter(new_filter)" class="btn btn-success">Add</button>
+                <button type="button" ng-click="remove_filter(ns.current_filter)" class="btn btn-danger">Remove</button>
+                <button type="button" ng-click="move_up(ns.current_filter)" class="btn btn-primary">&and;</button>
+                <button type="button" ng-click="move_down(ns.current_filter)" class="btn btn-primary">&or;</button>
             </form>
           </div>
           <div class="col-md-7">
@@ -80,6 +80,7 @@
     <div class="alert alert-info setting-warning" ng-if="ns.filter_active">Excluded videos can be found in history</div>
     <div class="alert alert-danger setting-warning" ng-if="ns.less_than_5">Check interval cannot be lower than 5 minutes</div>
     <div class="alert alert-danger setting-warning" ng-if="ns.bad_input">Check interval must be a positive number</div>
+    <div class="alert alert-danger setting-warning" ng-if="ns.dup_filter">This filter already exist</div>
     <button class="btn btn-primary" ng-click="save()" ng-disabled="!ns.valid">Save</button>
     <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

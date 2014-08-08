@@ -11,6 +11,12 @@ body{
 button{
     outline: 0 !important;
 }
+.video-canvas{
+    position:absolute;
+    left: 15.75%;
+    top: 1.5%;
+    width: 83%
+}
 .history-selected{
     border: 2px solid grey;
     border-radius: 10px;
@@ -106,14 +112,6 @@ button{
     background-color: grey;
     color: white;
 }
-@keyframes leave{
-    50%{
-        transform: scale(1.1);
-    }
-    100%{
-        transform: scale(0.001);
-    }
-}
 .video {
     float: left;
     list-style-type: none;
@@ -128,10 +126,10 @@ button{
 .no-videos {
     color: gainsboro;
     font-size: 38px;
-    width: 250px;
     position: fixed;
-    left: 50%;
+    text-align: center;
     top: 30%;
+    width: calc(100% - 15.75%);
     cursor: default;
     -moz-user-select: none;
 }
