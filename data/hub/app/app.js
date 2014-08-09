@@ -264,7 +264,6 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             link: function(scope, elem, attrs) {
                 var setter = $parse(attrs.selectIndex).assign;
                 scope.$watch(function() {
-                    console.log(elem[0].selectedIndex);
                     return elem[0].selectedIndex;
                 }, function(newVal) {
                     setter(scope, newVal);

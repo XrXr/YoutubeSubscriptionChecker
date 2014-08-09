@@ -11,11 +11,22 @@ body{
 button{
     outline: 0 !important;
 }
+.hub-link{
+    text-align: center;
+    width: 100%;
+    text-decoration: none !important;
+    outline: 0px none !important;
+    margin-bottom: 10px;
+    display: block;
+}
 .video-canvas{
     position:absolute;
     left: 15.75%;
     top: 1.5%;
     width: 83%
+}
+.hide{
+    display: none;
 }
 .history-selected{
     border: 2px solid grey;
@@ -157,7 +168,7 @@ button{
 }
 @media (max-width:768px) {
     .no-videos {
-        display: none;
+        /*display: none;*/
     }
 }
 @media (max-width:768px) {
