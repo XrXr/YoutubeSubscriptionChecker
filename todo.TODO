@@ -8,12 +8,23 @@
    x start up check delay @cancelled (14-05-26 11:32)
    √ Use Date constructor instead of setTime() @done (14-05-24 10:01)
    □ refactor all the things
-   □ panel signals incompelte (new users, channel information not sent on update etc)
+     √ config @done (14-08-17 15:52)
+     √ core/storage @done (14-08-17 17:18) !! ss.storage.videos is now an array instead of an object that maps channel_id to arrays!
+       √ video @done (14-08-17 16:44)
+         √ history @done (14-08-17 16:44)
+       √ channel @done (14-08-17 17:18)
+     √ core/filters @done (14-08-17 17:53)
+     □ remote/api
+     □ remote/checking
+     □ ui/notification
+     □ ui/button
+     □ ui/util
+   □ make upgrading from 1.0 seemless !!important!! data loss due to update is unacceptable
+   □ panel signals incompelte (new user prompt, channel information not sent on update etc)
    □ add option for not using panel
    □ clicking on notification should open panel when appropriate
-   □ load lower res image for channel search
    □ add a button for options in add-on manager
-   □ investigate the update data wipe issue
+   □ load lower res image for channel search
    □ config export and import system
    □ cursor for tabs in settings modal
    □ "only 50..." text in history mode
