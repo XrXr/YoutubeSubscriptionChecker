@@ -1,0 +1,20 @@
+ Youtube Subscription Checker:
+   √ Title in video card @done (14-05-04 21:50)
+   x Update videos when new video comes @cancelled (14-05-05 19:39)
+   √ New video tab @done (14-05-21 21:37)
+   √ Nicer video count update (animation) @done (14-05-23 15:14)
+   √ rewrite process_video_search_result @done (14-05-25 12:10)
+   √ limit to 1 tab @done (14-05-24 11:32)
+   x start up check delay @cancelled (14-05-26 11:32)
+   √ Use Date constructor instead of setTime() @done (14-05-24 10:01)
+   □ refactor all the things
+   □ panel signals incompelte (new users, channel information not sent on update etc)
+   □ add option for not using panel
+   □ clicking on notification should open panel when appropriate
+   □ load lower res image for channel search
+   □ add a button for options in add-on manager
+   □ investigate the update data wipe issue
+   □ config export and import system
+   □ cursor for tabs in settings modal
+   □ "only 50..." text in history mode
+   □ autocomplete for channel name in filter page

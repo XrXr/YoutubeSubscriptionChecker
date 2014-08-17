@@ -1,0 +1,4 @@
+.jshintrc
+*.xpi
+*.ps1
+angular.js
