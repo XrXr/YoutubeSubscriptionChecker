@@ -14,11 +14,12 @@
          √ history @done (14-08-17 16:44)
        √ channel @done (14-08-17 17:18)
      √ core/filters @done (14-08-17 17:53)
-     □ remote/api
-     □ remote/checking
+     √ api/request @done (14-08-18 22:59)
+     x api/util @cancelled (14-08-18 22:55)
      □ ui/notification
      □ ui/button
-     □ ui/util
+     x ui/util @cancelled (14-08-18 23:12)
+     □ main
    □ make upgrading from 1.0 seemless !!important!! data loss due to update is unacceptable
    □ panel signals incompelte (new user prompt, channel information not sent on update etc)
    □ add option for not using panel
