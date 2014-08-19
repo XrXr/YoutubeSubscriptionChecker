@@ -16,9 +16,10 @@
      √ core/filters @done (14-08-17 17:53)
      √ api/request @done (14-08-18 22:59)
      x api/util @cancelled (14-08-18 22:55)
-     □ ui/notification
-     □ ui/button
+     √ ui/notification @done (14-08-19 16:38)
+     √ ui/button @done (14-08-19 17:17)
      x ui/util @cancelled (14-08-18 23:12)
+     √ more events module work @done (14-08-19 19:41)
      □ main
    □ make upgrading from 1.0 seemless !!important!! data loss due to update is unacceptable
    □ panel signals incompelte (new user prompt, channel information not sent on update etc)

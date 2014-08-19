@@ -5,11 +5,6 @@ If a copy of the MPL was not distributed with this file,
 You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
-var sound = new Audio('notification.ogg');
-self.port.on("play", function() {
-    sound.play();
-});
-
 self.port.on("draw", draw);
 
 function draw (number) {
@@ -22,7 +17,7 @@ function draw (number) {
 
     text_node = svg64.querySelector("text");
     text_node.textContent = number + "";
-    //start drawing
+    // start drawing
     var canvas_32 = document.getElementById("32c");
     var canvas_64 = document.getElementById("64c");
     Promise.all([draw_in_canvas(canvas_32, svg32),
@@ -34,7 +29,7 @@ function draw (number) {
 
 function draw_in_canvas (canvas_node, svg_node) {
     var ctx = canvas_node.getContext('2d');
-    //clear the canvas first
+    // clear the canvas first
     ctx.clearRect(0, 0, canvas_node.width, canvas_node.height);
 
     var data = svg_node.outerHTML;
