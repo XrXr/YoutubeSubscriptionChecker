@@ -7,7 +7,7 @@
    √ limit to 1 tab @done (14-05-24 11:32)
    x start up check delay @cancelled (14-05-26 11:32)
    √ Use Date constructor instead of setTime() @done (14-05-24 10:01)
-   □ refactor all the things
+   √ refactor all the things @done (14-08-20 20:07) !! YES!
      √ config @done (14-08-17 15:52)
      √ core/storage @done (14-08-17 17:18) !! ss.storage.videos is now an array instead of an object that maps channel_id to arrays!
        √ video @done (14-08-17 16:44)
@@ -20,14 +20,17 @@
      √ ui/button @done (14-08-19 17:17)
      x ui/util @cancelled (14-08-18 23:12)
      √ more events module work @done (14-08-19 19:41)
-     □ main
+     √ main @done (14-08-20 20:06) !!WOOHOOO
    □ make upgrading from 1.0 seemless !!important!! data loss due to update is unacceptable
-   □ panel signals incompelte (new user prompt, channel information not sent on update etc)
-   □ add option for not using panel
-   □ clicking on notification should open panel when appropriate
+   x panel signals incompelte (new user prompt, channel information not sent on update etc) @cancelled (14-08-20 16:13)
+   x add option for not using panel @cancelled (14-08-20 16:13)
+   x clicking on notification should open panel when appropriate @cancelled (14-08-20 16:14)
+   □ add a way to clear history
+   □ unified functions for getting extracting info out of api response
    □ add a button for options in add-on manager
    □ load lower res image for channel search
    □ config export and import system
    □ cursor for tabs in settings modal
    □ "only 50..." text in history mode
    □ autocomplete for channel name in filter page
+   □ write full testing procedure

@@ -8,7 +8,7 @@ Author: XrXr
 self.port.on("draw", draw);
 
 function draw (number) {
-    var length = (number + "").length;
+    var length = String(number).length;
     // change the svg content
     var svg32 = document.getElementById('32x32');
     var svg64 = document.getElementById('64x64');
