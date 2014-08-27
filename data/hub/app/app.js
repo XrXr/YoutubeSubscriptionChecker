@@ -178,7 +178,11 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 scope.switch_channel = function(new_ch) {
                     var new_list = VideoStorage.videos.filter(
                         function(v) {
-                            return v.snippet.channelId == new_ch || new_ch === "";
+                            if (v.snippet.channelId == new_ch || new_ch === "") {
+                                delete v.$$hashKey;
+                                return true;
+                            }
+                            return false;
                         });
                     if (VideoStorage.history_mode){
                         return history_update(new_list);
@@ -378,12 +382,19 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             }
         };
 
+        function add_history(video) {
+            history.unshift(video);
+            if (history.length >= 50) {
+                history.pop();
+            }
+        }
+
         this.remove_video = function(video) {
             for (var i = parent.videos.length - 1; i >= 0; i--) {
                 if (parent.videos[i].id.videoId == video.id.videoId){
                     parent.videos.splice(i, 1);
                     parent.to_remove.push(video);
-                    history.unshift(video);
+                    add_history(video);
                     return true;
                 }
             }

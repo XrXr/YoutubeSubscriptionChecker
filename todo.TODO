@@ -23,7 +23,7 @@
      √ main @done (14-08-20 20:06) !!WOOHOOO
    √ fix channel adding @done (14-08-22 17:42)
    √ fix button click focus @done (14-08-23 23:56)
-   □ fix history filtering
+   √ fix history filtering @done (14-08-27 15:41)
    □ make upgrading from 1.0 seemless !!important!! data loss due to update is unacceptable
    x panel signals incompelte (new user prompt, channel information not sent on update etc) @cancelled (14-08-20 16:13)
    x add option for not using panel @cancelled (14-08-20 16:13)
@@ -33,7 +33,7 @@
    □ add a button for options in add-on manager
    □ load lower res image for channel search
    □ config export and import system
-   □ cursor for tabs in settings modal
-   □ "only 50..." text in history mode
+   √ cursor for tabs in settings modal @done (14-08-27 17:04)
+   x "only 50..." text in history mode @cancelled (14-08-27 09:48)
    □ autocomplete for channel name in filter page
    □ write full testing procedure
