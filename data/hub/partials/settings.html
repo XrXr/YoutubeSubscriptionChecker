@@ -52,7 +52,7 @@
           <div class="col-md-7">
             <h4>For channel that match...</h4>
             <div>
-              <input ng-model="new_filter.channel" class="form-control" type="text" placeholder="cases are ignored">
+              <input ng-model="new_filter.channel" class="form-control" type="text" typeahead="name for name in channels.name_list | filter:$viewValue | limitTo:4" typeahead-editable="false" placeholder="cases are ignored">
             </div>
             <h4>only videos with title that match...</h4>
             <div>
