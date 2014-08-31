@@ -242,3 +242,6 @@ button{
 .modal {
     overflow-y: auto;
 }
+.inout-button {
+    margin-top: 5px
+}
