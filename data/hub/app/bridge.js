@@ -34,6 +34,14 @@ document.documentElement.addEventListener("skip-video", function(event) {
     self.port.emit("remove-video", event.detail, true);
 }, false);
 
+document.documentElement.addEventListener("export", function(event) {
+    self.port.emit("export");
+}, false);
+
+document.documentElement.addEventListener("import", function(event) {
+    self.port.emit("import", event.detail);
+}, false);
+
 document.documentElement.addEventListener("open-video", function(event) {
     self.port.emit("open-video", event.detail);
 }, false);
@@ -70,6 +78,16 @@ self.port.on("channel-duplicate", function() {
 
 self.port.on("duration-update", function(pay_load) {
     send_dom_event("videos", "duration-update", pay_load);
+});
+
+self.port.on("export-result", function(pay_load) {
+    document.documentElement.dispatchEvent(new CustomEvent("export-result", {
+        detail: pay_load
+    }));
+});
+
+self.port.on("import-result", function(pay_load) {
+    send_dom_event("settings", "import-result", pay_load);
 });
 
 self.port.emit("get-videos", null); //get all videos once contentscript loads

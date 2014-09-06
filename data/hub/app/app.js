@@ -697,6 +697,19 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         $scope.remove_filter = function(index) {
             $scope.config.filters.splice(index, 1);
         };
+
+        document.documentElement.addEventListener("export-result", function(event) {
+            $scope.ns.config_output = event.detail;
+            $scope.$apply();
+        }, false);
+
+        $scope.export_settings = function() {
+            send_dom_event('settings', "export", null);
+        };
+
+        $scope.import_settings = function(input) {
+            send_dom_event('settings', "import", input);
+        };
     })
 
     .controller("subscriptions", function ($scope, $modalInstance, ChannelList, VideoStorage) {
