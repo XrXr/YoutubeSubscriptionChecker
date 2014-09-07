@@ -23,7 +23,7 @@ function draw (number) {
     Promise.all([draw_in_canvas(canvas_32, svg32),
                  draw_in_canvas(canvas_64, svg64)]).
         then(function(uris) {
-            self.port.emit("icons", {"32":uris[0], "64":uris[1]});
+            self.port.emit("icons", {"32":uris[0], "64":uris[1]}, number);
         });
 }
 
