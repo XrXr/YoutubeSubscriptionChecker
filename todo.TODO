@@ -31,8 +31,9 @@
    □ add a way to clear history
    □ unified functions for getting extracting info out of api response
    □ add a button for options in add-on manager
+   □ direct button drawing? (if adding button in add-on manager uses chrome authority)
    √ load lower res image for channel search @done (14-08-28 19:00)
-   □ config export and import system
+   ✔ config export and import system @done (14-09-09 23:15)
    √ cursor for tabs in settings modal @done (14-08-27 17:04)
    x "only 50..." text in history mode @cancelled (14-08-27 09:48)
    √ autocomplete for channel name in filter page @done (14-08-28 19:34)
