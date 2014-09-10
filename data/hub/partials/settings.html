@@ -97,6 +97,7 @@
     <div class="alert alert-danger setting-warning" ng-if="ns.less_than_5">Check interval cannot be lower than 5 minutes</div>
     <div class="alert alert-danger setting-warning" ng-if="ns.bad_input">Check interval must be a positive number</div>
     <div class="alert alert-danger setting-warning" ng-if="ns.dup_filter">This filter already exist</div>
+    <div class="alert alert-danger setting-warning" ng-if="ns.import_error">Import failed (malformed data?)</div>
     <button class="btn btn-primary" ng-click="save()" ng-disabled="!ns.valid">Save</button>
     <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

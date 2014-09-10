@@ -80,6 +80,10 @@ self.port.on("duration-update", function(pay_load) {
     send_dom_event("videos", "duration-update", pay_load);
 });
 
+self.port.on("import-error", function() {
+    send_dom_event("settings", "import-error", null);
+});
+
 self.port.on("export-result", function(pay_load) {
     document.documentElement.dispatchEvent(new CustomEvent("export-result", {
         detail: pay_load

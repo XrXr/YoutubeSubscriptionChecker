@@ -698,18 +698,24 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             $scope.config.filters.splice(index, 1);
         };
 
-        document.documentElement.addEventListener("export-result", function(event) {
-            $scope.ns.config_output = event.detail;
-            $scope.$apply();
-        }, false);
-
         $scope.export_settings = function() {
             send_dom_event('settings', "export", null);
         };
 
         $scope.import_settings = function(input) {
+            $scope.ns.import_error = false;
             send_dom_event('settings', "import", input);
         };
+
+        document.documentElement.addEventListener("export-result", function(event) {
+            $scope.ns.config_output = event.detail;
+            $scope.$apply();
+        }, false);
+
+        document.documentElement.addEventListener("import-error", function(event) {
+            $scope.ns.import_error = true;
+            $scope.$apply();
+        }, false);
     })
 
     .controller("subscriptions", function ($scope, $modalInstance, ChannelList, VideoStorage) {
