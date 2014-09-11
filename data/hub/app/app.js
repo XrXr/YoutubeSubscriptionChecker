@@ -591,7 +591,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         });
     })
 
-    .controller ("settings", function ($scope, $modalInstance, ConfigManager, ChannelList) {
+    .controller ("settings", function ($scope, $modalInstance, ConfigManager, ChannelList, VideoStorage) {
         $scope.channels = ChannelList;
         $scope.config = angular.copy(ConfigManager.config);  // clone it
         $scope.ns = {
@@ -705,6 +705,15 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         $scope.import_settings = function(input) {
             $scope.ns.import_error = false;
             send_dom_event('settings', "import", input);
+        };
+
+        $scope.clear_history = function() {
+            VideoStorage.new_history([]);
+            if (VideoStorage.history_mode) {
+                VideoStorage.current_view = [];
+            }
+            $scope.$apply();
+            send_dom_event('settings', "clear-history");
         };
 
         document.documentElement.addEventListener("export-result", function(event) {

@@ -33,6 +33,8 @@
                 <input type="checkbox" ng-model="config.animations" class="setting-check-box">
             </label>
         </form>
+        <br>
+        <button type="button" class="btn btn-primary" ng-click="clear_history()">Clear History</button>
       </tab>
 
       <tab heading="Filters" select="ns.filter_active = true" deselect="ns.filter_active = false" class="container-fluid">

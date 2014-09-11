@@ -26,6 +26,10 @@ document.documentElement.addEventListener("remove-channel", function(event) {
     self.port.emit("remove-channel", event.detail);
 }, false);
 
+document.documentElement.addEventListener("clear-history", function(event) {
+    self.port.emit("clear-history");
+}, false);
+
 document.documentElement.addEventListener("remove-video", function(event) {
     self.port.emit("remove-video", event.detail);
 }, false);
