@@ -6,6 +6,6 @@ You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
 var sound = new Audio('notification.ogg');
-self.port.on("play", function() {
+self.port.on("play", () => {
     sound.play();
 });

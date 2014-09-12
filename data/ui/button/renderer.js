@@ -22,7 +22,7 @@ function draw (number) {
     var canvas_64 = document.getElementById("64c");
     Promise.all([draw_in_canvas(canvas_32, svg32),
                  draw_in_canvas(canvas_64, svg64)]).
-        then(function(uris) {
+        then(uris => {
             self.port.emit("icons", {"32":uris[0], "64":uris[1]}, number);
         });
 }
@@ -39,8 +39,8 @@ function draw_in_canvas (canvas_node, svg_node) {
     var url = window.URL.createObjectURL(svg_blob);
     img.src = url;
 
-    return new Promise(function(resolve) {
-        img.onload = function () {
+    return new Promise(resolve => {
+        img.onload = () => {
           ctx.drawImage(img, 0, 0);
           window.URL.revokeObjectURL(url);
           resolve(canvas_node.toDataURL());

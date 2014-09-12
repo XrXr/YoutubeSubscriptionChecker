@@ -21,7 +21,7 @@ function get_samples () {
 }
 
 exports["test filter_videos() include"] = {
-    'test single inclusive filter(non-regex)': function (assert) {
+    'test single inclusive filter(non-regex)': assert => {
         let filter = new Filter("", "greatness", false, true);
         let videos = get_samples();
         let result = filter_videos(videos, [filter]);
@@ -31,7 +31,7 @@ exports["test filter_videos() include"] = {
         assert.deepEqual(result_serialized, expect,
                          "single include applied properly (non-regex)");
     },
-    'test single inclusive filter(regex)': function (assert) {
+    'test single inclusive filter(regex)': assert => {
         let filter = new Filter("", "(^gr|^h)", true, true);
         let videos = get_samples();
         let result = filter_videos(videos, [filter]);
@@ -41,7 +41,7 @@ exports["test filter_videos() include"] = {
         assert.deepEqual(result_serialized, expect,
                          "single include applied properly (regex)");
     },
-    'test multiple inclusive filters': function(assert) {
+    'test multiple inclusive filters': assert => {
         let filter_a = new Filter("", "gr", false, true);
         let filter_b = new Filter("", "ness", false, true);
         let videos = get_samples();
@@ -52,7 +52,7 @@ exports["test filter_videos() include"] = {
         assert.deepEqual(result_serialized, expect,
                          "multiple includes applied properly");
     },
-    'test single exclusive filter': function(assert) {
+    'test single exclusive filter': assert => {
         let filter = new Filter("", "great", false, false);
         let videos = get_samples();
         let result = filter_videos(videos, [filter]);
@@ -62,7 +62,7 @@ exports["test filter_videos() include"] = {
         assert.deepEqual(result_serialized, expect,
                          "single exlude applied properly");
     },
-    'test multiple exclusive filters': function(assert) {
+    'test multiple exclusive filters': assert => {
         let filter_a = new Filter("", "happiness", false, false);
         let filter_b = new Filter("", "great", false, false);
         let videos = get_samples();
