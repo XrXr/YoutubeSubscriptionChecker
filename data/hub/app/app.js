@@ -513,15 +513,24 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     .controller('frame', function($scope, $modal, $timeout, ChannelList, VideoStorage, ConfigManager) {
         $scope.chnl = ChannelList;
         $scope.vs = VideoStorage;
+
+        var setting_modal_opened = false;
+        function set_close () {
+            setting_modal_opened = false;
+        }
         $scope.open_settings = function() {
-            var modalInstance = $modal.open({
+            if (setting_modal_opened) {
+                return;  // don't open multiple
+            }
+            setting_modal_opened = true;
+            $modal.open({
               templateUrl: 'partials/settings.html',
               controller: "settings"
-            });
+            }).result.then(set_close, set_close);
         };
 
         $scope.open_subscriptions = function() {
-            var modalInstance = $modal.open({
+            $modal.open({
               templateUrl: 'partials/subscriptions.html',
               controller: "subscriptions"
             });
@@ -541,6 +550,10 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             ChannelList.update_video_count();
             refresh_masonry();
         };
+
+        document.documentElement.addEventListener("open-settings", event => {
+            $scope.open_settings();
+        });
 
         document.documentElement.addEventListener("subscribed-channels", function(event) {
             if (ChannelList.update_channels(JSON.parse(event.detail))) {

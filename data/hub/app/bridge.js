@@ -54,6 +54,13 @@ document.documentElement.addEventListener("update_config", function(event) {
     self.port.emit("update_config", event.detail);
 }, false);
 
+document.documentElement.addEventListener("open-settings", function() {
+    self.port.emit("open-settings");
+}, false);
+
+self.port.on("open-settings", function() {
+    send_dom_event("frame", "open-settings");
+});
 
 self.port.on('videos', function(pay_load) {
     send_dom_event("frame", "videos", pay_load);

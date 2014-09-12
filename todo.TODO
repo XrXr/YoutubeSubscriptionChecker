@@ -30,8 +30,10 @@
    x clicking on notification should open panel when appropriate @cancelled (14-08-20 16:14)
    √ add a way to clear history @done (14-09-10 22:56)
    □ unified functions for getting extracting info out of api response
-   □ add a button for options in add-on manager
-   □ direct button drawing? (if adding button in add-on manager uses chrome authority)
+   √ add a button for options in add-on manager @done (14-09-11 22:31)
+   x direct button drawing? (if adding button in add-on manager uses chrome authority) @cancelled (14-09-11 22:09)
+   □ refactor bridge, change `function cat(meow)` to `function cat (meow)`
+   □ app.js: remove previous signal handler when registering new ones. Factor out registration
    √ load lower res image for channel search @done (14-08-28 19:00)
    ✔ config export and import system @done (14-09-09 23:15)
    √ cursor for tabs in settings modal @done (14-08-27 17:04)
