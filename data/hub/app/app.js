@@ -382,7 +382,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             }
         };
 
-        function add_history(video) {
+        function add_history (video) {
             history.unshift(video);
             if (history.length >= 50) {
                 history.pop();
@@ -565,7 +565,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     .controller('videos', function($scope, $timeout, VideoStorage, ChannelList) {
         $scope.v = VideoStorage;
 
-        function update_flow() {
+        function update_flow () {
             flow.prepended(document.getElementsByClassName("video"));
         }
 
@@ -622,7 +622,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             include: "exclude"
         };
 
-        function isNumber(n) {
+        function isNumber (n) {
             return !isNaN(parseFloat(n)) && isFinite(n);
         }
 
@@ -762,14 +762,14 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             $modalInstance.dismiss('cancel');
         };
 
-        function register_channel_listeners(channel) {
+        function register_channel_listeners (channel) {
             //register listeners for channel updates
-            function add_listener() {
+            function add_listener () {
                 document.documentElement.removeEventListener("channel-added", arguments.callee, false);
                 ChannelList.channels.push(channel);
             }
 
-            function duplicate_listener() {
+            function duplicate_listener () {
                 document.documentElement.removeEventListener("channel-added", add_listener, false);
                 document.documentElement.removeEventListener("channel-duplicate", arguments.callee, false);
                 $scope.duplicate = true;
