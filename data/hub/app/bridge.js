@@ -5,104 +5,38 @@ If a copy of the MPL was not distributed with this file,
 You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
-function send_dom_event (type, name, data) {
+function send_dom_event (name, data) {
     // passing pay_load as reference directly would result in cross-origin problems
     // passing the stringified version circumvents it.
-    var result = JSON.stringify(data);
-    var result_event = new CustomEvent(type);
-    result_event.initCustomEvent(name, true, true, result);
-    document.documentElement.dispatchEvent(result_event);
+    document.documentElement.dispatchEvent(new CustomEvent(name, {
+        detail: JSON.stringify(data)
+    }));
 }
 
-document.documentElement.addEventListener("search-channel", function(event) {
-    self.port.emit("search-channel", document.getElementById('channel_search').value);
-}, false);
+let the_page_script = {
+    sends: event_names => {
+        event_names.map(name => {
+            document.documentElement.addEventListener(name,
+                event => self.port.emit(name, event.detail), false);
+        });
+        return the_page_script;
+    },
+    recieves: event_names => {
+        event_names.map(name => {
+            self.port.on(name, data => send_dom_event(name, data));
+        });
+        return the_page_script;
+    }
+};
 
-document.documentElement.addEventListener("add-channel", function(event) {
-    self.port.emit("add-channel", event.detail);
-}, false);
+the_page_script.sends(
+    ["search-channel", "add-channel", "remove-channel", "clear-history",
+     "remove-video", "skip-video", "export", "import", "open-video",
+     "update-config", "open-settings"
+    ]).recieves(
+    ["open-settings", "videos", "config", "search-result",
+     "subscribed-channels", "channel-added", "channel-duplicate",
+     "duration-update", "import-error", "export-result", "import-result"
+    ]);
 
-document.documentElement.addEventListener("remove-channel", function(event) {
-    self.port.emit("remove-channel", event.detail);
-}, false);
-
-document.documentElement.addEventListener("clear-history", function(event) {
-    self.port.emit("clear-history");
-}, false);
-
-document.documentElement.addEventListener("remove-video", function(event) {
-    self.port.emit("remove-video", event.detail);
-}, false);
-
-document.documentElement.addEventListener("skip-video", function(event) {
-    self.port.emit("remove-video", event.detail, true);
-}, false);
-
-document.documentElement.addEventListener("export", function(event) {
-    self.port.emit("export");
-}, false);
-
-document.documentElement.addEventListener("import", function(event) {
-    self.port.emit("import", event.detail);
-}, false);
-
-document.documentElement.addEventListener("open-video", function(event) {
-    self.port.emit("open-video", event.detail);
-}, false);
-
-document.documentElement.addEventListener("update_config", function(event) {
-    self.port.emit("update_config", event.detail);
-}, false);
-
-document.documentElement.addEventListener("open-settings", function() {
-    self.port.emit("open-settings");
-}, false);
-
-self.port.on("open-settings", function() {
-    send_dom_event("frame", "open-settings");
-});
-
-self.port.on('videos', function(pay_load) {
-    send_dom_event("frame", "videos", pay_load);
-});
-
-self.port.on('config', function(pay_load, filters) {
-    pay_load.filters = filters;
-    send_dom_event(null, "config", pay_load);
-});
-
-self.port.on('search-result', function(pay_load) {
-    send_dom_event("subscriptions", "search-result", pay_load);
-});
-
-self.port.on('subscribed-channels', function(pay_load) {
-    send_dom_event("subscriptions", "subscribed-channels", pay_load);
-});
-
-self.port.on("channel-added", function() {
-    send_dom_event("subscriptions", "channel-added", null);
-});
-
-self.port.on("channel-duplicate", function() {
-    send_dom_event("subscriptions", "channel-duplicate", null);
-});
-
-self.port.on("duration-update", function(pay_load) {
-    send_dom_event("videos", "duration-update", pay_load);
-});
-
-self.port.on("import-error", function() {
-    send_dom_event("settings", "import-error", null);
-});
-
-self.port.on("export-result", function(pay_load) {
-    document.documentElement.dispatchEvent(new CustomEvent("export-result", {
-        detail: pay_load
-    }));
-});
-
-self.port.on("import-result", function(pay_load) {
-    send_dom_event("settings", "import-result", pay_load);
-});
-
-self.port.emit("get-videos", null); //get all videos once contentscript loads
+self.port.emit("get-videos", null);  // get all videos once contentscript loads

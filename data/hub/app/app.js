@@ -29,7 +29,10 @@ function refresh_masonry () {
 angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     .run(function(ConfigManager) {
         document.documentElement.addEventListener("config", function(event) {
-            ConfigManager.update_config(JSON.parse(event.detail));
+            var config_and_filters = JSON.parse(event.detail);
+            var new_config = config_and_filters.config;
+            new_config.filters = config_and_filters.filters;
+            ConfigManager.update_config(new_config);
         });
     })
     .directive('videoCanvas', function() {
@@ -647,7 +650,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         $scope.save = function () {
             $modalInstance.close();
             ConfigManager.update_config($scope.config);
-            send_dom_event('settings', "update_config", $scope.config);
+            send_dom_event('settings', "update-config", $scope.config);
         };
 
         $scope.cancel = function () {
@@ -742,9 +745,12 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
     .controller("subscriptions", function ($scope, $modalInstance, ChannelList, VideoStorage) {
         $scope.chnl = ChannelList;
-        $scope.search_result = [];
-        $scope.show_loading = false;
-        $scope.no_result = false;
+        $scope.search = {
+            term: "",
+            result: [],
+            in_progress: false,
+            searched_once: false
+        };
         $scope.duplicate = false;
         var clear = false;
         $scope.fit = function(body_height, result_height) {
@@ -798,25 +804,25 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
 
         function search_result_listener (event) {
-            var results = JSON.parse(event.detail);
-            if (results.length === 0 || results[0] === null) {
+            var result = JSON.parse(event.detail);
+            if (result.length === 0 || result[0] === null) {
                 clear = true;
-                $scope.no_result = true;
             } else {
-                $scope.search_result = results;
+                $scope.search.result = result;
                 clear = false;
-                $scope.no_result = false;
             }
-            $scope.show_loading = false;
+            $scope.search.in_progress = false;
             $scope.$apply();
         }
 
         $scope.search_channel = function($event) {
             if($event.keyCode == 13) {
-                send_dom_event('subscriptions', "search-channel", null);
+                $scope.search.in_progress = true;
+                send_dom_event("subscriptions",
+                               "search-channel", $scope.search.term);
                 document.documentElement.addEventListener("search-result", search_result_listener, false);
-                $scope.search_result = [];
-                $scope.show_loading = true;
+                $scope.search.result = [];
+                $scope.search.searched_once = true;
                 $scope.duplicate = false;
                 clear = true;
             }
