@@ -1,6 +1,15 @@
-let main = require("main");
-let Filter = main.Filter;
-let filter_videos = main.filter_videos;
+const filters = require("core/filters");
+const filter_videos = filters.filter_videos;
+
+// this is a mock since "core/filters" doesn't export the constructor
+function Filter (_, video_title_pattern, video_title_is_regex,
+                 include_on_match) {
+    return {
+        video_title_pattern : video_title_pattern,
+        video_title_is_regex: video_title_is_regex,
+        include_on_match: include_on_match
+    };
+}
 
 function get_title (Video) {
     return Video.snippet.title.toLowerCase();
@@ -22,7 +31,7 @@ function get_samples () {
 
 exports["test filter_videos() include"] = {
     'test single inclusive filter(non-regex)': assert => {
-        let filter = new Filter("", "greatness", false, true);
+        let filter = Filter("", "greatness", false, true);
         let videos = get_samples();
         let result = filter_videos(videos, [filter]);
         let result_serialized = [result[0].map(get_title), result[1].map(get_title)];
@@ -32,7 +41,7 @@ exports["test filter_videos() include"] = {
                          "single include applied properly (non-regex)");
     },
     'test single inclusive filter(regex)': assert => {
-        let filter = new Filter("", "(^gr|^h)", true, true);
+        let filter = Filter("", "(^gr|^h)", true, true);
         let videos = get_samples();
         let result = filter_videos(videos, [filter]);
         let result_serialized = [result[0].map(get_title), result[1].map(get_title)];
@@ -42,8 +51,8 @@ exports["test filter_videos() include"] = {
                          "single include applied properly (regex)");
     },
     'test multiple inclusive filters': assert => {
-        let filter_a = new Filter("", "gr", false, true);
-        let filter_b = new Filter("", "ness", false, true);
+        let filter_a = Filter("", "gr", false, true);
+        let filter_b = Filter("", "ness", false, true);
         let videos = get_samples();
         let result = filter_videos(videos, [filter_a, filter_b]);
         let result_serialized = [result[0].map(get_title), result[1].map(get_title)];
@@ -53,7 +62,7 @@ exports["test filter_videos() include"] = {
                          "multiple includes applied properly");
     },
     'test single exclusive filter': assert => {
-        let filter = new Filter("", "great", false, false);
+        let filter = Filter("", "great", false, false);
         let videos = get_samples();
         let result = filter_videos(videos, [filter]);
         let result_serialized = [result[0].map(get_title), result[1].map(get_title)];
@@ -63,8 +72,8 @@ exports["test filter_videos() include"] = {
                          "single exlude applied properly");
     },
     'test multiple exclusive filters': assert => {
-        let filter_a = new Filter("", "happiness", false, false);
-        let filter_b = new Filter("", "great", false, false);
+        let filter_a = Filter("", "happiness", false, false);
+        let filter_b = Filter("", "great", false, false);
         let videos = get_samples();
         let result = filter_videos(videos, [filter_a, filter_b]);
         let result_serialized = [result[0].map(get_title), result[1].map(get_title)];

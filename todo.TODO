@@ -42,5 +42,8 @@
    √ cursor for tabs in settings modal @done (14-08-27 17:04)
    x "only 50..." text in history mode @cancelled (14-08-27 09:48)
    √ autocomplete for channel name in filter page @done (14-08-28 19:34)
-   □ filter channel name warning/error handling
+   √ filter channel name warning/error handling @done (14-09-15 03:30)
+     √ invalid channel name @done (14-09-15 03:30)
+     √ empty pattern @done (14-09-15 03:30)
+   □ namespace each tab in settings modal
    □ write full testing procedure

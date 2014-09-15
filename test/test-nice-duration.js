@@ -1,4 +1,4 @@
-const nice_duration = require("main").nice_duration;
+const { nice_duration } = require("util");
 
 exports["test nice_duration()"] = assert => {
     assert.strictEqual(nice_duration("5H11M11S"), "5:11:11");

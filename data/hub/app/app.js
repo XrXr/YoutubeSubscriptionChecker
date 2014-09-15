@@ -610,24 +610,28 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     .controller ("settings", function ($scope, $modalInstance, ConfigManager, ChannelList, VideoStorage) {
         $scope.channels = ChannelList;
         $scope.config = angular.copy(ConfigManager.config);  // clone it
+        // TODO: If there is going to be more warning banners, use a directive.
         $scope.ns = {
             interval_class: "",
             less_than_5: false,
             bad_input: false,
             valid: true,
             filter_active: false,
-            dup_filters: false
-        };
-        $scope.new_filter = {
-            channel: "",
-            match: "",
-            regex: false,
-            include: "exclude"
+            dup_filters: false,
+            filters_bad_channel_name: false,
+            filters_bad_pattern: true
         };
 
         function isNumber (n) {
             return !isNaN(parseFloat(n)) && isFinite(n);
         }
+
+        $scope.include_radio_getter_setter = function (val) {
+            if (arguments.length === 0) {
+                return $scope.new_filter.include_on_match ? "include" : "exclude";
+            }
+            $scope.new_filter.include_on_match = val === "include";
+        };
 
         $scope.validate = function(value) {
             $scope.ns.interval_class = "";
@@ -640,45 +644,37 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     $scope.ns.less_than_5 = true;
                     $scope.ns.interval_class = "has-error";
                 }
-            }else{
+            } else {
                 $scope.ns.valid = false;
                 $scope.ns.bad_input = true;
                 $scope.ns.interval_class = "has-error";
             }
         };
 
-        $scope.save = function () {
-            $modalInstance.close();
-            ConfigManager.update_config($scope.config);
-            send_dom_event('settings', "update-config", $scope.config);
+        // **filter tab start
+        // Fill and replace the "new filter form" with information
+        // from the `filter` parameter. Does not mutate on `filter`
+        $scope.new_filter = {
+            channel_title: "",
+            video_title_pattern: "",
+            video_title_is_regex: false,
+            include_on_match: false
         };
-
-        $scope.cancel = function () {
-            $modalInstance.dismiss('cancel');
-        };
-
-        $scope.current_filter = function(filter, index) {
-            $scope.new_filter.match = filter.match;
-            $scope.new_filter.channel = filter.channel;
-            $scope.new_filter.regex = filter.regex;
-            $scope.new_filter.include = filter.include ? "include" : "exclude";
-        };
+        $scope.fill_input_form = angular.extend.bind(null, $scope.new_filter);
 
         function is_dup (filter) {
             return $scope.config.filters.some(
-                e => e.match === filter.match &&
-                e.channel === filter.channel &&
-                e.regex === filter.regex &&
-                (e.include === filter.include ||
-                 e.include ? "include" : "exclude" === filter.include));
+                e => e.video_title_pattern === filter.video_title_pattern &&
+                e.channel_title === filter.channel_title &&
+                e.video_title_is_regex === filter.video_title_is_regex &&
+                e.include_on_match === filter.include_on_match);
         }
 
         $scope.add_filter = function(filter) {
             $scope.ns.dup_filter = false;
             filter = angular.copy(filter);
-            filter.include = filter.include === "include";
-            filter.match = filter.match.trim();
-            filter.channel = filter.channel.trim();
+            filter.video_title_pattern = filter.video_title_pattern.trim();
+            filter.channel_title = filter.channel_title.trim();
             if (is_dup(filter)) {
                 $scope.ns.dup_filter = true;
                 return;
@@ -687,8 +683,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
 
         $scope.get_filter_class = function(filter) {
-            return filter.include === true || filter.include === "include" ?
-                "bg-success": "bg-danger";
+            return filter.include ? "bg-success": "bg-danger";
         };
 
         $scope.move_up = function(index) {
@@ -713,6 +708,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         $scope.remove_filter = function(index) {
             $scope.config.filters.splice(index, 1);
         };
+        // **filter tab end
 
         $scope.export_settings = function() {
             send_dom_event('settings', "export", null);
@@ -730,6 +726,16 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             }
             $scope.$apply();
             send_dom_event('settings', "clear-history");
+        };
+
+        $scope.save = function () {
+            $modalInstance.close();
+            ConfigManager.update_config($scope.config);
+            send_dom_event('settings', "update-config", $scope.config);
+        };
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
         };
 
         document.documentElement.addEventListener("export-result", function(event) {

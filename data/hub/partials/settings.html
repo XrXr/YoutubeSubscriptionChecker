@@ -42,10 +42,21 @@
         <div class="row">
           <div class="col-md-5">
             <select select-index="ns.current_filter" multiple="true" class="form-control filter-select" size="10">
-              <option ng-class="get_filter_class(f)" ng-repeat="f in config.filters" class="ellipses" ng-click="current_filter(f)" ng-value="$index">{{f.channel + " | " + f.match}}</option>
+              <option ng-class="get_filter_class(f)" ng-repeat="f in config.filters" class="ellipses" ng-click="fill_input_form(f)" ng-value="$index">{{f.channel_title + " | " + f.video_title_pattern}}</option>
             </select>
             <form class="form-inline" role="form">
-                <button type="button" ng-click="add_filter(new_filter)" class="btn btn-success">Add</button>
+                <!-- Since the title matcher input box has typeahead-editable=false, the model will be `undefined` when the user has not selected one of the options in the popup. Test cases:
+                    channel is empty                  | pattern is empty     : disabled
+                    channel is empty                  | pattern is non-empty : disabled
+                    channel is non-empty, not in list | pattern is empty     : disabled
+                    channel is non-empty, not in list | pattern is non-empty : disabled
+                    channel is non-empty, in list     | pattern is empty     : disabled
+                    channel is non-empty, in list     | pattern is non-empty : enabled
+                yes it's just `andThree :: Bool -> Bool -> Bool -> Bool'
+                               andThree p1 p2 p3 = p1 && p2 && p3
+                The model is bad, this needs testing.
+                 -->
+                <button type="button" ng-click="add_filter(new_filter)" ng-disabled="new_filter.channel_title === undefined || new_filter.channel_title.length === 0 || new_filter.video_title_pattern.length === 0" class="btn btn-success">Add</button>
                 <button type="button" ng-click="remove_filter(ns.current_filter)" class="btn btn-danger">Remove</button>
                 <button type="button" ng-click="move_up(ns.current_filter)" class="btn btn-primary">&and;</button>
                 <button type="button" ng-click="move_down(ns.current_filter)" class="btn btn-primary">&or;</button>
@@ -54,23 +65,23 @@
           <div class="col-md-7">
             <h4>For channel that match...</h4>
             <div>
-              <input ng-model="new_filter.channel" class="form-control" type="text" typeahead="name for name in channels.name_list | filter:$viewValue | limitTo:4" typeahead-editable="false" placeholder="cases are ignored">
+              <input ng-model="new_filter.channel_title" class="form-control" type="text" typeahead="name for name in channels.name_list | filter:$viewValue | limitTo:4" typeahead-editable="false" placeholder="cases are ignored">
             </div>
             <h4>only videos with title that match...</h4>
             <div>
-              <input ng-model="new_filter.match" class="form-control filter-input" type="text" placeholder="cases are ignored">
+              <input ng-model="new_filter.video_title_pattern" class="form-control filter-input" type="text" placeholder="cases are ignored">
               <div class="checkbox filter-regex-checkbox">
                 <label>
-                  <input type="checkbox" ng-model="new_filter.regex"> RegEx
+                  <input type="checkbox" ng-model="new_filter.video_title_is_regex"> RegEx
                 </label>
               </div>
             </div>
             <h4>should be...</h4>
             <label class="checkbox-inline">
-              <input type="radio" ng-model="new_filter.include" name="filter_option" value="exclude">Excluded
+              <input type="radio" ng-model="include_radio_getter_setter" ng-model-options="{ getterSetter: true }" name="filter_option" value="exclude" checked="true"> Excluded
             </label>
             <label class="checkbox-inline">
-              <input type="radio" ng-model="new_filter.include" name="filter_option" value="include">Included
+              <input type="radio" ng-model="include_radio_getter_setter" ng-model-options="{ getterSetter: true }" name="filter_option" value="include"> Included
             </label>
           </div>
         </div>
@@ -95,11 +106,17 @@
 </div>
 
 <div class="modal-footer" style="margin: 0">
-    <div class="alert alert-info setting-warning" ng-if="ns.filter_active">Excluded videos can be found in history</div>
+    <!-- general related start -->
     <div class="alert alert-danger setting-warning" ng-if="ns.less_than_5">Check interval cannot be lower than 5 minutes</div>
     <div class="alert alert-danger setting-warning" ng-if="ns.bad_input">Check interval must be a positive number</div>
+    <!-- general related end -->
+    <!-- filters related start-->
+    <div class="alert alert-info setting-warning" ng-if="ns.filter_active">Excluded videos can be found in history</div>
     <div class="alert alert-danger setting-warning" ng-if="ns.dup_filter">This filter already exist</div>
+    <!-- filters related end-->
+    <!-- import related start-->
     <div class="alert alert-danger setting-warning" ng-if="ns.import_error">Import failed (malformed data?)</div>
+    <!-- import related end-->
     <button class="btn btn-primary" ng-click="save()" ng-disabled="!ns.valid">Save</button>
     <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>
