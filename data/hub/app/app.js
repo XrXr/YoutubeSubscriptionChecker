@@ -178,15 +178,27 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     after_end.forEach(make_clone);
                 }
 
+                function history_filter(new_ch, video) {
+                    if (video.snippet.channelId == new_ch || new_ch === "") {
+                        delete video.$$hashKey;
+                        return true;
+                    }
+                    return false;
+                }
+                // repeating for max efficiency
+                function normal_filter (new_ch, video) {
+                    if (video.snippet.channelId == new_ch || new_ch === "") {
+                        return true;
+                    }
+                    return false;
+                }
+
                 scope.switch_channel = function(new_ch) {
-                    var new_list = VideoStorage.videos.filter(
-                        function(v) {
-                            if (v.snippet.channelId == new_ch || new_ch === "") {
-                                delete v.$$hashKey;
-                                return true;
-                            }
-                            return false;
-                        });
+                    var new_list = VideoStorage.history_mode ?
+                        VideoStorage.videos.filter(
+                            history_filter.bind(null, new_ch)) :
+                        VideoStorage.videos.filter(
+                            normal_filter.bind(null, new_ch));
                     if (VideoStorage.history_mode) {
                         return history_update(new_list);
                     }

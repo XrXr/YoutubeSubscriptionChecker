@@ -25,7 +25,7 @@
    √ fix button click focus @done (14-08-23 23:56)
    √ fix history filtering @done (14-08-27 15:41)
    x make upgrading from 1.0 seemless !!important!! data loss due to update is unacceptable @cancelled (14-09-19 00:00)
-     □ Wait for bug 1058840 @started(14-09-19 00:00)
+     √ wait for bug 1058840 @started(14-09-19 00:00) @done (14-09-23 21:12) @lasted(4 days, 21:12)
    x panel signals incompelte (new user prompt, channel information not sent on update etc) @cancelled (14-08-20 16:13)
    x add option for not using panel @cancelled (14-08-20 16:13)
    x clicking on notification should open panel when appropriate @cancelled (14-08-20 16:14)
@@ -46,5 +46,6 @@
    √ filter channel name warning/error handling @done (14-09-15 03:30)
      √ invalid channel name @done (14-09-15 03:30)
      √ empty pattern @done (14-09-15 03:30)
+   □ shorter string for import/export
    □ namespace each tab in settings modal
    □ write full testing procedure
