@@ -85,7 +85,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 }
 
                 function v_eq (a, b) {
-                    return a.id.videoId == b.id.videoId;
+                    return a.video_id == b.video_id;
                 }
 
                 function indexOf (video, array) {
@@ -94,7 +94,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     var r = -1;
                     if (video) {
                         array.some(function(e, i) {
-                            if (e.id.videoId == video.id.videoId) {
+                            if (e.video_id == video.video_id) {
                                 r = i;
                                 return true;
                             }
@@ -179,7 +179,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 }
 
                 function history_filter(new_ch, video) {
-                    if (video.snippet.channelId == new_ch || new_ch === "") {
+                    if (video.channel_id == new_ch || new_ch === "") {
                         delete video.$$hashKey;
                         return true;
                     }
@@ -187,7 +187,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 }
                 // repeating for max efficiency
                 function normal_filter (new_ch, video) {
-                    if (video.snippet.channelId == new_ch || new_ch === "") {
+                    if (video.channel_id == new_ch || new_ch === "") {
                         return true;
                     }
                     return false;
@@ -321,15 +321,11 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     })
 
     .service("VideoStorage", function() {
-        // this.videos = [{id:{videoId:123}},{id:{videoId:125}},{id:{videoId:124},snippet:{title:"asdasd"}}];
         var parent = this;
         var main = [];
         var history = [];
 
         this.videos = [];
-        // for (var i = 0; i < 100; i++) {
-        //   this.videos.push({id:{videoId: i}, snippet: {channelId: i}});
-        // }
         this.current_view = [];
         this.to_remove = [];
         this.history_mode = false;
@@ -359,7 +355,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         function get_video_by_id (id, array) {
             var video = null;
             array.some(function(elem) {
-                if (elem.id.videoId == id) {
+                if (elem.video_id == id) {
                     video = elem;
                     return true;
                 }
@@ -370,7 +366,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
         this.remove_from_view = function(video) {
             for (var i = parent.current_view.length - 1; i >= 0; i--) {
-                if (parent.current_view[i].id.videoId == video.id.videoId) {
+                if (parent.current_view[i].video_id == video.video_id) {
                     parent.current_view.splice(i, 1);
                     return;
                 }
@@ -406,7 +402,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
         this.remove_video = function(video) {
             for (var i = parent.videos.length - 1; i >= 0; i--) {
-                if (parent.videos[i].id.videoId == video.id.videoId) {
+                if (parent.videos[i].video_id == video.video_id) {
                     parent.videos.splice(i, 1);
                     parent.to_remove.push(video);
                     add_history(video);
@@ -418,7 +414,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
         this.remove_video_by_channel = function(channel_id) {
             for (var i = parent.videos.length - 1; i >= 0; i--) {
-                if (parent.videos[i].snippet.channelId == channel_id) {
+                if (parent.videos[i].channel_id == channel_id) {
                     parent.videos.splice(i, 1);
                 }
             }
@@ -457,15 +453,11 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         // }
         var parent = this;
         function get_channel_by_id (id) {
-            var channel = null;
-            parent.channels.some(function (element) {
-                if (element.id == id) {
-                    channel = element;
-                    return true;
+            for (var channel of parent.channels) {
+                if (channel.id == id) {
+                    return channel;
                 }
-                return false;
-            });
-            return channel;
+            }
         }
 
         this.get_channel_by_id = get_channel_by_id;
@@ -475,7 +467,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 c.video_count = 0;
             }
             for (var v of VideoStorage.videos) {
-                get_channel_by_id(v.snippet.channelId).video_count++;
+                get_channel_by_id(v.channel_id).video_count++;
             }
         };
 
@@ -598,7 +590,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     masonry.remove(video_div);
                     masonry.layout();
                 });
-                ChannelList.decrease_video_count(video.snippet.channelId);
+                ChannelList.decrease_video_count(video.channel_id);
             }
         };
 

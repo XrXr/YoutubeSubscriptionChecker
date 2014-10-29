@@ -11,15 +11,13 @@ function Filter (_, video_title_pattern, video_title_is_regex,
     };
 }
 
-function get_title (Video) {
-    return Video.snippet.title.toLowerCase();
+function get_title (video) {
+    return video.title.toLowerCase();
 }
 
 function Video (title) {
     return {
-        snippet: {
-            title: title
-        }
+        title: title
     };
 
 }

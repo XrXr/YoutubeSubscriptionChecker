@@ -30,7 +30,7 @@
    x add option for not using panel @cancelled (14-08-20 16:13)
    x clicking on notification should open panel when appropriate @cancelled (14-08-20 16:14)
    √ add a way to clear history @done (14-09-10 22:56)
-   □ unified functions for getting extracting info out of api response
+   √ unified functions for getting extracting info out of api response @done (14-10-28 23:25)
    √ add a button for options in add-on manager @done (14-09-11 22:31)
    x direct button drawing? (if adding button in add-on manager uses chrome authority) @cancelled (14-09-11 22:09)
    √ change `function cat(meow)` to `function cat (meow)` @done (14-09-13 14:20)
@@ -39,13 +39,14 @@
      □ remove previous event handler when registering new ones
      □ automatic unregistraion? ex subscription modal, unregister on close
    √ load lower res image for channel search @done (14-08-28 19:00)
-   ✔ config export and import system @done (14-09-09 23:15)
+   √ config export and import system @done (14-09-09 23:15)
    √ cursor for tabs in settings modal @done (14-08-27 17:04)
    x "only 50..." text in history mode @cancelled (14-08-27 09:48)
    √ autocomplete for channel name in filter page @done (14-08-28 19:34)
    √ filter channel name warning/error handling @done (14-09-15 03:30)
      √ invalid channel name @done (14-09-15 03:30)
      √ empty pattern @done (14-09-15 03:30)
+   □ don't record history in private browsing
    □ shorter string for import/export
    □ namespace each tab in settings modal
    □ write full testing procedure
