@@ -9,7 +9,7 @@ function send_dom_event (name, data) {
     // passing pay_load as reference directly would result in cross-origin problems
     // passing the stringified version circumvents it.
     document.documentElement.dispatchEvent(new CustomEvent(name, {
-        detail: JSON.stringify(data)
+        detail: typeof(data) === "string" ? data : JSON.stringify(data)
     }));
 }
 
