@@ -48,6 +48,7 @@
      √ invalid channel name @done (14-09-15 03:30)
      √ empty pattern @done (14-09-15 03:30)
    □ don't record history in private browsing
-   □ shorter string for import/export
+   x shorter string for import/export @cancelled (14-10-31 17:43)
    □ namespace each tab in settings modal
+   □ more UI feedback for successful import
    □ write full testing procedure
