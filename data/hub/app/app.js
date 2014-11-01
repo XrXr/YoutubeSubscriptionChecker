@@ -5,20 +5,14 @@ If a copy of the MPL was not distributed with this file,
 You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
-function send_dom_event (type, name, data) {
-    var result_event = new CustomEvent(type);
-    result_event.initCustomEvent(name, true, true, data);
-    document.documentElement.dispatchEvent(result_event);
-}
-
 function refresh_masonry () {
     var masonry_container = document.querySelector("[masonry]");
     var masonry = Masonry.data(masonry_container);
     setTimeout(function() {
         try{
-        masonry.remove(masonry.getItemElements());
-        masonry.layout();
-        masonry.prepended(masonry_container.children);
+            masonry.remove(masonry.getItemElements());
+            masonry.layout();
+            masonry.prepended(masonry_container.children);
         } catch(err) {
             masonry.reloadItems();
             masonry.layout();
@@ -27,19 +21,21 @@ function refresh_masonry () {
 }
 
 angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
-    .run(function(ConfigManager) {
-        document.documentElement.addEventListener("config", function(event) {
+    .run(function(ConfigManager, Bridge) {
+        Bridge.on("config", function(event) {
             var config_and_filters = JSON.parse(event.detail);
             var new_config = config_and_filters.config;
             new_config.filters = config_and_filters.filters;
             ConfigManager.update_config(new_config);
         });
     })
+
     .directive('videoCanvas', function() {
         return {
             templateUrl: "partials/videos.html"
         };
     })
+
     .directive('masonry', function($timeout, ChannelList, ConfigManager, VideoStorage) {
         return {
             restrict: 'AC',
@@ -120,7 +116,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                         VideoStorage.current_view.push(...new_list.slice(intersection_end + 1));
                         VideoStorage.current_view.splice(0, 0,
                             ...new_list.slice(0, intersection_start));
-                    }else{
+                    } else {
                         VideoStorage.current_view = new_list;
                     }
                     $timeout(()=>{
@@ -133,7 +129,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                         });
                         if (intersection_start === -1) {
                             scope.obj.prepended(elem.children());
-                        }else{
+                        } else {
                             var arr = [].splice.call(elem[0].children);
                             scope.obj.prepended(arr.slice(0, intersection_start));
                             scope.obj.appended(arr.slice(intersection_end + 1));
@@ -320,6 +316,46 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
     })
 
+    /*
+      Responsible for communication with the add-on. This factory guarantees
+      that only one listener is register for any given event name at a time
+    */
+    .factory("Bridge", function() {
+        var registered = {};
+        function on (name, listener) {
+                document.documentElement.
+                    removeEventListener(name, registered[name]);
+                registered[name] = listener;
+                document.documentElement.addEventListener(name, listener);
+        }
+
+        function emit (name, data) {
+            document.documentElement.
+                dispatchEvent(new CustomEvent(name, {detail: data}));
+        }
+
+        function once (name, listener) {
+            function wrapper () {
+                listener();
+                documente.documentElement.removeEventListener(name, wrapper);
+            }
+            on(name, wrapper);
+        }
+
+        function removeListener (name) {
+            document.documentElement.
+                removeEventListener(name, registered[name]);
+            registered[name] = null;
+        }
+
+        return {
+            on: on,
+            once: once,
+            emit: emit,
+            removeListener: removeListener
+        };
+    })
+
     .service("VideoStorage", function() {
         var parent = this;
         var main = [];
@@ -427,7 +463,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
     })
 
-    .service("ConfigManager", function($animate) {
+    .service("ConfigManager", function($animate, Bridge) {
         this.config = {};
         var parent = this;
         this.update_config = function(new_config) {
@@ -517,7 +553,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
     })
 
-    .controller('frame', function($scope, $modal, $timeout, ChannelList, VideoStorage, ConfigManager) {
+    .controller('frame', function($scope, $modal, $timeout, ChannelList, VideoStorage, ConfigManager, Bridge) {
         $scope.chnl = ChannelList;
         $scope.vs = VideoStorage;
 
@@ -558,31 +594,27 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             refresh_masonry();
         };
 
-        document.documentElement.addEventListener("open-settings", event => {
+        Bridge.on("open-settings", event => {
             $scope.open_settings();
         });
 
-        document.documentElement.addEventListener("subscribed-channels", function(event) {
+        Bridge.on("subscribed-channels", function(event) {
             if (ChannelList.update_channels(JSON.parse(event.detail))) {
                 $scope.open_subscriptions();
             }
         }, false);
     })
 
-    .controller('videos', function($scope, $timeout, VideoStorage, ChannelList) {
+    .controller('videos', function($scope, $timeout, VideoStorage, ChannelList, Bridge) {
         $scope.v = VideoStorage;
-
-        function update_flow () {
-            flow.prepended(document.getElementsByClassName("video"));
-        }
 
         $scope.open_video = function(video, event) {
             if (VideoStorage.history_mode) {
-                return send_dom_event("videos", "open-video", video);
+                return Bridge.emit("open-video", video);
             }
             if (VideoStorage.remove_video(video)) {
                 var event_name = event.ctrlKey ? "skip-video" : "remove-video";
-                send_dom_event("videos", event_name, video);
+                Bridge.emit(event_name, video);
                 var masonry_container = document.querySelector("[masonry]");
                 var masonry = Masonry.data(masonry_container);
                 var video_div = event.target.parentElement.parentElement.parentElement;
@@ -594,7 +626,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             }
         };
 
-        document.documentElement.addEventListener("videos", function(event) {
+        Bridge.on("videos", function(event) {
             var details = JSON.parse(event.detail);
             VideoStorage.new_main(details[0]);
             VideoStorage.new_history(details[1]);
@@ -604,14 +636,14 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             $scope.$apply(refresh_masonry);
         });
 
-        document.documentElement.addEventListener("duration-update", function(event) {
+        Bridge.on("duration-update", function(event) {
             var detail = JSON.parse(event.detail);
             VideoStorage.update_duration(detail.id, detail.duration);
             $scope.$apply();
         });
     })
 
-    .controller ("settings", function ($scope, $modalInstance, ConfigManager, ChannelList, VideoStorage) {
+    .controller ("settings", function ($scope, $modalInstance, ConfigManager, ChannelList, VideoStorage, Bridge) {
         $scope.channels = ChannelList;
         $scope.config = angular.copy(ConfigManager.config);  // clone it
         // TODO: If there is going to be more warning banners, use a directive.
@@ -715,12 +747,12 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         // **filter tab end
 
         $scope.export_settings = function() {
-            send_dom_event('settings', "export", null);
+            Bridge.emit("export", null);
         };
 
         $scope.import_settings = function(input) {
             $scope.ns.import_error = false;
-            send_dom_event('settings', "import", input);
+            Bridge.emit("import", input);
         };
 
         $scope.clear_history = function() {
@@ -729,31 +761,31 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 VideoStorage.current_view = [];
             }
             $scope.$apply();
-            send_dom_event('settings', "clear-history");
+            Bridge.emit("clear-history");
         };
 
         $scope.save = function () {
             $modalInstance.close();
             ConfigManager.update_config($scope.config);
-            send_dom_event('settings', "update-config", $scope.config);
+            Bridge.emit("update-config", $scope.config);
         };
 
         $scope.cancel = function () {
             $modalInstance.dismiss('cancel');
         };
 
-        document.documentElement.addEventListener("export-result", function(event) {
+        Bridge.on("export-result", function(event) {
             $scope.ns.config_output = event.detail;
             $scope.$apply();
         }, false);
 
-        document.documentElement.addEventListener("import-error", function(event) {
+        Bridge.on("import-error", function(event) {
             $scope.ns.import_error = true;
             $scope.$apply();
         }, false);
     })
 
-    .controller("subscriptions", function ($scope, $modalInstance, ChannelList, VideoStorage) {
+    .controller("subscriptions", function ($scope, $modalInstance, ChannelList, VideoStorage, Bridge) {
         $scope.chnl = ChannelList;
         $scope.search = {
             term: "",
@@ -778,31 +810,26 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             $modalInstance.dismiss('cancel');
         };
 
-        function register_channel_listeners (channel) {
-            //register listeners for channel updates
+        $scope.add_channel = function(channel) {
+            $scope.duplicate = false;
+            Bridge.emit("add-channel", channel);
+
             function add_listener () {
-                document.documentElement.removeEventListener("channel-added", arguments.callee, false);
+                Bridge.removeListener("channel-duplicate");
                 ChannelList.channels.push(channel);
             }
 
             function duplicate_listener () {
-                document.documentElement.removeEventListener("channel-added", add_listener, false);
-                document.documentElement.removeEventListener("channel-duplicate", arguments.callee, false);
+                Bridge.removeListener("channel-added");
                 $scope.duplicate = true;
                 $scope.$apply();
             }
-            document.documentElement.addEventListener("channel-added", add_listener, false);
-            document.documentElement.addEventListener("channel-duplicate", duplicate_listener, false);
-        }
-
-        $scope.add_channel = function(channel) {
-            $scope.duplicate = false;
-            send_dom_event('subscriptions', "add-channel", channel);
-            register_channel_listeners(channel);
+            Bridge.on("channel-added", add_listener);
+            Bridge.on("channel-duplicate", duplicate_listener);
         };
 
         $scope.remove_channel = function(channel) {
-            send_dom_event('subscriptions', "remove-channel", channel);
+            Bridge.emit("remove-channel", channel);
             ChannelList.remove_channel(channel);
             VideoStorage.remove_video_by_channel(channel.id);
             if (ChannelList.current_channel === "") {
@@ -828,9 +855,8 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         $scope.search_channel = function($event) {
             if($event.keyCode == 13) {
                 $scope.search.in_progress = true;
-                send_dom_event("subscriptions",
-                               "search-channel", $scope.search.term);
-                document.documentElement.addEventListener("search-result", search_result_listener, false);
+                Bridge.emit("search-channel", $scope.search.term);
+                Bridge.on("search-result", search_result_listener, false);
                 $scope.search.result = [];
                 $scope.search.searched_once = true;
                 $scope.duplicate = false;

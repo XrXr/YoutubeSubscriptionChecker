@@ -36,9 +36,9 @@
    x direct button drawing? (if adding button in add-on manager uses chrome authority) @cancelled (14-09-11 22:09)
    √ change `function cat(meow)` to `function cat (meow)` @done (14-09-13 14:20)
    √ refactor bridge @done (14-09-13 19:01)
-   □ pull all the event handling into a service/factory in app.js
-     □ remove previous event handler when registering new ones
-     □ automatic unregistraion? ex subscription modal, unregister on close
+   √ pull all the event handling into a service/factory in app.js @done (14-10-31 20:15)
+     √ remove previous event handler when registering new ones @done (14-10-31 20:16)
+     √ automatic unregistraion? ex subscription modal, unregister on close @done (14-10-31 20:16)
    √ load lower res image for channel search @done (14-08-28 19:00)
    √ config export and import system @done (14-09-09 23:15)
    √ cursor for tabs in settings modal @done (14-08-27 17:04)
@@ -51,4 +51,5 @@
    x shorter string for import/export @cancelled (14-10-31 17:43)
    □ namespace each tab in settings modal
    □ more UI feedback for successful import
+   □ masonry service/factory
    □ write full testing procedure
