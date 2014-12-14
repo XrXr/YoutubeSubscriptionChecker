@@ -49,7 +49,9 @@
      √ empty pattern @done (14-09-15 03:30)
    x don't record history in private browsing @cancelled (14-11-24 22:48)
    x shorter string for import/export @cancelled (14-10-31 17:43)
-   □ namespace each tab in settings modal
+   □ channel video count not updated in history mode when clearing history
+   √ namespace each tab in settings modal @done (14-12-14 18:02)
    □ more UI feedback for successful import
+     □ directive for notification banners in settings tab
    □ masonry service/factory
    □ write full testing procedure

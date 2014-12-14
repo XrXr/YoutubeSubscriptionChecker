@@ -9,9 +9,9 @@
     <tabset>
       <tab heading="General">
         <br>
-        <form class="form-inline" ng-class="ns.interval_class" role="form">
+        <form class="form-inline" ng-class="tabs.general.interval_class" role="form">
             <label class="control-label">Check Interval &nbsp;</label>
-            <input class="form-control" ng-model="config.interval" ng-change="validate(config.interval)" type="text" placeholder="Time in minutes" style="width: 40%">
+            <input class="form-control" ng-model="config.interval" ng-change="tabs.general.validate(config.interval)" type="text" placeholder="Time in minutes" style="width: 40%">
             &nbsp;
             <label class="control-label">minutes</label>
         </form>
@@ -34,15 +34,15 @@
             </label>
         </form>
         <br>
-        <button type="button" class="btn btn-primary" ng-click="clear_history()">Clear History</button>
+        <button type="button" class="btn btn-primary" ng-click="tabs.general.clear_history()">Clear History</button>
       </tab>
 
-      <tab heading="Filters" select="ns.filter_active = true" deselect="ns.filter_active = false" class="container-fluid">
+      <tab heading="Filters" select="tabs.filter.filter_active = true" deselect="tabs.filter.filter_active = false" class="container-fluid">
         <br>
         <div class="row">
           <div class="col-md-5">
-            <select select-index="ns.current_filter" multiple="true" class="form-control filter-select" size="10">
-              <option ng-class="get_filter_class(f)" ng-repeat="f in config.filters" class="ellipses" ng-click="fill_input_form(f)" ng-value="$index">{{f.channel_title + " | " + f.video_title_pattern}}</option>
+            <select select-index="tabs.filter.current_filter" multiple="true" class="form-control filter-select" size="10">
+              <option ng-repeat="f in config.filters" class="ellipses" ng-class="get_filter_class(f)" ng-click="tabs.filter.fill_input_form(f)" ng-value="$index">{{f.channel_title + " | " + f.video_title_pattern}}</option>
             </select>
             <form class="form-inline" role="form">
                 <!-- Since the title matcher input box has typeahead-editable=false, the model will be `undefined` when the user has not selected one of the options in the popup. Test cases:
@@ -56,32 +56,32 @@
                                andThree p1 p2 p3 = p1 && p2 && p3
                 The model is bad, this needs testing.
                  -->
-                <button type="button" ng-click="add_filter(new_filter)" ng-disabled="new_filter.channel_title === undefined || new_filter.channel_title.length === 0 || new_filter.video_title_pattern.length === 0" class="btn btn-success">Add</button>
-                <button type="button" ng-click="remove_filter(ns.current_filter)" class="btn btn-danger">Remove</button>
-                <button type="button" ng-click="move_up(ns.current_filter)" class="btn btn-primary">&and;</button>
-                <button type="button" ng-click="move_down(ns.current_filter)" class="btn btn-primary">&or;</button>
+                <button type="button" ng-click="tabs.filter.add_filter(tabs.filter.new_filter)" ng-disabled="tabs.filter.new_filter.channel_title === undefined || tabs.filter.new_filter.channel_title.length === 0 || tabs.filter.new_filter.video_title_pattern.length === 0" class="btn btn-success">Add</button>
+                <button type="button" ng-click="tabs.filter.remove_filter(tabs.filter.current_filter)" class="btn btn-danger">Remove</button>
+                <button type="button" ng-click="tabs.filter.move_up(tabs.filter.current_filter)" class="btn btn-primary">&and;</button>
+                <button type="button" ng-click="tabs.filter.move_down(tabs.filter.current_filter)" class="btn btn-primary">&or;</button>
             </form>
           </div>
           <div class="col-md-7">
             <h4>For channel that match...</h4>
             <div>
-              <input ng-model="new_filter.channel_title" class="form-control" type="text" typeahead="name for name in channels.name_list | filter:$viewValue | limitTo:4" typeahead-editable="false" placeholder="cases are ignored">
+              <input ng-model="tabs.filter.new_filter.channel_title" class="form-control" type="text" typeahead="name for name in channels.name_list | filter:$viewValue | limitTo:4" typeahead-editable="false" placeholder="cases are ignored">
             </div>
             <h4>only videos with title that match...</h4>
             <div>
-              <input ng-model="new_filter.video_title_pattern" class="form-control filter-input" type="text" placeholder="cases are ignored">
+              <input ng-model="tabs.filter.new_filter.video_title_pattern" class="form-control filter-input" type="text" placeholder="cases are ignored">
               <div class="checkbox filter-regex-checkbox">
                 <label>
-                  <input type="checkbox" ng-model="new_filter.video_title_is_regex"> RegEx
+                  <input type="checkbox" ng-model="tabs.filter.new_filter.video_title_is_regex"> RegEx
                 </label>
               </div>
             </div>
             <h4>should be...</h4>
             <label class="checkbox-inline">
-              <input type="radio" ng-model="include_radio_getter_setter" ng-model-options="{ getterSetter: true }" name="filter_option" value="exclude" checked="true"> Excluded
+              <input type="radio" ng-model="tabs.filter.include_radio_getter_setter" ng-model-options="{ getterSetter: true }" name="filter_option" value="exclude" checked="true"> Excluded
             </label>
             <label class="checkbox-inline">
-              <input type="radio" ng-model="include_radio_getter_setter" ng-model-options="{ getterSetter: true }" name="filter_option" value="include"> Included
+              <input type="radio" ng-model="tabs.filter.include_radio_getter_setter" ng-model-options="{ getterSetter: true }" name="filter_option" value="include"> Included
             </label>
           </div>
         </div>
@@ -91,14 +91,14 @@
         <div class="row">
           <div class="col-md-6">
             <h4>Export</h4>
-            <textarea ng-model="ns.config_output" cols="30" rows="10" readonly=true></textarea>
+            <textarea ng-model="tabs.import_export.config_output" cols="30" rows="10" readonly=true></textarea>
             <br>
-            <button class="btn btn-primary inout-button" ng-click="export_settings()">Export</button>
+            <button class="btn btn-primary inout-button" ng-click="tabs.import_export.export_settings()">Export</button>
           </div>
           <div class="col-md-6">
             <h4>Import</h4>
             <textarea ng-model="config_input" cols="30" rows="10"></textarea>
-            <button class="btn btn-primary inout-button" ng-click="import_settings(config_input)">Import</button>
+            <button class="btn btn-primary inout-button" ng-click="tabs.import_export.import_settings(config_input)">Import</button>
           </div>
         </div>
       </tab>
@@ -107,16 +107,16 @@
 
 <div class="modal-footer" style="margin: 0">
     <!-- general related start -->
-    <div class="alert alert-danger setting-warning" ng-if="ns.less_than_5">Check interval cannot be lower than 5 minutes</div>
-    <div class="alert alert-danger setting-warning" ng-if="ns.bad_input">Check interval must be a positive number</div>
+    <div class="alert alert-danger setting-warning" ng-if="tabs.general.less_than_5">Check interval cannot be lower than 5 minutes</div>
+    <div class="alert alert-danger setting-warning" ng-if="tabs.general.bad_input">Check interval must be a positive number</div>
     <!-- general related end -->
     <!-- filters related start-->
-    <div class="alert alert-info setting-warning" ng-if="ns.filter_active">Excluded videos can be found in history</div>
-    <div class="alert alert-danger setting-warning" ng-if="ns.dup_filter">This filter already exist</div>
+    <div class="alert alert-info setting-warning" ng-if="tabs.filter.filter_active">Excluded videos can be found in history</div>
+    <div class="alert alert-danger setting-warning" ng-if="tabs.filter.dup_filter">This filter already exist</div>
     <!-- filters related end-->
     <!-- import related start-->
-    <div class="alert alert-danger setting-warning" ng-if="ns.import_error">Import failed (malformed data?)</div>
+    <div class="alert alert-danger setting-warning" ng-if="tabs.import_export.import_error">Import failed (malformed data?)</div>
     <!-- import related end-->
-    <button class="btn btn-primary" ng-click="save()" ng-disabled="!ns.valid">Save</button>
+    <button class="btn btn-primary" ng-click="save()" ng-disabled="!tabs.general.valid">Save</button>
     <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

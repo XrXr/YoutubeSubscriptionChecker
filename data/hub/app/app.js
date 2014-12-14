@@ -647,122 +647,109 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         $scope.channels = ChannelList;
         $scope.config = angular.copy(ConfigManager.config);  // clone it
         // TODO: If there is going to be more warning banners, use a directive.
-        $scope.ns = {
+        $scope.tabs = {};
+        $scope.tabs.general = {
             interval_class: "",
             less_than_5: false,
             bad_input: false,
             valid: true,
-            filter_active: false,
-            dup_filters: false,
-            filters_bad_channel_name: false,
-            filters_bad_pattern: true
-        };
-
-        function isNumber (n) {
-            return !isNaN(parseFloat(n)) && isFinite(n);
-        }
-
-        $scope.include_radio_getter_setter = function (val) {
-            if (arguments.length === 0) {
-                return $scope.new_filter.include_on_match ? "include" : "exclude";
-            }
-            $scope.new_filter.include_on_match = val === "include";
-        };
-
-        $scope.validate = function(value) {
-            $scope.ns.interval_class = "";
-            $scope.ns.less_than_5 = false;
-            $scope.ns.bad_input = false;
-            $scope.ns.valid = true;
-            if (isNumber(value)) {
-                if (Number(value) < 5) {
-                    $scope.ns.valid = false;
-                    $scope.ns.less_than_5 = true;
-                    $scope.ns.interval_class = "has-error";
+            validate: value => {
+                $scope.tabs.general.interval_class = "";
+                $scope.tabs.general.less_than_5 = false;
+                $scope.tabs.general.bad_input = false;
+                $scope.tabs.general.valid = true;
+                if (isNumber(value)) {
+                    if (Number(value) < 5) {
+                        $scope.tabs.general.valid = false;
+                        $scope.tabs.general.less_than_5 = true;
+                        $scope.tabs.general.interval_class = "has-error";
+                    }
+                } else {
+                    $scope.tabs.general.valid = false;
+                    $scope.tabs.general.bad_input = true;
+                    $scope.tabs.general.interval_class = "has-error";
                 }
-            } else {
-                $scope.ns.valid = false;
-                $scope.ns.bad_input = true;
-                $scope.ns.interval_class = "has-error";
+            },
+            clear_history: () => {
+                VideoStorage.new_history([]);
+                if (VideoStorage.history_mode) {
+                    VideoStorage.current_view = [];
+                }
+                $scope.$apply();  // TODO: is this really necessary?
+                Bridge.emit("clear-history");
             }
         };
 
-        // **filter tab start
-        // Fill and replace the "new filter form" with information
-        // from the `filter` parameter. Does not mutate on `filter`
-        $scope.new_filter = {
-            channel_title: "",
-            video_title_pattern: "",
-            video_title_is_regex: false,
-            include_on_match: false
-        };
-        $scope.fill_input_form = angular.extend.bind(null, $scope.new_filter);
-
-        function is_dup (filter) {
-            return $scope.config.filters.some(
+        $scope.tabs.filter = {
+            filter_active: false,
+            dup_filter: false,
+            filters_bad_channel_name: false,
+            filters_bad_pattern: true,
+            new_filter: {
+                channel_title: "",
+                video_title_pattern: "",
+                video_title_is_regex: false,
+                include_on_match: false
+            },
+            fill_input_form: filter =>
+                angular.extend($scope.tabs.filter.new_filter, filter),
+            is_dup: filter => $scope.config.filters.some(
                 e => e.video_title_pattern === filter.video_title_pattern &&
                 e.channel_title === filter.channel_title &&
                 e.video_title_is_regex === filter.video_title_is_regex &&
-                e.include_on_match === filter.include_on_match);
+                e.include_on_match === filter.include_on_match),
+            add_filter: filter => {
+                $scope.tabs.filter.dup_filter = false;
+                filter = angular.copy(filter);
+                filter.video_title_pattern = filter.video_title_pattern.trim();
+                filter.channel_title = filter.channel_title.trim();
+                if ($scope.tabs.filter.is_dup(filter)) {
+                    $scope.tabs.filter.dup_filter = true;
+                    return;
+                }
+                $scope.config.filters.push(filter);
+            },
+            get_filter_class: filter => filter.include ?
+                                        "bg-success": "bg-danger",
+            move_up: index => {
+                if (index <= 0 || !index) {
+                    return;
+                }
+                var below = $scope.config.filters[index - 1];
+                $scope.config.filters[index - 1] = $scope.config.filters[index];
+                $scope.config.filters[index] = below;
+            },
+            move_down: index => {
+                if (index === $scope.config.filters.length - 1 ||
+                    index === undefined || index < 0) {
+                    return;
+                }
+                var above = $scope.config.filters[index + 1];
+                $scope.config.filters[index + 1] = $scope.config.filters[index];
+                $scope.config.filters[index] = above;
+            },
+            remove_filter: index => $scope.config.filters.splice(index, 1),
+            include_radio_getter_setter: val => {
+                if (arguments.length === 0) {
+                    return $scope.tabs.filter.new_filter.
+                                include_on_match ? "include" : "exclude";
+                }
+                $scope.tabs.filter.new_filter.include_on_match =
+                    val === "include";
+            }
+        };
+
+        $scope.tabs.import_export = {
+            export_settings: () => Bridge.emit("export", null),
+            import_settings: input => {
+                $scope.tabs.import_export.import_error = false;
+                Bridge.emit("import", input);
+            }
+        };
+
+        function isNumber (n) {  // found on stackoverflow
+            return !isNaN(parseFloat(n)) && isFinite(n);
         }
-
-        $scope.add_filter = function(filter) {
-            $scope.ns.dup_filter = false;
-            filter = angular.copy(filter);
-            filter.video_title_pattern = filter.video_title_pattern.trim();
-            filter.channel_title = filter.channel_title.trim();
-            if (is_dup(filter)) {
-                $scope.ns.dup_filter = true;
-                return;
-            }
-            $scope.config.filters.push(filter);
-        };
-
-        $scope.get_filter_class = function(filter) {
-            return filter.include ? "bg-success": "bg-danger";
-        };
-
-        $scope.move_up = function(index) {
-            if (index <= 0 || !index) {
-                return;
-            }
-            var below = $scope.config.filters[index - 1];
-            $scope.config.filters[index - 1] = $scope.config.filters[index];
-            $scope.config.filters[index] = below;
-        };
-
-        $scope.move_down = function(index) {
-            if (index === $scope.config.filters.length - 1 ||
-                index === undefined || index < 0) {
-                return;
-            }
-            var above = $scope.config.filters[index + 1];
-            $scope.config.filters[index + 1] = $scope.config.filters[index];
-            $scope.config.filters[index] = above;
-        };
-
-        $scope.remove_filter = function(index) {
-            $scope.config.filters.splice(index, 1);
-        };
-        // **filter tab end
-
-        $scope.export_settings = function() {
-            Bridge.emit("export", null);
-        };
-
-        $scope.import_settings = function(input) {
-            $scope.ns.import_error = false;
-            Bridge.emit("import", input);
-        };
-
-        $scope.clear_history = function() {
-            VideoStorage.new_history([]);
-            if (VideoStorage.history_mode) {
-                VideoStorage.current_view = [];
-            }
-            $scope.$apply();
-            Bridge.emit("clear-history");
-        };
 
         $scope.save = function () {
             $modalInstance.close();
@@ -774,13 +761,13 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             $modalInstance.dismiss('cancel');
         };
 
-        Bridge.on("export-result", function(event) {
-            $scope.ns.config_output = event.detail;
+        Bridge.on("export-result", event => {
+            $scope.tabs.import_export.config_output = event.detail;
             $scope.$apply();
         }, false);
 
-        Bridge.on("import-error", function(event) {
-            $scope.ns.import_error = true;
+        Bridge.on("import-error", event => {
+            $scope.tabs.import_export.import_error = true;
             $scope.$apply();
         }, false);
     })
