@@ -366,18 +366,18 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         this.to_remove = [];
         this.history_mode = false;
 
-        this.update_videos = function(new_list) {
+        function update_videos (new_list) {
             parent.videos = new_list;
             parent.current_view = angular.copy(new_list);
             parent.to_remove = [];
-        };
+        }
 
         this.switch_to = function(target) {
             parent.history_mode = target === "history";
-            if (target == "main") {
-                return parent.update_videos(main);
+            if (target === "main") {
+                return update_videos(main);
             }
-            parent.update_videos(history);
+            update_videos(history);
         };
 
         this.new_main = function(new_list) {
@@ -673,9 +673,9 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             clear_history: () => {
                 VideoStorage.new_history([]);
                 if (VideoStorage.history_mode) {
-                    VideoStorage.current_view = [];
+                    VideoStorage.switch_to("history");
+                    ChannelList.update_video_count();
                 }
-                $scope.$apply();  // TODO: is this really necessary?
                 Bridge.emit("clear-history");
             }
         };

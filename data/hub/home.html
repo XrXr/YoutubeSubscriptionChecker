@@ -17,7 +17,6 @@
     <script src='lib/ui-bootstrap-custom-tpls-0.10.0.min.js'></script>
     <script src='lib/masonry.pkgd.min.js'></script>
     <script src="app/app.js"></script>
-<script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
 </head>
 <body ng-app="subscription_checker">
     <div class="container-fluid" ng-controller="frame">
@@ -36,9 +35,9 @@
                 <img ng-click="open_settings()" tooltip="Settings" tooltip-placement="left" tooltip-append-to-body="true" style="float: right" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACwklEQVRYhdVWz0tUURR+Fk4EaaAS1iYwoSiyJoQQLCSCeNS793zncBOx2giPqCgoImpRY7WQ/oWaoKgggmjjSmhTtGvRxlWoYS3aWFD0w9JaOMLrcu99M/6CLpzVfOd83/nxzpwo+h+fiHQAKAN4VbGy1nrnSvHXARgH8Mey8RVhB2Ac5POml404juNGZi4B+BkQ8A3A2TiO1ywZsTGmAOASgKkAsW3vAZxYEKFSqoGIepRS7cysALyugdi2pyLSmSRJC4AupVRDXratngHz2ScAX2rATyilNnkFAHiSE2CGiO6LyME0Teszwtczcy+AF1WIeOYk11rvzVPPzHvyWkhExyrDGIrV5cr+ps+BiN4x88Y88oyIntDXwsw3XE5HfWUXkc5qyTMJnQ8I6PU5PXY4PHBhtdbbiegMgJMi0mb/bowpMPOYI97tkOrTjvL32DhmPgXgVwb33ZUVEV1zCDgSEnDRAv8wxqzOYpRS7QCmHWX9miRJixWv2yHAv64rq/afyXdgjvt6KyKHLOxmR0X7QhUYtBwmHRgOfF7dWayItDkw/aEKXLHA0/YfSxzHjZjb9XbgUWNMwRJ7wFEBCQm44OjtYRtXWVpvM7g3IrLDUa1bNQkgomGHw7ALm6ZpvYhsU0q124MaRVFkjFkH4KOjUo985AO+3hJR7FXteQCGAvEGXAKuB4ZrylXiAHk/gNlAvEGX064cp88AOERcOV6uApgJxJkVkaJP+b2A47y9JKJUKbXVGNMEYIOIFInoMqq4JYjoYSiDJgCjVYhYqI0CaA72zxizlpn3E9EWIuoDMLEIwuda630AmkWkY0HHqjGmQETnMHd+VUXMzGNa66Rmshwhrcx8J2dQfwMYyj0+F/MqN4BPgH/PL9UrlUqrAHxwkE9GUVS37AKiKIpEpAjgLhGNENEIgDIR7V4R8qV+fwHLEWuXrdjLAQAAAABJRU5ErkJggg==">
             </div>
         </div>
-        <div class="animate-li channel-button" style="margin:10px 0 10px 0;" ng-click="switch_channel('')" ng-class="chnl.current_channel == '' ? 'selected-button': ''">
+        <div class="animate-li channel-button" style="margin:10px 0 10px 0;" ng-click="switch_channel('')" ng-class="chnl.current_channel === '' ? 'selected-button': ''">
             <span class="channel-title ellipses">{{vs.history_mode ? "All History" : "All Videos"}}</span>
-            <span class="video-count" ng-bind="chnl.total_video_count()" ng-style="chnl.current_channel == '' ? {color: 'white'} : ''"></span>
+            <span class="video-count" ng-bind="chnl.total_video_count()" ng-style="chnl.current_channel === '' ? {color: 'white'} : ''"></span>
         </div>
         <ul class="flat-ul">
             <li class="animate-li" ng-repeat="channel in chnl.channels | filter:channel_search">
