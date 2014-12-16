@@ -150,9 +150,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     function make_clone (e) {
                         if (!e["$$NG_REMOVED"]) {
                             var clone = angular.element(e).clone();
-                            clone.on("animationend", function() {
-                                clone.remove();
-                            });
+                            clone.on("animationend", () => clone.remove());
                             // save angular some work
                             clone.removeAttr("masonry-tile");
                             angular.element(document.querySelector("#dummy")).append(clone);
@@ -320,13 +318,16 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
       Responsible for communication with the add-on. This factory guarantees
       that only one listener is register for any given event name at a time
     */
-    .factory("Bridge", function() {
+    .factory("Bridge", function($rootScope) {
         var registered = {};
         function on (name, listener) {
-                document.documentElement.
-                    removeEventListener(name, registered[name]);
-                registered[name] = listener;
-                document.documentElement.addEventListener(name, listener);
+            document.documentElement.
+                removeEventListener(name, registered[name]);
+            registered[name] = listener;
+            document.documentElement.addEventListener(name, event => {
+                listener(event);
+                $rootScope.$apply();
+            });
         }
 
         function emit (name, data) {
@@ -594,15 +595,13 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             refresh_masonry();
         };
 
-        Bridge.on("open-settings", event => {
-            $scope.open_settings();
-        });
+        Bridge.on("open-settings", () => $scope.open_settings());
 
-        Bridge.on("subscribed-channels", function(event) {
+        Bridge.on("subscribed-channels", event => {
             if (ChannelList.update_channels(JSON.parse(event.detail))) {
                 $scope.open_subscriptions();
             }
-        }, false);
+        });
     })
 
     .controller('videos', function($scope, $timeout, VideoStorage, ChannelList, Bridge) {
@@ -626,20 +625,19 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             }
         };
 
-        Bridge.on("videos", function(event) {
+        Bridge.on("videos", event => {
             var details = JSON.parse(event.detail);
             VideoStorage.new_main(details[0]);
             VideoStorage.new_history(details[1]);
             VideoStorage.switch_to("main");
             ChannelList.current_channel = "";
             ChannelList.update_video_count();
-            $scope.$apply(refresh_masonry);
+            refresh_masonry();
         });
 
-        Bridge.on("duration-update", function(event) {
+        Bridge.on("duration-update", event => {
             var detail = JSON.parse(event.detail);
             VideoStorage.update_duration(detail.id, detail.duration);
-            $scope.$apply();
         });
     })
 
@@ -740,9 +738,12 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
 
         $scope.tabs.import_export = {
+            import_success: "",
+            import_error: "",
             export_settings: () => Bridge.emit("export", null),
             import_settings: input => {
                 $scope.tabs.import_export.import_error = false;
+                $scope.tabs.import_export.import_success = false;
                 Bridge.emit("import", input);
             }
         };
@@ -761,15 +762,14 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             $modalInstance.dismiss('cancel');
         };
 
-        Bridge.on("export-result", event => {
-            $scope.tabs.import_export.config_output = event.detail;
-            $scope.$apply();
-        }, false);
+        Bridge.on("export-result", event =>
+            $scope.tabs.import_export.config_output = event.detail);
 
-        Bridge.on("import-error", event => {
-            $scope.tabs.import_export.import_error = true;
-            $scope.$apply();
-        }, false);
+        Bridge.on("import-error", () =>
+            $scope.tabs.import_export.import_error = true);
+
+        Bridge.on("import-success", () =>
+            $scope.tabs.import_export.import_success = true);
     })
 
     .controller("subscriptions", function ($scope, $modalInstance, ChannelList, VideoStorage, Bridge) {
@@ -809,7 +809,6 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             function duplicate_listener () {
                 Bridge.removeListener("channel-added");
                 $scope.duplicate = true;
-                $scope.$apply();
             }
             Bridge.on("channel-added", add_listener);
             Bridge.on("channel-duplicate", duplicate_listener);
@@ -843,7 +842,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             if($event.keyCode == 13) {
                 $scope.search.in_progress = true;
                 Bridge.emit("search-channel", $scope.search.term);
-                Bridge.on("search-result", search_result_listener, false);
+                Bridge.on("search-result", search_result_listener);
                 $scope.search.result = [];
                 $scope.search.searched_once = true;
                 $scope.duplicate = false;

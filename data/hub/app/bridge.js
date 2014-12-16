@@ -36,7 +36,7 @@ the_page_script.sends(
     ]).recieves(
     ["open-settings", "videos", "config", "search-result",
      "subscribed-channels", "channel-added", "channel-duplicate",
-     "duration-update", "import-error", "export-result", "import-result"
+     "duration-update", "import-error", "export-result", "import-success"
     ]);
 
 self.port.emit("get-videos", null);  // get all videos once contentscript loads

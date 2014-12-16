@@ -51,7 +51,7 @@
    x shorter string for import/export @cancelled (14-10-31 17:43)
    √ channel video count not updated in history mode when clearing history @done (14-12-14 18:37)
    √ namespace each tab in settings modal @done (14-12-14 18:02)
-   □ more UI feedback for successful import
-     □ directive for notification banners in settings tab
+   √ more UI feedback for successful import @done (14-12-15 23:57)
+     x directive for notification banners in settings tab @cancelled (14-12-15 23:57)
    □ masonry service/factory
    □ write full testing procedure
