@@ -5,21 +5,6 @@ If a copy of the MPL was not distributed with this file,
 You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
-function refresh_masonry () {
-    var masonry_container = document.querySelector("[masonry]");
-    var masonry = Masonry.data(masonry_container);
-    setTimeout(function() {
-        try{
-            masonry.remove(masonry.getItemElements());
-            masonry.layout();
-            masonry.prepended(masonry_container.children);
-        } catch(err) {
-            masonry.reloadItems();
-            masonry.layout();
-        }
-    });
-}
-
 angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     .run(function(ConfigManager, Bridge) {
         Bridge.on("config", function(event) {
@@ -55,7 +40,6 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                         options.transitionDuration = '0.4s';
                     }
                     scope.obj = new Masonry(container, options);
-                    window.expose = scope.obj;
                 };
                 //angular.element(document.querySelector('[masonry]')).scope().create_instance(true);
                 if (ConfigManager.config.animations === undefined) {
@@ -312,6 +296,23 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
     })
 
+    .factory("refresh_masonry", function($timeout) {
+        return () => {
+            var masonry_container = document.querySelector("[masonry]");
+            var masonry = Masonry.data(masonry_container);
+            $timeout(function() {
+                try{
+                    masonry.remove(masonry.getItemElements());
+                    masonry.layout();
+                    masonry.prepended(masonry_container.children);
+                } catch(err) {
+                    masonry.reloadItems();
+                    masonry.layout();
+                }
+            });
+        };
+    })
+
     /*
       Responsible for communication with the add-on. This factory guarantees
       that only one listener is register for any given event name at a time
@@ -552,7 +553,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
     })
 
-    .controller('frame', function($scope, $modal, $timeout, ChannelList, VideoStorage, ConfigManager, Bridge) {
+    .controller('frame', function($scope, $modal, $timeout, refresh_masonry, ChannelList, VideoStorage, ConfigManager, Bridge) {
         $scope.chnl = ChannelList;
         $scope.vs = VideoStorage;
 
@@ -602,7 +603,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         });
     })
 
-    .controller('videos', function($scope, $timeout, VideoStorage, ChannelList, Bridge) {
+    .controller('videos', function($scope, $timeout, refresh_masonry, VideoStorage, ChannelList, Bridge) {
         $scope.v = VideoStorage;
 
         $scope.open_video = function(video, event) {
