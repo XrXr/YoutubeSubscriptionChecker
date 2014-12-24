@@ -288,9 +288,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     .directive('masonryTile', function() {
         return {
             restrict: 'AC',
-            link: function(scope, elem) {
-                var master = elem.parent('*[masonry]:first').scope();
-                var masonry = master.obj;
+            link: function(_, elem) {
                 elem.css("opacity", 0);
                 elem.ready(function() {
                     elem.css("opacity", 1);
