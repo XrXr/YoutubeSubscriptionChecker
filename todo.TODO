@@ -26,7 +26,7 @@
    √ fix history filtering @done (14-08-27 15:41)
    □ make upgrading from 1.0 seemless !!important!! data loss due to update is unacceptable
      √ wait for bug 1058840 @started(14-09-19 00:00) @done (14-09-23 21:12) @lasted(4 days, 21:12)
-     □ model transistion
+     √ model transistion @done (14-12-24 22:25)
    x panel signals incompelte (new user prompt, channel information not sent on update etc) @cancelled (14-08-20 16:13)
    x add option for not using panel @cancelled (14-08-20 16:13)
    x clicking on notification should open panel when appropriate @cancelled (14-08-20 16:14)
@@ -53,5 +53,5 @@
    √ namespace each tab in settings modal @done (14-12-14 18:02)
    √ more UI feedback for successful import @done (14-12-15 23:57)
      x directive for notification banners in settings tab @cancelled (14-12-15 23:57)
-   □ masonry service/factory
+   √ masonry service/factory @done (14-12-24 22:25)
    □ write full testing procedure
