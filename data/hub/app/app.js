@@ -320,13 +320,14 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     .factory("Bridge", function($rootScope) {
         var registered = {};
         function on (name, listener) {
-            document.documentElement.
-                removeEventListener(name, registered[name]);
-            registered[name] = listener;
-            document.documentElement.addEventListener(name, event => {
+            function wrapper (event) {
                 listener(event);
                 $rootScope.$apply();
-            });
+            }
+            document.documentElement.
+                removeEventListener(name, registered[name], false);
+            document.documentElement.addEventListener(name, wrapper, false);
+            registered[name] = wrapper;
         }
 
         function emit (name, data) {
@@ -337,14 +338,18 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         function once (name, listener) {
             function wrapper () {
                 listener();
-                documente.documentElement.removeEventListener(name, wrapper);
+                document.documentElement
+                    .removeEventListener(name, wrapper, false);
+                registered[name] = null;
+                $rootScope.$apply();
             }
-            on(name, wrapper);
+            registered[name] = wrapper;
+            document.documentElement.addEventListener(name, wrapper);
         }
 
         function removeListener (name) {
             document.documentElement.
-                removeEventListener(name, registered[name]);
+                removeEventListener(name, registered[name], false);
             registered[name] = null;
         }
 
@@ -800,17 +805,11 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             $scope.duplicate = false;
             Bridge.emit("add-channel", channel);
 
-            function add_listener () {
-                Bridge.removeListener("channel-duplicate");
-                ChannelList.channels.push(channel);
-            }
-
-            function duplicate_listener () {
-                Bridge.removeListener("channel-added");
-                $scope.duplicate = true;
-            }
-            Bridge.on("channel-added", add_listener);
-            Bridge.on("channel-duplicate", duplicate_listener);
+            Bridge.once("channel-added", () => {
+                console.log("for ",channel);
+                ChannelList.channels.push(channel)
+            });
+            Bridge.once("channel-duplicate", () => $scope.duplicate = true);
         };
 
         $scope.remove_channel = function(channel) {
