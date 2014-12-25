@@ -9,8 +9,8 @@
     <br/>
     <span class="fine-print">The data is stored on this computer only</span>
 </div>
-<div ng-style="fit(body_height, result_height)" bind-height="body_height" class="modal-body">
-    <div class="channel-search-result" bind-height="result_height">
+<div class="modal-body">
+    <div class="channel-search-result">
         <p ng-repeat="channel in search.result track by $index">
             <img ng-src="{{channel.thumbnail}}" width="70px" height="70px" alt="{{channel.title}}">
             <label class="ellipses modal-channel-title" style="position:relative; margin-bottom:0">{{channel.title}}</label>

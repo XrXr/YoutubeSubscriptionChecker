@@ -281,20 +281,20 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
     })
 
-    .directive("bindHeight", function() {
-        return {
-            link: function(scope, iElement, iAttrs) {
-                scope.$watch(
-                    function() {
-                        return iElement[0].clientHeight;
-                    },
-                    function(newVal) {
-                        scope[iAttrs.bindHeight] = newVal;
-                    }
-                );
-            }
-        };
-    })
+    // .directive("bindHeight", function() {
+    //     return {
+    //         link: function(scope, iElement, iAttrs) {
+    //             scope.$watch(
+    //                 function() {
+    //                     return iElement[0].clientHeight;
+    //                 },
+    //                 function(newVal) {
+    //                     // scope[iAttrs.bindHeight] = newVal;
+    //                 }
+    //             );
+    //         }
+    //     };
+    // })
 
     .factory("refresh_masonry", function($timeout) {
         return () => {
@@ -780,13 +780,13 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             searched_once: false
         };
         $scope.duplicate = false;
-        var clear = false;
-        $scope.fit = function(body_height, result_height) {
-            if (clear) {
-                return {};
-            }
-            return {height: Math.max(body_height, (result_height + 10)) + 'px'};
-        };
+        // var clear = false;
+        // $scope.fit = function(body_height, result_height) {
+        //     if (clear) {
+        //         return {};
+        //     }
+        //     return {height: Math.max(body_height, (result_height + 10)) + 'px'};
+        // };
 
         $scope.save = function () {
             $modalInstance.close();
