@@ -52,9 +52,9 @@
                     channel is non-empty, not in list | pattern is non-empty : disabled
                     channel is non-empty, in list     | pattern is empty     : disabled
                     channel is non-empty, in list     | pattern is non-empty : enabled
-                yes it's just `andThree :: Bool -> Bool -> Bool -> Bool'
+                yes it's just  andThree :: Bool -> Bool -> Bool -> Bool
                                andThree p1 p2 p3 = p1 && p2 && p3
-                The model is bad, this needs testing.
+                The getting undefined is special, this needs testing.
                  -->
                 <button type="button" ng-click="tabs.filter.add_filter(tabs.filter.new_filter)" ng-disabled="tabs.filter.new_filter.channel_title === undefined || tabs.filter.new_filter.channel_title.length === 0 || tabs.filter.new_filter.video_title_pattern.length === 0" class="btn btn-success">Add</button>
                 <button type="button" ng-click="tabs.filter.remove_filter(tabs.filter.current_filter)" class="btn btn-danger">Remove</button>
@@ -87,7 +87,8 @@
         </div>
       </tab>
 
-      <tab heading="Import/Export">
+      <tab heading="Import/Export" deselect="tabs.import_export.import_error = false;
+                                             tabs.import_export.import_success = false;">
         <div class="row">
           <div class="col-md-6">
             <h4>Export</h4>
