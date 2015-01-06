@@ -772,8 +772,10 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         Bridge.on("import-error", () =>
             $scope.tabs.import_export.import_error = true);
 
-        Bridge.on("import-success", () =>
-            $scope.tabs.import_export.import_success = true);
+        Bridge.on("import-success", () => {
+            $scope.config = angular.copy(ConfigManager.config);  // new configs
+            $scope.tabs.import_export.import_success = true;
+        });
     })
 
     .controller("subscriptions", function ($scope, $modalInstance, ChannelList, VideoStorage, Bridge) {
