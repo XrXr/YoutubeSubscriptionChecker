@@ -27,12 +27,16 @@ function get_samples () {
                       Video("happIness"), Video("greatness Awaits")];
 }
 
+function serialize (result) {
+    return [result[0].map(get_title), result[1].map(get_title)];
+}
+
 exports["test filter_videos() include"] = {
     'test single inclusive filter(non-regex)': assert => {
         let filter = Filter("", "greatness", false, true);
         let videos = get_samples();
         let result = filter_videos(videos, [filter]);
-        let result_serialized = [result[0].map(get_title), result[1].map(get_title)];
+        let result_serialized = serialize(result);
         let expect = [["greatness", "greatness awaits"],
                       ["great", "bad", "happiness"]];
         assert.deepEqual(result_serialized, expect,
@@ -42,7 +46,7 @@ exports["test filter_videos() include"] = {
         let filter = Filter("", "(^gr|^h)", true, true);
         let videos = get_samples();
         let result = filter_videos(videos, [filter]);
-        let result_serialized = [result[0].map(get_title), result[1].map(get_title)];
+        let result_serialized = serialize(result);
         let expect = [["great", "greatness", "happiness", "greatness awaits"],
                       ["bad"]];
         assert.deepEqual(result_serialized, expect,
@@ -53,9 +57,9 @@ exports["test filter_videos() include"] = {
         let filter_b = Filter("", "ness", false, true);
         let videos = get_samples();
         let result = filter_videos(videos, [filter_a, filter_b]);
-        let result_serialized = [result[0].map(get_title), result[1].map(get_title)];
-        let expect = [["greatness", "greatness awaits"],
-                      ["bad", "happiness", "great"]];
+        let result_serialized = serialize(result);
+        let expect = [["great", "greatness", "greatness awaits", "happiness"],
+                      ["bad"]];
         assert.deepEqual(result_serialized, expect,
                          "multiple includes applied properly");
     },
@@ -63,7 +67,7 @@ exports["test filter_videos() include"] = {
         let filter = Filter("", "great", false, false);
         let videos = get_samples();
         let result = filter_videos(videos, [filter]);
-        let result_serialized = [result[0].map(get_title), result[1].map(get_title)];
+        let result_serialized = serialize(result);
         let expect = [["bad",  "happiness"],
                       ["great", "greatness", "greatness awaits"]];
         assert.deepEqual(result_serialized, expect,
@@ -74,11 +78,23 @@ exports["test filter_videos() include"] = {
         let filter_b = Filter("", "great", false, false);
         let videos = get_samples();
         let result = filter_videos(videos, [filter_a, filter_b]);
-        let result_serialized = [result[0].map(get_title), result[1].map(get_title)];
+        let result_serialized = serialize(result);
         let expect = [["bad"],
                       ["happiness", "great", "greatness", "greatness awaits"]];
         assert.deepEqual(result_serialized, expect,
                          "multiple exludes applied properly");
+    },
+    'test filter application order': assert => {
+        let videos = get_samples();
+        let result = filter_videos(videos, [Filter("", "ness", false, true),
+                                            Filter("", "great", false, true),
+                                            Filter("", "awaits", false, false),
+                                            Filter("", "happ", false, false)]);
+        let result_serialized = serialize(result);
+        let expect = [["greatness", "great"],
+                      ["bad", "greatness awaits", "happiness"]];
+        assert.deepEqual(result_serialized, expect,
+                         "filters applied in correct order");
     }
 };
 
