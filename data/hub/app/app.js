@@ -546,18 +546,11 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
 
         this.total_video_count = function() {
-            var sum = 0;
-            if (parent.channels) {
-                parent.channels.forEach(function(elem) {
-                    if (elem.video_count) {
-                        sum += elem.video_count;
-                    }
-                });
-            }
-            if (sum <= 0) {
+            var count = VideoStorage.current_view.length;
+            if (count <= 0) {
                 return "";
             }
-            return sum;
+            return count;
         };
     })
 
