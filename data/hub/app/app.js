@@ -508,7 +508,10 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 c.video_count = 0;
             }
             for (var v of VideoStorage.videos) {
-                get_channel_by_id(v.channel_id).video_count++;
+                var channel = get_channel_by_id(v.channel_id);
+                if (channel) {
+                    channel.video_count++;
+                }
             }
         };
 
