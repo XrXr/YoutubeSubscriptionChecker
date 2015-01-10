@@ -811,8 +811,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             Bridge.emit("add-channel", channel);
 
             Bridge.once("channel-added", () => {
-                console.log("for ",channel);
-                ChannelList.channels.push(channel)
+                ChannelList.channels.push(channel);
             });
             Bridge.once("channel-duplicate", () => $scope.duplicate = true);
         };
