@@ -245,3 +245,10 @@ button{
 .inout-button {
     margin-top: 5px
 }
+.filter-fine-print {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    text-align: center;
+    color: grey;
+}
