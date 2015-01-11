@@ -164,10 +164,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 }
 
                 function normal_filter (new_ch, video) {
-                    if (video.channel_id == new_ch || new_ch === "") {
-                        return true;
-                    }
-                    return false;
+                    return video.channel_id == new_ch || new_ch === "";
                 }
 
                 scope.switch_channel = function(new_ch) {
