@@ -466,6 +466,11 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             var target = parent.history_mode ? "history" : "main";
             parent.switch_to(target);
         };
+
+        this.total_video_count = () => {
+            var total = parent.videos.length - parent.to_remove.length;
+            return total > 0 ? total : "";
+        };
     })
 
     .service("ConfigManager", function($animate, Bridge) {
@@ -543,14 +548,6 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
         this.remove_channel = function(channel) {
             parent.channels.splice(parent.channels.indexOf(channel), 1);
-        };
-
-        this.total_video_count = function() {
-            var count = VideoStorage.current_view.length;
-            if (count <= 0) {
-                return "";
-            }
-            return count;
         };
     })
 
