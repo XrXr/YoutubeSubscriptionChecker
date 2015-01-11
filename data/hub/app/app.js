@@ -467,10 +467,8 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             parent.switch_to(target);
         };
 
-        this.total_video_count = () => {
-            var total = parent.videos.length - parent.to_remove.length;
-            return total > 0 ? total : "";
-        };
+        this.total_video_count = () => parent.videos.length > 0 ?
+                                            parent.videos.length : "";
     })
 
     .service("ConfigManager", function($animate, Bridge) {
