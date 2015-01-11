@@ -41,7 +41,6 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     }
                     scope.obj = new Masonry(container, options);
                 };
-                //angular.element(document.querySelector('[masonry]')).scope().create_instance(true);
                 if (ConfigManager.config.animations === undefined) {
                     // Only set this if the single from add-on is not here yet
                     // yay single threaded JavaScript
@@ -163,7 +162,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     }
                     return false;
                 }
-                // repeating for max efficiency
+
                 function normal_filter (new_ch, video) {
                     if (video.channel_id == new_ch || new_ch === "") {
                         return true;
@@ -200,10 +199,9 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                                 scope.obj.prepended(arr.slice(0, intersection_start));
                                 scope.obj.appended(arr.slice(intersection_end + 1));
                                 scope.obj.layout();
-                                // $timeout(scope.obj.reloadItems);
                             });
                         } else {
-                            return crude_update(new_list);  //squeeze some performance
+                            return crude_update(new_list);
                         }
                     } else if (new_list.length < VideoStorage.current_view.length) {
                         f = new_list[0];
@@ -235,9 +233,6 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                                 VideoStorage.current_view.splice(0, intersection_start);
                             }
                             $timeout(()=>{
-                                // var elems = scope.obj.getItemElements();
-                                // scope.obj.remove(elems.splice(-delta, delta));
-                                // scope.obj.remove(elems.splice(0, intersection_start));
                                 collect_garbage();
                                 scope.obj.layout();
                             });
@@ -280,21 +275,6 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             }
         };
     })
-
-    // .directive("bindHeight", function() {
-    //     return {
-    //         link: function(scope, iElement, iAttrs) {
-    //             scope.$watch(
-    //                 function() {
-    //                     return iElement[0].clientHeight;
-    //                 },
-    //                 function(newVal) {
-    //                     // scope[iAttrs.bindHeight] = newVal;
-    //                 }
-    //             );
-    //         }
-    //     };
-    // })
 
     .factory("refresh_masonry", function($timeout) {
         return () => {
@@ -490,11 +470,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         this.channels = [];
         this.name_list = [];
         this.current_channel = "";
-        // for (var i = 0; i < 100; i++) {
-        //     this.channels.push({title: String.fromCharCode(65 + Math.random() * 57,
-        //                                  65 + Math.random() * 57,
-        //                                  65 + Math.random() * 57)});
-        // }
+
         var parent = this;
         function get_channel_by_id (id) {
             for (var channel of parent.channels) {
@@ -778,13 +754,6 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             searched_once: false
         };
         $scope.duplicate = false;
-        // var clear = false;
-        // $scope.fit = function(body_height, result_height) {
-        //     if (clear) {
-        //         return {};
-        //     }
-        //     return {height: Math.max(body_height, (result_height + 10)) + 'px'};
-        // };
 
         $scope.save = function () {
             $modalInstance.close();
