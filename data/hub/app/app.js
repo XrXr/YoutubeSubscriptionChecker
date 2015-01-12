@@ -57,7 +57,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     return v["$$NG_REMOVED"];
                 });
                 try{
-                    //this might fail when the element is already removed from the dom
+                    // this might fail when the element is already removed from the dom
                     scope.obj.remove(garbage);
                 } catch(_) {
                     scope.obj.reloadItems();
@@ -70,20 +70,9 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 return a.video_id == b.video_id;
             }
 
-            function indexOf (video, array) {
-                // locate the index of a video in a video array
-                // returns -1 on fail
-                var r = -1;
-                if (video) {
-                    array.some(function(e, i) {
-                        if (e.video_id == video.video_id) {
-                            r = i;
-                            return true;
-                        }
-                        return false;
-                    });
-                }
-                return r;
+            // wrapper for native indexOf, return -1 when `element` is falsey
+            function indexOf (element, array) {
+                return element ? array.indexOf(element) : -1;
             }
 
             function history_update (new_list) {
@@ -95,12 +84,12 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             }
 
             function crude_update (new_list) {
-                var intersection_start = indexOf(VideoStorage.current_view[0], new_list);
+                var current_view = VideoStorage.current_view;
+                var intersection_start = indexOf(current_view[0], new_list);
                 if (intersection_start !== -1) {
-                    var intersection_end = indexOf(VideoStorage.current_view
-                        [VideoStorage.current_view.length - 1], new_list);
-                    VideoStorage.current_view.push(...new_list.slice(intersection_end + 1));
-                    VideoStorage.current_view.splice(0, 0,
+                    var intersection_end = intersection_start + current_view.length - 1;
+                    current_view.push(...new_list.slice(intersection_end + 1));
+                    current_view.unshift(
                         ...new_list.slice(0, intersection_start));
                 } else {
                     VideoStorage.current_view = new_list;
@@ -109,10 +98,9 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     var garbage = scope.obj.getItemElements().filter(function(v) {
                         return v["$$NG_REMOVED"];
                     });
-                    garbage.forEach(function(e) {
-                        var w = angular.element(e);
-                        w.remove();
-                    });
+                    for (var e of garbage) {
+                        angular.element(e).remove();
+                    }
                     if (intersection_start === -1) {
                         scope.obj.prepended(elem.children());
                     } else {
@@ -183,16 +171,18 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 var intersection_start = -1;
                 var intersection_end = -1;
                 var f,l;
-                if (new_list.length > VideoStorage.current_view.length) {
-                    f = VideoStorage.current_view[0];
+                var current_view = VideoStorage.current_view;
+                if (new_list.length > current_view.length) {
+                    f = current_view[0];
                     intersection_start = indexOf(f, new_list);
                     if (intersection_start != -1) {
-                        l = VideoStorage.current_view[VideoStorage.current_view.length - 1];
-                        intersection_end = indexOf(l, new_list);
+                        // if there is one video from the channel is present,
+                        // then the rest of it is as well.
+                        intersection_end = intersection_start + current_view.length - 1;
                         var before = new_list.slice(0, intersection_start);
                         var after = new_list.slice(intersection_end + 1);
-                        VideoStorage.current_view.splice(0, 0, ...before);
-                        VideoStorage.current_view.push(...after);
+                        current_view.unshift(...before);
+                        current_view.push(...after);
                         collect_garbage();
                         $timeout(()=>{
                             var arr = [].slice.call(elem.children());
@@ -203,15 +193,15 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     } else {
                         return crude_update(new_list);
                     }
-                } else if (new_list.length < VideoStorage.current_view.length) {
+                } else if (new_list.length < current_view.length) {
                     f = new_list[0];
-                    intersection_start = indexOf(f, VideoStorage.current_view);
+                    intersection_start = indexOf(f, current_view);
                     if (intersection_start != -1) {
                         l = new_list[new_list.length - 1];
-                        intersection_end = indexOf(l, VideoStorage.current_view);
-                        var delta = VideoStorage.current_view.length - 1 - intersection_end;
-                        // this tests if the intersection is compelete.
-                        if (!v_eq(VideoStorage.current_view
+                        intersection_end = indexOf(l, current_view);
+                        var delta = current_view.length - 1 - intersection_end;
+                        // this tests if the intersection is complete.
+                        if (!v_eq(current_view
                             [intersection_start + (new_list.length - 1)], l)) {
                             // a block was removed from the middle
                             var intersecting = true;
@@ -220,17 +210,17 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                             while (intersecting) {
                                 i++;
                                 intersecting = v_eq(new_list[i],
-                                    VideoStorage.current_view[intersection_start + i]);
+                                    current_view[intersection_start + i]);
                             }
-                            var size_diff = VideoStorage.current_view.length - new_list.length;
+                            var size_diff = current_view.length - new_list.length;
                             play_leave_animation(null, i + intersection_start, size_diff);
-                            VideoStorage.current_view.splice(
+                            current_view.splice(
                                 i + intersection_start, size_diff);
                         } else {
                             // remove from front and/or back
                             play_leave_animation(intersection_start, intersection_end);
-                            VideoStorage.current_view.splice(-delta, delta);
-                            VideoStorage.current_view.splice(0, intersection_start);
+                            current_view.splice(-delta, delta);
+                            current_view.splice(0, intersection_start);
                         }
                         $timeout(()=>{
                             collect_garbage();
