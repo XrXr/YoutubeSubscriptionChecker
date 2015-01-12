@@ -24,228 +24,230 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     .directive('masonry', function($timeout, ChannelList, ConfigManager, VideoStorage) {
         return {
             restrict: 'AC',
-            link: function(scope, elem, attrs) {
-                scope.items = [];
-                var container = elem[0];
-                var options = angular.extend({
-                    itemSelector: '.item'
-                }, JSON.parse(attrs.masonry));
+            link: link
+        };
 
-                scope.create_instance = function (enable_transition) {
-                    if (scope.obj) {
-                        scope.obj.destroy();
-                    }
-                    options.transitionDuration = 0;
-                    if (enable_transition) {
-                        options.transitionDuration = '0.4s';
-                    }
-                    scope.obj = new Masonry(container, options);
-                };
-                if (ConfigManager.config.animations === undefined) {
-                    // Only set this if the single from add-on is not here yet
-                    // yay single threaded JavaScript
-                    ConfigManager.config.animations = true;
+        function link (scope, elem, attrs) {
+            scope.items = [];
+            var container = elem[0];
+            var options = angular.extend({
+                itemSelector: '.item'
+            }, JSON.parse(attrs.masonry));
+
+            scope.create_instance = function (enable_transition) {
+                if (scope.obj) {
+                    scope.obj.destroy();
                 }
-                scope.create_instance(true);
+                options.transitionDuration = 0;
+                if (enable_transition) {
+                    options.transitionDuration = '0.4s';
+                }
+                scope.obj = new Masonry(container, options);
+            };
+            if (ConfigManager.config.animations === undefined) {
+                // Only set this if the single from add-on is not here yet
+                // yay single threaded JavaScript
+                ConfigManager.config.animations = true;
+            }
+            scope.create_instance(true);
 
-                function collect_garbage () {
-                    var garbage = scope.obj.getItemElements().
-                    filter(function(v) {
+            function collect_garbage () {
+                var garbage = scope.obj.getItemElements().
+                filter(function(v) {
+                    return v["$$NG_REMOVED"];
+                });
+                try{
+                    //this might fail when the element is already removed from the dom
+                    scope.obj.remove(garbage);
+                } catch(_) {
+                    scope.obj.reloadItems();
+                }
+                garbage.forEach((e)=>{angular.element(e).remove();});
+                scope.obj.layout();
+            }
+
+            function v_eq (a, b) {
+                return a.video_id == b.video_id;
+            }
+
+            function indexOf (video, array) {
+                // locate the index of a video in a video array
+                // returns -1 on fail
+                var r = -1;
+                if (video) {
+                    array.some(function(e, i) {
+                        if (e.video_id == video.video_id) {
+                            r = i;
+                            return true;
+                        }
+                        return false;
+                    });
+                }
+                return r;
+            }
+
+            function history_update (new_list) {
+                VideoStorage.current_view = new_list;
+                $timeout(_ => {
+                    scope.obj.reloadItems();
+                    scope.obj.layout();
+                });
+            }
+
+            function crude_update (new_list) {
+                var intersection_start = indexOf(VideoStorage.current_view[0], new_list);
+                if (intersection_start !== -1) {
+                    var intersection_end = indexOf(VideoStorage.current_view
+                        [VideoStorage.current_view.length - 1], new_list);
+                    VideoStorage.current_view.push(...new_list.slice(intersection_end + 1));
+                    VideoStorage.current_view.splice(0, 0,
+                        ...new_list.slice(0, intersection_start));
+                } else {
+                    VideoStorage.current_view = new_list;
+                }
+                $timeout(()=>{
+                    var garbage = scope.obj.getItemElements().filter(function(v) {
                         return v["$$NG_REMOVED"];
                     });
-                    try{
-                        //this might fail when the element is already removed from the dom
-                        scope.obj.remove(garbage);
-                    } catch(_) {
-                        scope.obj.reloadItems();
-                    }
-                    garbage.forEach((e)=>{angular.element(e).remove();});
-                    scope.obj.layout();
-                }
-
-                function v_eq (a, b) {
-                    return a.video_id == b.video_id;
-                }
-
-                function indexOf (video, array) {
-                    // locate the index of a video in a video array
-                    // returns -1 on fail
-                    var r = -1;
-                    if (video) {
-                        array.some(function(e, i) {
-                            if (e.video_id == video.video_id) {
-                                r = i;
-                                return true;
-                            }
-                            return false;
-                        });
-                    }
-                    return r;
-                }
-
-                function history_update (new_list) {
-                    VideoStorage.current_view = new_list;
-                    $timeout(_ => {
-                        scope.obj.reloadItems();
-                        scope.obj.layout();
+                    garbage.forEach(function(e) {
+                        var w = angular.element(e);
+                        w.remove();
                     });
-                }
-
-                function crude_update (new_list) {
-                    var intersection_start = indexOf(VideoStorage.current_view[0], new_list);
-                    if (intersection_start !== -1) {
-                        var intersection_end = indexOf(VideoStorage.current_view
-                            [VideoStorage.current_view.length - 1], new_list);
-                        VideoStorage.current_view.push(...new_list.slice(intersection_end + 1));
-                        VideoStorage.current_view.splice(0, 0,
-                            ...new_list.slice(0, intersection_start));
+                    if (intersection_start === -1) {
+                        scope.obj.prepended(elem.children());
                     } else {
-                        VideoStorage.current_view = new_list;
+                        var arr = [].splice.call(elem[0].children);
+                        scope.obj.prepended(arr.slice(0, intersection_start));
+                        scope.obj.appended(arr.slice(intersection_end + 1));
                     }
-                    $timeout(()=>{
-                        var garbage = scope.obj.getItemElements().filter(function(v) {
-                            return v["$$NG_REMOVED"];
+                    scope.obj.reloadItems();
+                    scope.obj.layout();
+                });
+            }
+
+            function play_leave_animation (intersection_start, intersection_end, len) {
+                // Create clone elements that are not effected;
+                // by ng-repeat and masonry play a leave animation on them then
+                // destroy them
+                if (!ConfigManager.config.animations) {
+                    return;
+                }
+                angular.element(document.querySelector("#dummy")).empty();
+                function make_clone (e) {
+                    if (!e["$$NG_REMOVED"]) {
+                        var clone = angular.element(e).clone();
+                        clone.on("animationend", () => clone.remove());
+                        // save angular some work
+                        clone.removeAttr("masonry-tile");
+                        angular.element(document.querySelector("#dummy")).append(clone);
+                        clone.ready(function() {
+                            clone.addClass("disappear");
                         });
-                        garbage.forEach(function(e) {
-                            var w = angular.element(e);
-                            w.remove();
-                        });
-                        if (intersection_start === -1) {
-                            scope.obj.prepended(elem.children());
-                        } else {
-                            var arr = [].splice.call(elem[0].children);
+                    }
+                }
+                var after_end;
+                if (len) {
+                    after_end = scope.obj.getItemElements().slice(intersection_end,
+                        intersection_end + len);
+                    after_end.forEach(make_clone);
+                    return;
+                }
+                var before_start = scope.obj.getItemElements().slice(0, intersection_start);
+                after_end = scope.obj.getItemElements().slice(intersection_end + 1);
+                before_start.forEach(make_clone);
+                after_end.forEach(make_clone);
+            }
+
+            function history_filter(new_ch, video) {
+                if (video.channel_id == new_ch || new_ch === "") {
+                    delete video.$$hashKey;
+                    return true;
+                }
+                return false;
+            }
+
+            function normal_filter (new_ch, video) {
+                return video.channel_id == new_ch || new_ch === "";
+            }
+
+            scope.switch_channel = function(new_ch) {
+                var new_list = VideoStorage.history_mode ?
+                    VideoStorage.videos.filter(
+                        history_filter.bind(null, new_ch)) :
+                    VideoStorage.videos.filter(
+                        normal_filter.bind(null, new_ch));
+                if (VideoStorage.history_mode) {
+                    return history_update(new_list);
+                }
+                VideoStorage.clean_current_view();
+                var intersection_start = -1;
+                var intersection_end = -1;
+                var f,l;
+                if (new_list.length > VideoStorage.current_view.length) {
+                    f = VideoStorage.current_view[0];
+                    intersection_start = indexOf(f, new_list);
+                    if (intersection_start != -1) {
+                        l = VideoStorage.current_view[VideoStorage.current_view.length - 1];
+                        intersection_end = indexOf(l, new_list);
+                        var before = new_list.slice(0, intersection_start);
+                        var after = new_list.slice(intersection_end + 1);
+                        VideoStorage.current_view.splice(0, 0, ...before);
+                        VideoStorage.current_view.push(...after);
+                        collect_garbage();
+                        $timeout(()=>{
+                            var arr = [].slice.call(elem.children());
                             scope.obj.prepended(arr.slice(0, intersection_start));
                             scope.obj.appended(arr.slice(intersection_end + 1));
-                        }
-                        scope.obj.reloadItems();
-                        scope.obj.layout();
-                    });
-                }
-
-                function play_leave_animation (intersection_start, intersection_end, len) {
-                    // Create clone elements that are not effected;
-                    // by ng-repeat and masonry play a leave animation on them then
-                    // destroy them
-                    if (!ConfigManager.config.animations) {
-                        return;
-                    }
-                    angular.element(document.querySelector("#dummy")).empty();
-                    function make_clone (e) {
-                        if (!e["$$NG_REMOVED"]) {
-                            var clone = angular.element(e).clone();
-                            clone.on("animationend", () => clone.remove());
-                            // save angular some work
-                            clone.removeAttr("masonry-tile");
-                            angular.element(document.querySelector("#dummy")).append(clone);
-                            clone.ready(function() {
-                                clone.addClass("disappear");
-                            });
-                        }
-                    }
-                    var after_end;
-                    if (len) {
-                        after_end = scope.obj.getItemElements().slice(intersection_end,
-                            intersection_end + len);
-                        after_end.forEach(make_clone);
-                        return;
-                    }
-                    var before_start = scope.obj.getItemElements().slice(0, intersection_start);
-                    after_end = scope.obj.getItemElements().slice(intersection_end + 1);
-                    before_start.forEach(make_clone);
-                    after_end.forEach(make_clone);
-                }
-
-                function history_filter(new_ch, video) {
-                    if (video.channel_id == new_ch || new_ch === "") {
-                        delete video.$$hashKey;
-                        return true;
-                    }
-                    return false;
-                }
-
-                function normal_filter (new_ch, video) {
-                    return video.channel_id == new_ch || new_ch === "";
-                }
-
-                scope.switch_channel = function(new_ch) {
-                    var new_list = VideoStorage.history_mode ?
-                        VideoStorage.videos.filter(
-                            history_filter.bind(null, new_ch)) :
-                        VideoStorage.videos.filter(
-                            normal_filter.bind(null, new_ch));
-                    if (VideoStorage.history_mode) {
-                        return history_update(new_list);
-                    }
-                    VideoStorage.clean_current_view();
-                    var intersection_start = -1;
-                    var intersection_end = -1;
-                    var f,l;
-                    if (new_list.length > VideoStorage.current_view.length) {
-                        f = VideoStorage.current_view[0];
-                        intersection_start = indexOf(f, new_list);
-                        if (intersection_start != -1) {
-                            l = VideoStorage.current_view[VideoStorage.current_view.length - 1];
-                            intersection_end = indexOf(l, new_list);
-                            var before = new_list.slice(0, intersection_start);
-                            var after = new_list.slice(intersection_end + 1);
-                            VideoStorage.current_view.splice(0, 0, ...before);
-                            VideoStorage.current_view.push(...after);
-                            collect_garbage();
-                            $timeout(()=>{
-                                var arr = [].slice.call(elem.children());
-                                scope.obj.prepended(arr.slice(0, intersection_start));
-                                scope.obj.appended(arr.slice(intersection_end + 1));
-                                scope.obj.layout();
-                            });
-                        } else {
-                            return crude_update(new_list);
-                        }
-                    } else if (new_list.length < VideoStorage.current_view.length) {
-                        f = new_list[0];
-                        intersection_start = indexOf(f, VideoStorage.current_view);
-                        if (intersection_start != -1) {
-                            l = new_list[new_list.length - 1];
-                            intersection_end = indexOf(l, VideoStorage.current_view);
-                            var delta = VideoStorage.current_view.length - 1 - intersection_end;
-                            // this tests if the intersection is compelete.
-                            if (!v_eq(VideoStorage.current_view
-                                [intersection_start + (new_list.length - 1)], l)) {
-                                // a block was removed from the middle
-                                var intersecting = true;
-                                var i = 0;
-                                // walk through the list until intersection ends
-                                while (intersecting) {
-                                    i++;
-                                    intersecting = v_eq(new_list[i],
-                                        VideoStorage.current_view[intersection_start + i]);
-                                }
-                                var size_diff = VideoStorage.current_view.length - new_list.length;
-                                play_leave_animation(null, i + intersection_start, size_diff);
-                                VideoStorage.current_view.splice(
-                                    i + intersection_start, size_diff);
-                            } else {
-                                // remove from front and/or back
-                                play_leave_animation(intersection_start, intersection_end);
-                                VideoStorage.current_view.splice(-delta, delta);
-                                VideoStorage.current_view.splice(0, intersection_start);
-                            }
-                            $timeout(()=>{
-                                collect_garbage();
-                                scope.obj.layout();
-                            });
-                        } else {
-                            return crude_update(new_list);
-                        }
+                            scope.obj.layout();
+                        });
                     } else {
-                        crude_update(new_list);
+                        return crude_update(new_list);
                     }
-                };
+                } else if (new_list.length < VideoStorage.current_view.length) {
+                    f = new_list[0];
+                    intersection_start = indexOf(f, VideoStorage.current_view);
+                    if (intersection_start != -1) {
+                        l = new_list[new_list.length - 1];
+                        intersection_end = indexOf(l, VideoStorage.current_view);
+                        var delta = VideoStorage.current_view.length - 1 - intersection_end;
+                        // this tests if the intersection is compelete.
+                        if (!v_eq(VideoStorage.current_view
+                            [intersection_start + (new_list.length - 1)], l)) {
+                            // a block was removed from the middle
+                            var intersecting = true;
+                            var i = 0;
+                            // walk through the list until intersection ends
+                            while (intersecting) {
+                                i++;
+                                intersecting = v_eq(new_list[i],
+                                    VideoStorage.current_view[intersection_start + i]);
+                            }
+                            var size_diff = VideoStorage.current_view.length - new_list.length;
+                            play_leave_animation(null, i + intersection_start, size_diff);
+                            VideoStorage.current_view.splice(
+                                i + intersection_start, size_diff);
+                        } else {
+                            // remove from front and/or back
+                            play_leave_animation(intersection_start, intersection_end);
+                            VideoStorage.current_view.splice(-delta, delta);
+                            VideoStorage.current_view.splice(0, intersection_start);
+                        }
+                        $timeout(()=>{
+                            collect_garbage();
+                            scope.obj.layout();
+                        });
+                    } else {
+                        return crude_update(new_list);
+                    }
+                } else {
+                    crude_update(new_list);
+                }
+            };
 
-                scope.$watch(function() {
-                    return ChannelList.current_channel;
-                }, scope.switch_channel);
-            }
-        };
+            scope.$watch(function() {
+                return ChannelList.current_channel;
+            }, scope.switch_channel);
+        }
     })
 
     .directive("selectIndex", function ($parse) {
