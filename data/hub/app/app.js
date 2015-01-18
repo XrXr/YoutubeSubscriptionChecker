@@ -67,7 +67,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             }
 
             function v_eq (a, b) {
-                return a.video_id == b.video_id;
+                return a.video_id === b.video_id;
             }
 
             // wrapper for native indexOf, return -1 when `element` is falsey
@@ -147,7 +147,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             }
 
             function history_filter(new_ch, video) {
-                if (video.channel_id == new_ch || new_ch === "") {
+                if (video.channel_id === new_ch || new_ch === "") {
                     delete video.$$hashKey;
                     return true;
                 }
@@ -155,7 +155,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             }
 
             function normal_filter (new_ch, video) {
-                return video.channel_id == new_ch || new_ch === "";
+                return video.channel_id === new_ch || new_ch === "";
             }
 
             scope.switch_channel = function(new_ch) {
@@ -365,7 +365,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         function get_video_by_id (id, array) {
             var video = null;
             array.some(function(elem) {
-                if (elem.video_id == id) {
+                if (elem.video_id === id) {
                     video = elem;
                     return true;
                 }
@@ -376,7 +376,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
         this.remove_from_view = function(video) {
             for (var i = parent.current_view.length - 1; i >= 0; i--) {
-                if (parent.current_view[i].video_id == video.video_id) {
+                if (parent.current_view[i].video_id === video.video_id) {
                     parent.current_view.splice(i, 1);
                     return;
                 }
@@ -412,7 +412,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
         this.remove_video = function(video) {
             for (var i = parent.videos.length - 1; i >= 0; i--) {
-                if (parent.videos[i].video_id == video.video_id) {
+                if (parent.videos[i].video_id === video.video_id) {
                     parent.videos.splice(i, 1);
                     parent.to_remove.push(video);
                     add_history(video);
@@ -424,7 +424,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
         this.remove_video_by_channel = function(channel_id) {
             for (var i = parent.videos.length - 1; i >= 0; i--) {
-                if (parent.videos[i].channel_id == channel_id) {
+                if (parent.videos[i].channel_id === channel_id) {
                     parent.videos.splice(i, 1);
                 }
             }
@@ -463,7 +463,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         var parent = this;
         function get_channel_by_id (id) {
             for (var channel of parent.channels) {
-                if (channel.id == id) {
+                if (channel.id === id) {
                     return channel;
                 }
             }
@@ -501,7 +501,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
         this.decrease_video_count = function(channel_id) {
             parent.channels.some(function (element) {
-                if (element.id == channel_id) {
+                if (element.id === channel_id) {
                     element.video_count = Math.max(element.video_count - 1, 0);
                     return true;
                 }
@@ -787,7 +787,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         }
 
         $scope.search_channel = function($event) {
-            if($event.keyCode == 13) {
+            if($event.keyCode === 13) {
                 $scope.search.in_progress = true;
                 Bridge.emit("search-channel", $scope.search.term);
                 Bridge.on("search-result", search_result_listener);

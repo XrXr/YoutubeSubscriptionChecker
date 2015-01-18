@@ -43,7 +43,7 @@
     </div>
 </div>
 <div class="modal-footer">
-    <div ng-show="search.result.length == 0 && !search.in_progress && search.searched_once" style="width: 35%;" class="alert alert-danger modal-notice ellipses ng-hide">Couldn't find any channel</div>
+    <div ng-show="search.result.length === 0 && !search.in_progress && search.searched_once" style="width: 35%;" class="alert alert-danger modal-notice ellipses ng-hide">Couldn't find any channel</div>
     <div ng-show="duplicate" style="width: 45%;" class="alert alert-warning modal-notice ellipses ng-hide">Already subscribed to that channel</div>
     <button class="btn btn-primary" ng-click="save()">Close</button>
 </div>
