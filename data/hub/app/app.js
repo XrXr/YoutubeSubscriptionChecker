@@ -566,6 +566,8 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
     .controller('videos', function($scope, $timeout, refresh_masonry, VideoStorage, ChannelList, Bridge) {
         $scope.v = VideoStorage;
+        // state to keep the no video message hidden until the first playload
+        $scope.first_payload = false;
 
         $scope.open_video = function(video, event) {
             if (VideoStorage.history_mode) {
@@ -585,6 +587,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             }
         };
 
+
         Bridge.on("videos", event => {
             var details = JSON.parse(event.detail);
             VideoStorage.new_main(details[0]);
@@ -593,6 +596,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             ChannelList.current_channel = "";
             ChannelList.update_video_count();
             refresh_masonry();
+            $scope.first_payload = true;
         });
 
         Bridge.on("duration-update", event => {

@@ -23,6 +23,6 @@
         </ul>
     </div>
 </div>
-<span class="no-videos" ng-if="!(v.current_view.length) || v.to_remove.length >= v.current_view.length">
+<span ng-if="first_payload && (!(v.current_view.length) || v.to_remove.length >= v.current_view.length)" class="no-videos">
     No {{v.history_mode ? "history" : "new videos"}}<br>Control click to skip video
 </span>
