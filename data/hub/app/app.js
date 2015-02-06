@@ -453,6 +453,18 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             }
             parent.config = new_config;
         };
+
+        this.remove_filter = name => {
+            if (name === "") {
+                return;
+            }
+            for (var i = parent.config.filters.length - 1; i >= 0; i--) {
+                if (parent.config.filters[i].channel_title === name) {
+                    parent.config.filters.splice(i, 1);
+                }
+            }
+        };
+
     })
 
     .service("ChannelList", function($rootScope, VideoStorage) {
@@ -738,7 +750,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         });
     })
 
-    .controller("subscriptions", function ($scope, $modalInstance, ChannelList, VideoStorage, Bridge) {
+    .controller("subscriptions", function ($scope, $modalInstance, ChannelList, VideoStorage, Bridge, ConfigManager) {
         $scope.chnl = ChannelList;
         $scope.search = {
             term: "",
@@ -770,6 +782,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             Bridge.emit("remove-channel", channel);
             ChannelList.remove_channel(channel);
             VideoStorage.remove_video_by_channel(channel.id);
+            ConfigManager.remove_filter(channel.title);
             if (ChannelList.current_channel === "") {
                 var masonry_container = document.querySelector("[masonry]");
                 angular.element(masonry_container).scope().switch_channel("");
