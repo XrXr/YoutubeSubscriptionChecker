@@ -34,7 +34,7 @@ the_page_script.sends(
      "remove-video", "skip-video", "export", "import", "open-video",
      "update-config", "open-settings"
     ]).recieves(
-    ["open-settings", "videos", "config", "search-result",
+    ["open-settings", "videos", "config", "search-result", "open-changelog",
      "subscribed-channels", "channel-added", "channel-duplicate",
      "duration-update", "import-error", "export-result", "import-success"
     ]);

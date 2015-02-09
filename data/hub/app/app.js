@@ -568,6 +568,8 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
 
         Bridge.on("open-settings", () => $scope.open_settings());
+        Bridge.on("open-changelog", () => $modal.open(
+            {templateUrl: 'partials/changelog.html'}));
 
         Bridge.on("subscribed-channels", event => {
             if (ChannelList.update_channels(JSON.parse(event.detail))) {
@@ -617,7 +619,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         });
     })
 
-    .controller ("settings", function ($scope, $modalInstance, ConfigManager, ChannelList, VideoStorage, Bridge) {
+    .controller ("settings", function ($scope, $modalInstance, $modal, ConfigManager, ChannelList, VideoStorage, Bridge) {
         $scope.channels = ChannelList;
         $scope.config = angular.copy(ConfigManager.config);  // clone it
         // TODO: If there is going to be more warning banners, use a directive.
@@ -651,7 +653,9 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     ChannelList.update_video_count();
                 }
                 Bridge.emit("clear-history");
-            }
+            },
+            changelog: () => $modal.open({
+                templateUrl: 'partials/changelog.html'})
         };
 
         $scope.tabs.filter = {
