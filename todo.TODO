@@ -24,7 +24,7 @@
    √ fix channel adding @done (14-08-22 17:42)
    √ fix button click focus @done (14-08-23 23:56)
    √ fix history filtering @done (14-08-27 15:41)
-   □ make upgrading from 1.0 seemless !!important!! data loss due to update is unacceptable
+   √ make upgrading from 1.0 seemless !!important!! data loss due to update is unacceptable @done (15-02-10 19:14)
      √ wait for bug 1058840 @started(14-09-19 00:00) @done (14-09-23 21:12) @lasted(4 days, 21:12)
      √ model transistion @done (14-12-24 22:25)
    x panel signals incompelte (new user prompt, channel information not sent on update etc) @cancelled (14-08-20 16:13)
