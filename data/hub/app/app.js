@@ -6,6 +6,30 @@ You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
 angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
+    .config(function ($httpProvider) {
+        /*
+        This Angular app does not, and should not send out any network
+        reqeusts. However, XHRs are sent out to fetch Angular templates on
+        disk. When responseType is the default (""), Firefox tries to parse the
+        response as XML. This of course failes as HTML is not valid XML, and
+        XML parsers are very strict. The parse failure manifests as error
+        messages in Firefox's console.
+
+        Turns out, these errors do not effect any funcionality of the app.
+        However since errors are scary, the following will set the responseType
+        as "text" for every XHR fired by the app, avoiding XML parsing and
+        error messages being logged.
+        */
+        $httpProvider.interceptors.push(function() {
+          return {
+           request: function(config) {
+                config.responseType = "text";
+                return config;
+            }
+          };
+        });
+    })
+
     .run(function(ConfigManager, Bridge) {
         Bridge.on("config", function(event) {
             var config_and_filters = JSON.parse(event.detail);
