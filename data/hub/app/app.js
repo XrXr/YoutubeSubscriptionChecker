@@ -802,8 +802,12 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
             Bridge.once("channel-added", () => {
                 ChannelList.channels.push(channel);
+                Bridge.removeListener("channel-duplicate");
             });
-            Bridge.once("channel-duplicate", () => $scope.duplicate = true);
+            Bridge.once("channel-duplicate", () => {
+                $scope.duplicate = true;
+                Bridge.removeListener("channel-added");
+            });
         };
 
         $scope.remove_channel = function(channel) {
