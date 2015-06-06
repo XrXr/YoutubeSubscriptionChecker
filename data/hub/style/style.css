@@ -210,7 +210,7 @@ button{
     font-style: italic;
 }
 /*subscription editor modal begin. These are fine tweaked and fragile*/
-.subscription-modal-window {
+.subscription-modal-window > .modal-dialog {
     width:600px;
 }
 .subscription-modal-body {
