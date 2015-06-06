@@ -5,6 +5,7 @@ If a copy of the MPL was not distributed with this file,
 You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
+/* global angular, Masonry */
 angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     .config(function ($httpProvider) {
         /*
@@ -78,7 +79,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             function collect_garbage () {
                 var garbage = scope.obj.getItemElements().
                 filter(function(v) {
-                    return v["$$NG_REMOVED"];
+                    return v.$$NG_REMOVED;
                 });
                 try{
                     // this might fail when the element is already removed from the dom
@@ -101,7 +102,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
             function history_update (new_list) {
                 VideoStorage.current_view = new_list;
-                $timeout(_ => {
+                $timeout(() => {
                     scope.obj.reloadItems();
                     scope.obj.layout();
                 });
@@ -118,9 +119,9 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 } else {
                     VideoStorage.current_view = new_list;
                 }
-                $timeout(()=>{
+                $timeout(() => {
                     var garbage = scope.obj.getItemElements().filter(function(v) {
-                        return v["$$NG_REMOVED"];
+                        return v.$$NG_REMOVED;
                     });
                     for (var e of garbage) {
                         angular.element(e).remove();
@@ -146,7 +147,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 }
                 angular.element(document.querySelector("#dummy")).empty();
                 function make_clone (e) {
-                    if (!e["$$NG_REMOVED"]) {
+                    if (!e.$$NG_REMOVED) {
                         var clone = angular.element(e).clone();
                         clone.on("animationend", () => clone.remove());
                         // save angular some work
@@ -464,7 +465,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                                             parent.videos.length : "";
     })
 
-    .service("ConfigManager", function($animate, Bridge) {
+    .service("ConfigManager", function($animate) {
         this.config = {};
         var parent = this;
         this.update_config = function(new_config) {
@@ -822,11 +823,8 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
         function search_result_listener (event) {
             var result = JSON.parse(event.detail);
-            if (result.length === 0 || result[0] === null) {
-                clear = true;
-            } else {
+            if (result.length > 0 && result[0]) {
                 $scope.search.result = result;
-                clear = false;
             }
             $scope.search.in_progress = false;
             $scope.$apply();
@@ -840,7 +838,6 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 $scope.search.result = [];
                 $scope.search.searched_once = true;
                 $scope.duplicate = false;
-                clear = true;
             }
         };
     });
