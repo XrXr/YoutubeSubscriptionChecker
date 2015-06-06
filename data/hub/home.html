@@ -41,7 +41,7 @@
             <span class="video-count" ng-bind="vs.total_video_count()" ng-style="chnl.current_channel === '' ? {color: 'white'} : ''"></span>
         </div>
         <ul class="flat-ul">
-            <li class="animate-li" ng-repeat="channel in chnl.channels | filter:channel_search">
+            <li class="animate-li" ng-repeat="channel in chnl.channels | filter:{title: channel_search}">
                 <div class="channel-button" ng-click="switch_channel(channel.id)" ng-class="chnl.current_channel === channel.id ? 'selected-button': ''">
                     <span class="channel-title ellipses" ng-bind="channel.title"></span><span class="video-count" ng-if="channel.video_count - 0 > 0" ng-bind="channel.video_count - 0" ng-style="chnl.current_channel === channel.id ? {color: 'white'} : ''"></span>
                 </div>
