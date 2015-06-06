@@ -182,6 +182,12 @@ button{
 .hub-ui {
     min-width: 98px;
 }
+.hub-ui > img {
+    cursor: pointer;
+}
+.tooltip {
+    cursor: default;
+}
 .video-title {
     white-space: nowrap;
     overflow: hidden;
