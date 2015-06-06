@@ -564,15 +564,16 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             }
             setting_modal_opened = true;
             $modal.open({
-              templateUrl: 'partials/settings.html',
+              templateUrl: "partials/settings.html",
               controller: "settings"
             }).result.then(set_close, set_close);
         };
 
         $scope.open_subscriptions = function() {
             $modal.open({
-              templateUrl: 'partials/subscriptions.html',
-              controller: "subscriptions"
+              templateUrl: "partials/subscriptions.html",
+              controller: "subscriptions",
+              windowClass: "subscription-modal-window"
             });
         };
 

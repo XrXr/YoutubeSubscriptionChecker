@@ -209,19 +209,26 @@ button{
     font-size: 13px;
     font-style: italic;
 }
+/*subscription editor modal begin. These are fine tweaked and fragile*/
+.subscription-modal-window {
+    width:600px;
+}
+.subscription-modal-body {
+    width:600px;
+}
 .channel-search-result {
-    position: absolute;
-    left: 50%;
-}
-.subscription-edit {
-    margin-right: 9.5%
-}
-.modal-channel-title{
-    max-width: 195px;
     display: inline-block;
-    position: absolute;
+    position: relative;
+    left: 13%;
+}
+.modal-channel-title {
+    position: relative;
+    margin-bottom: 0px;
+    max-width: 180px;
+    display: inline-block;
     margin-top: 5px;
 }
+/*subscription editor modal end*/
 .modal-notice{
     opacity:1;
     position: absolute;
