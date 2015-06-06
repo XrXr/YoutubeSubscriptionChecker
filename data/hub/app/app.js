@@ -763,10 +763,6 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             Bridge.emit("update-config", $scope.config);
         };
 
-        $scope.cancel = function () {
-            $modalInstance.dismiss('cancel');
-        };
-
         Bridge.on("export-result", event =>
             $scope.tabs.import_export.config_output = event.detail);
 
