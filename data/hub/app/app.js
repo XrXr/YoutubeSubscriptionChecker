@@ -494,7 +494,6 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
     .service("ChannelList", function($rootScope, VideoStorage) {
         this.channels = [];
-        this.name_list = [];
         this.current_channel = "";
 
         var parent = this;
@@ -531,7 +530,6 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     parent.channels.push(element);
                 }
             }
-            parent.name_list = parent.channels.map(channel => channel.title);
             $rootScope.$apply();
             return new_list.length === 0;
         };
