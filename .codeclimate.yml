@@ -1,2 +1,2 @@
 exclude_paths:
-  - "data/hub/lib/**/*"
+  - "data/hub/lib/*"
