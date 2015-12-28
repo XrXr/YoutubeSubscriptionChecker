@@ -7,10 +7,11 @@
   "author": "XrXr",
   "license": "MPL 2.0",
   "version": "2.0.3",
+  "main": "lib/main.js",
   "preferences": [{
     "type":  "control",
     "label": "Open Settings",
     "name":  "open_settings",
-    "title": ""
+    "title": " "
   }]
 }
