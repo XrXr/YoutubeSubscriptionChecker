@@ -222,17 +222,26 @@ button{
 .subscription-modal-body {
     width:600px;
 }
+.delete-channel {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
 .channel-search-result {
     display: inline-block;
     position: relative;
     left: 13%;
 }
+.modal-channel-row {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+}
 .modal-channel-title {
-    position: relative;
-    margin-bottom: 0px;
+    margin: 0;
     max-width: 180px;
     display: inline-block;
-    margin-top: 5px;
 }
 /*subscription editor modal end*/
 .modal-notice{
