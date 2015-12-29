@@ -11,14 +11,16 @@
     <div masonry-tile ng-repeat="video in v.current_view" class="video" id="{{video.title}}">
         <ul class="flat-ul" title="{{video.title}}">
             <li>
-                <img ng-click="open_video(video, $event)" width="300px" height="169px" src="loading.png" ng-src="{{video.thumbnails.medium.url}}"></img>
+                <a class="video-link" ng-click="open_video(video, $event)" ng-href="https://www.youtube.com/watch?v={{video.video_id}}">
+                  <img width="300px" height="169px" src="loading.png" ng-src="{{video.thumbnails.medium.url}}"></img>
+                </a>
             </li>
             <li class="video-title">
                 <span ng-bind="video.title"></span>
             </li>
             <li>
-                <span style="float:left" ng-bind="video.channel_title"></span>
-                <span style="float:right" ng-bind="video.duration"></span>
+                <span class="pull-left" ng-bind="video.channel_title"></span>
+                <span class="pull-right" ng-bind="video.duration"></span>
             </li>
         </ul>
     </div>

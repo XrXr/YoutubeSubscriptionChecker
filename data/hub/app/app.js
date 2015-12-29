@@ -608,6 +608,8 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         $scope.first_payload = false;
 
         $scope.open_video = function(video, event) {
+            event.preventDefault();
+            event.stopPropagation();
             if (VideoStorage.history_mode) {
                 return Bridge.emit("open-video", video);
             }
@@ -616,7 +618,10 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 Bridge.emit(event_name, video);
                 var masonry_container = document.querySelector("[masonry]");
                 var masonry = Masonry.data(masonry_container);
-                var video_div = event.target.parentElement.parentElement.parentElement;
+                var video_div = event.target;
+                while (video_div && !video_div.classList.contains('video')) {
+                    video_div = video_div.parentElement;
+                }
                 $timeout(()=>{
                     masonry.remove(video_div);
                     masonry.layout();
