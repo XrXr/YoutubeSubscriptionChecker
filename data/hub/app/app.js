@@ -614,7 +614,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 return Bridge.emit("open-video", video);
             }
             if (VideoStorage.remove_video(video)) {
-                var event_name = event.ctrlKey ? "skip-video" : "remove-video";
+                var event_name = event.ctrlKey || event.metaKey ? "skip-video" : "remove-video";
                 Bridge.emit(event_name, video);
                 var masonry_container = document.querySelector("[masonry]");
                 var masonry = Masonry.data(masonry_container);
