@@ -736,7 +736,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 $scope.config.filters[index] = above;
             },
             remove_filter: index => $scope.config.filters.splice(index, 1),
-            include_radio_getter_setter: val => {
+            include_radio_getter_setter(val) {
                 if (arguments.length === 0) {
                     return $scope.tabs.filter.new_filter.
                                 include_on_match ? "include" : "exclude";
