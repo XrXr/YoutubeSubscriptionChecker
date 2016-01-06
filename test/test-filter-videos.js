@@ -1,4 +1,4 @@
-const filters = require("core/filters");
+const filters = require("../lib/core/filters");
 const filter_videos = filters.filter_videos;
 
 // this is a mock since "core/filters" doesn't export the constructor
