@@ -651,6 +651,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     .controller ("settings", function ($scope, $modalInstance, $modal, ConfigManager, ChannelList, VideoStorage, Bridge) {
         $scope.channels = ChannelList;
         $scope.config = angular.copy(ConfigManager.config);  // clone it
+        $scope.config.filters.forEach(e => e.inspect_tags = e.inspect_tags || false);
         // TODO: If there is going to be more warning banners, use a directive.
         $scope.tabs = {};
         $scope.tabs.general = {
@@ -699,8 +700,10 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 inspect_tags: false,
                 include_on_match: false
             },
-            fill_input_form: filter =>
-                angular.extend($scope.tabs.filter.new_filter, filter),
+            fill_input_form(filter) {
+                filter.inspect_tags = filter.inspect_tags || false;
+                angular.extend($scope.tabs.filter.new_filter, filter);
+            },
             is_dup: filter => $scope.config.filters.some(
                 e => e.video_title_pattern === filter.video_title_pattern &&
                 e.channel_title === filter.channel_title &&
