@@ -771,6 +771,14 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             Bridge.emit("update-config", $scope.config);
         };
 
+        $scope.cancel = function() {
+            if (!angular.equals($scope.config, ConfigManager.config) &&
+                !window.confirm('You have unsaved settings. Are you sure?')) {
+                return;
+            }
+            $modalInstance.close();
+        };
+
         Bridge.on("export-result", event =>
             $scope.tabs.import_export.config_output = event.detail);
 
