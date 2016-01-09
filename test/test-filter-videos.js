@@ -77,7 +77,7 @@ exports["test filter_videos() correctness"] = {
     },
     'test including video tags': assert => {
         const filter = Filter("", "food", false, true, true);
-        const videos = [Video("tagged", ["food", "cats"])];
+        const videos = [Video("tagged", ["foOd", "cats"])];
         const result = filter_videos(videos, [filter]);
         let result_serialized = serialize(result);
         let expect = [["tagged"], []];
