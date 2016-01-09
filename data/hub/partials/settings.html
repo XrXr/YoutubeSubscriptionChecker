@@ -77,7 +77,11 @@
                 </label>
               </div>
             </div>
-            <h4>should be...</h4>
+            <label class="tag-checkbox">
+              <input type="checkbox" ng-model="tabs.filter.new_filter.inspect_tags">
+              <span>also check video tags</span>
+            </label>
+            <h4 class="filter-shouldbe">should be...</h4>
             <label class="checkbox-inline">
               <input type="radio" ng-model="tabs.filter.include_radio_getter_setter" ng-model-options="{ getterSetter: true }" name="filter_option" value="exclude" checked="true"> Excluded
             </label>

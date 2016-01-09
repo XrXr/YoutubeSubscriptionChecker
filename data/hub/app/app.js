@@ -696,6 +696,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 channel_title: "",
                 video_title_pattern: "",
                 video_title_is_regex: false,
+                inspect_tags: false,
                 include_on_match: false
             },
             fill_input_form: filter =>

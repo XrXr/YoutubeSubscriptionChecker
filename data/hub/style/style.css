@@ -274,3 +274,9 @@ button{
     text-align: center;
     color: grey;
 }
+.tag-checkbox {
+    font-weight: initial;
+}
+.filter-shouldbe {
+    margin-top: 0;
+}
