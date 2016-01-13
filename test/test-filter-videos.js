@@ -68,12 +68,15 @@ exports["test filter_videos() correctness"] = {
     'test single exclusive filter': assert => {
         let filter = Filter("", "great", false, false);
         let videos = get_samples();
+        const beforeLength = videos.length;
         let result = filter_videos(videos, [filter]);
         let result_serialized = serialize(result);
         let expect = [["bad",  "happiness"],
                       ["great", "greatness", "greatness awaits"]];
         assert.deepEqual(result_serialized, expect,
                          "single exlude applied properly");
+        assert.equal(videos.length, beforeLength,
+                         "original array not mutated");
     },
     'test including video tags': assert => {
         const filter = Filter("", "food", false, true, true);
