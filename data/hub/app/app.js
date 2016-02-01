@@ -418,14 +418,10 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         this.update_duration = function(id, duration) {
             // update the video in the back storage
             var video = get_video_by_id(id, parent.videos);
-            if (video && video.duration === "") {
-                video.duration = duration;
-            }
+            video.duration = duration;
             // update the video in current view
             video = get_video_by_id(id, parent.current_view);
-            if (video && video.duration === "") {
-                video.duration = duration;
-            }
+            video.duration = duration;
         };
 
         function add_history (video) {
@@ -643,6 +639,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         });
 
         Bridge.on("duration-update", event => {
+            console.log('got the event at least')
             var detail = JSON.parse(event.detail);
             VideoStorage.update_duration(detail.id, detail.duration);
         });
