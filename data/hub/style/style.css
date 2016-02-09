@@ -286,3 +286,9 @@ button{
     position:relative;
     top: -6px;
 }
+.no-channel-result {
+    color: grey;
+    font-size: 20px;
+    text-align: center;
+    width: 100%;
+}
