@@ -239,6 +239,7 @@ button{
     margin-top: 5px;
 }
 .modal-channel-title {
+    position:relative;
     margin: 0;
     max-width: 180px;
     display: inline-block;
@@ -279,4 +280,9 @@ button{
 }
 .filter-shouldbe {
     margin-top: 0;
+}
+.channel-add {
+    cursor: pointer;
+    position:relative;
+    top: -6px;
 }

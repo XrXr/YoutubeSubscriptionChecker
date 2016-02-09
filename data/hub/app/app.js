@@ -543,6 +543,10 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         this.remove_channel = function(channel) {
             parent.channels.splice(parent.channels.indexOf(channel), 1);
         };
+
+        this.has_channel = channel => {
+            return !!get_channel_by_id(channel.id);
+        };
     })
 
     .controller('frame', function($scope, $modal, $timeout, refresh_masonry, ChannelList, VideoStorage, ConfigManager, Bridge) {
