@@ -49,10 +49,15 @@ exports["test cb_settle"] = {
 
 exports["test cb_each"] = {
     "test all success": (assert, done) => {
+        let tracker = "";
         cb_each([1, 2, 3], (e, instance_done) => {
-            setTimeout(() => instance_done(null, e), e);
+            setTimeout(() => {
+                tracker += e;
+                instance_done(null, e);
+            }, e);
         }, function (err) {
             assert.ok(!err, "No error");
+            assert.equal(tracker, "123", "all elements are iterated over");
             assert.equal(arguments.length, 1, "main cb only gets one argument");
             done();
         });
