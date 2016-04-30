@@ -1,4 +1,4 @@
-const { cb_settle, cb_each } = require("../lib/util");
+const { cb_settle, cb_each, cb_join } = require("../lib/util");
 const { setTimeout } = require("sdk/timers");
 
 function SettleResult(success, value) {
@@ -97,4 +97,26 @@ exports["test cb_each"] = {
     }
 };
 
+exports["test cb_join"] = {
+    "test all success": (assert, done) => {
+        cb_join([cb => setTimeout(() => cb(null, "first"), 5),
+                 cb => setTimeout(() => cb(null, "second"), 10),
+                 cb => setTimeout(() => cb(null, "third"), 3)],
+            (err, first, second, third) => {
+                assert.ok(!err, "no error");
+                assert.equal(first + second + third, "firstsecondthird",
+                             "complete handler correctly applied");
+                done();
+            });
+    },
+    "test multi fail": (assert, done) => {
+        cb_join([cb => setTimeout(() => cb(null, "first"), 5),
+                 cb => setTimeout(() => cb(Error("second")), 10),
+                 cb => setTimeout(() => cb(Error("first")), 3)],
+            err => {
+                assert.equal(err.message, "first", "called with first error");
+                done();
+            });
+    }
+};
 require("sdk/test").run(exports);
