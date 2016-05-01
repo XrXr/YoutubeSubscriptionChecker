@@ -1,7 +1,5 @@
 # Youtube Subscription Checker
 
-[![Code Climate](https://codeclimate.com/github/XrXr/YoutubeSubscriptionChecker/badges/gpa.svg)](https://codeclimate.com/github/XrXr/YoutubeSubscriptionChecker)
-
 A Firefox add-on that checks for new uploads from Youtube channels.
 
 [AMO](https://addons.mozilla.org/en-US/firefox/addon/youtube-subscription-checker/)
