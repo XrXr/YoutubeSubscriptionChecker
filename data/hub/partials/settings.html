@@ -3,6 +3,11 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/.
    - Author: XrXr
 -->
+<script type="text/ng-template" id="channel-title.html">
+  <a>
+    <span bind-html-unsafe="match.model.title | escape | typeaheadHighlight:query"></span>
+  </a>
+</script>
 <h3 class="heading">Settings</h3>
 
 <div class="modal-body">
@@ -57,7 +62,7 @@
                                andThree p1 p2 p3 = p1 && p2 && p3
                 The getting undefined is special, this needs testing.
                  -->
-                <button type="button" ng-click="tabs.filter.add_filter(tabs.filter.new_filter)" ng-disabled="tabs.filter.new_filter.channel_title === undefined || tabs.filter.new_filter.channel_title.length === 0 || tabs.filter.new_filter.video_title_pattern.length === 0" class="btn btn-success">Add</button>
+                <button type="button" ng-click="tabs.filter.add_filter(tabs.filter.new_filter)" ng-disabled="tabs.filter.new_filter.channel === undefined || tabs.filter.new_filter.channel.length === 0 || tabs.filter.new_filter.video_title_pattern.length === 0" class="btn btn-success">Add</button>
                 <button type="button" ng-click="tabs.filter.remove_filter(tabs.filter.current_filter)" class="btn btn-danger">Remove</button>
                 <button type="button" ng-click="tabs.filter.move_up(tabs.filter.current_filter)" class="btn btn-primary">&and;</button>
                 <button type="button" ng-click="tabs.filter.move_down(tabs.filter.current_filter)" class="btn btn-primary">&or;</button>
@@ -66,7 +71,7 @@
           <div class="col-md-7">
             <h4>For the channel...</h4>
             <div>
-              <input ng-model="tabs.filter.new_filter.channel_title" class="form-control" type="text" typeahead="channel.title for channel in channels.channels | filter:$viewValue | limitTo:4" typeahead-editable="false" placeholder="cases are ignored">
+              <input ng-model="tabs.filter.new_filter.channel" class="form-control" type="text" typeahead="channel for channel in channels.channels | filter:{title:$viewValue} | limitTo:4" typeahead-template-url="channel-title.html" typeahead-editable="false" placeholder="cases are ignored">
             </div>
             <h4>only videos with title that match...</h4>
             <div>

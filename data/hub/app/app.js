@@ -643,10 +643,17 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         });
 
         Bridge.on("duration-update", event => {
-            console.log('got the event at least')
             var detail = JSON.parse(event.detail);
             VideoStorage.update_duration(detail.id, detail.duration);
         });
+    })
+
+    .filter('escape', function () {
+        return function (text) {
+            var dummy = document.createElement("div");
+            dummy.textContent = text;
+            return dummy.innerHTML;
+        };
     })
 
     .controller ("settings", function ($scope, $modalInstance, $modal, ConfigManager, ChannelList, VideoStorage, Bridge) {
@@ -689,17 +696,29 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 templateUrl: 'partials/changelog.html'})
         };
 
+        var new_filter_channel;
+
         $scope.tabs.filter = {
             filter_active: false,
             dup_filter: false,
             filters_bad_channel_name: false,
             filters_bad_pattern: true,
             new_filter: {
+                channel_id: "",
                 channel_title: "",
                 video_title_pattern: "",
                 video_title_is_regex: false,
                 inspect_tags: false,
-                include_on_match: false
+                include_on_match: false,
+                get channel() {
+                    return new_filter_channel ? new_filter_channel.title
+                                              : $scope.tabs.filter.new_filter.channel_title;
+                },
+                set channel(newVal) {
+                    new_filter_channel = newVal;
+                    $scope.tabs.filter.new_filter.channel_title = newVal && newVal.title;
+                    $scope.tabs.filter.new_filter.channel_id = newVal && newVal.id;
+                }
             },
             fill_input_form(filter) {
                 filter.inspect_tags = filter.inspect_tags || false;
@@ -714,7 +733,6 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 $scope.tabs.filter.dup_filter = false;
                 filter = angular.copy(filter);
                 filter.video_title_pattern = filter.video_title_pattern.trim();
-                filter.channel_title = filter.channel_title.trim();
                 if ($scope.tabs.filter.is_dup(filter)) {
                     $scope.tabs.filter.dup_filter = true;
                     return;
