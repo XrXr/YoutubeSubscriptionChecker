@@ -56,7 +56,7 @@
    √ masonry service/factory @done (14-12-24 22:25)
    √ filters not updated for channels that already exist @done (15-01-06 00:19)
    √ update config in UI after import @done (15-01-06 11:11)
-   □ export
+   √ export @done (16-05-08 16:40)
    □ migration
    □ refetch duration during every check
    □ a logging module

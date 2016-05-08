@@ -9,6 +9,13 @@ function SettleResult(success, value) {
 }
 
 exports["test cb_settle"] = {
+    "test empty": (assert, done) => {
+        cb_settle([], e => e, (err, results) => {
+            assert.ok(!err, "no error");
+            assert.equal(results.length, 0, "empty array");
+            done();
+        });
+    },
     "test all success": (assert, done) => {
         cb_settle([1, 2, 3], (e, instance_done) => {
             setTimeout(() => instance_done(null, e), e);
@@ -37,17 +44,16 @@ exports["test cb_settle"] = {
                 "correct settle results");
             done();
         });
-    },
-    "test doesn't call main callback when passed empty array": (assert, done) => {
-        cb_settle([], e => e, () => {
-            assert.ok(false, "should not be called");
-        });
-
-        setTimeout(done, 20);
     }
 };
 
 exports["test cb_each"] = {
+    "test empty": (assert, done) => {
+        cb_each([], e => e, (err) => {
+            assert.ok(!err, "no error");
+            done();
+        });
+    },
     "test all success": (assert, done) => {
         let tracker = "";
         cb_each([1, 2, 3], (e, instance_done) => {
@@ -88,13 +94,6 @@ exports["test cb_each"] = {
             }, 100);
         });
     },
-    "test doesn't call main callback when passed empty array": (assert, done) => {
-        cb_each([], e => e, () => {
-            assert.ok(false, "should not be called");
-        });
-
-        setTimeout(done, 20);
-    }
 };
 
 exports["test cb_join"] = {
