@@ -58,6 +58,6 @@
    √ update config in UI after import @done (15-01-06 11:11)
    √ export @done (16-05-08 16:40)
    ✔ migration @done (16-05-11 16:27)
-   □ refetch duration during every check
+   ✔ refetch duration during every check @done (16-05-11 18:27)
    □ a logging module
    □ write full testing procedure
