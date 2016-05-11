@@ -1,2 +1,3 @@
-*.xpi
+/*.xpi
 *.ps1
+/node_modules
