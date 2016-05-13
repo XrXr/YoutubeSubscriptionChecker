@@ -1,0 +1,10 @@
+{
+	"folders":
+	[
+		{
+			"path": ".",
+			"folder_exclude_patterns": ["data/hub/lib"],
+			"file_exclude_patterns": ["*.min.css"]
+		}
+	]
+}
