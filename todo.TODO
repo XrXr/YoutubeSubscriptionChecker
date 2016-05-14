@@ -60,4 +60,10 @@
    ✔ migration @done (16-05-11 16:27)
    ✔ refetch duration during every check @done (16-05-11 18:27)
    □ a logging module
-   □ write full testing procedure
+     □ "download logs" and screen for corrupted db
+     □ display storage usage and a way to clear log
+   □ error screen for storage limit
+   □ unit tests
+     □ storage functions
+     □ logger
+   □ write full manual testing procedure
