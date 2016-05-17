@@ -103,33 +103,35 @@
         <div class="row">
           <div class="col-md-6">
             <h4>Export</h4>
-            <textarea ng-model="tabs.import_export.config_output" cols="30" rows="10" readonly=true></textarea>
+            <textarea class="in-out-textarea" ng-model="tabs.import_export.config_output" cols="30" rows="10" readonly=true></textarea>
             <br>
             <button class="btn btn-primary inout-button" ng-click="tabs.import_export.export_settings()">Export</button>
           </div>
           <div class="col-md-6">
             <h4>Import</h4>
-            <textarea ng-model="config_input" cols="30" rows="10"></textarea>
+            <textarea class="in-out-textarea" ng-model="config_input" cols="30" rows="10"></textarea>
             <button class="btn btn-primary inout-button" ng-click="tabs.import_export.import_settings(config_input)">Import</button>
           </div>
         </div>
+      </tab>
+
+      <tab heading="Logs" deselect="tabs.logs.dump_failed = false">
+        <br>
+        <p>A log of unusual events is kept by this add-on. You
+          can <button type="button" ng-click="tabs.logs.request_logs()" class="btn btn-link no-padding">download the log</button> and send it to the developer to help resolve bugs. You can also <button type="button" class="btn btn-link no-padding">delete the log</button> if you beleive it is taking up a lot of disk space.
+        </p>
       </tab>
     </tabset>
 </div>
 
 <div class="modal-footer" style="margin: 0">
-    <!-- general related start -->
     <div class="alert alert-danger setting-warning" ng-if="tabs.general.less_than_5">Check interval cannot be lower than 5 minutes</div>
     <div class="alert alert-danger setting-warning" ng-if="tabs.general.bad_input">Check interval must be a positive number</div>
-    <!-- general related end -->
-    <!-- filters related start-->
     <div class="alert alert-info setting-warning" ng-if="tabs.filter.filter_active">Excluded videos can be found in history</div>
     <div class="alert alert-danger setting-warning" ng-if="tabs.filter.dup_filter">This filter already exist</div>
-    <!-- filters related end-->
-    <!-- import related start-->
     <div class="alert alert-danger setting-warning" ng-if="tabs.import_export.import_error">Import failed (malformed data?)</div>
     <div class="alert alert-success setting-warning" ng-if="tabs.import_export.import_success">Import successfully finished</div>
-    <!-- import related end-->
+    <div class="alert alert-danger setting-warning" ng-if="tabs.logs.dump_failed">Error occurred while obtaining the log</div>
     <button class="btn btn-primary" ng-click="save()" ng-disabled="!tabs.general.valid">Save</button>
     <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

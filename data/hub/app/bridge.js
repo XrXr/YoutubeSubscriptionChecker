@@ -32,11 +32,12 @@ let the_page_script = {
 the_page_script.sends(
     ["search-channel", "add-channel", "remove-channel", "clear-history",
      "remove-video", "skip-video", "export", "import", "open-video",
-     "update-config", "open-settings"
+     "update-config", "open-settings", "get-error-logs"
     ]).recieves(
     ["open-settings", "videos", "config", "search-result", "open-changelog",
      "subscribed-channels", "channel-added", "channel-duplicate",
-     "duration-update", "import-error", "export-result", "import-success"
+     "duration-update", "import-error", "export-result", "import-success",
+     "error-logs", "dump-logs-failed"
     ]);
 
 self.port.emit("get-videos", null);  // get all videos once contentscript loads

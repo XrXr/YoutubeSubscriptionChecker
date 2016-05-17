@@ -318,10 +318,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 listener(event);
                 $rootScope.$apply();
             }
-            document.documentElement.
-                removeEventListener(name, registered[name], false);
-            document.documentElement.addEventListener(name, wrapper, false);
-            registered[name] = wrapper;
+            listen(name, wrapper);
         }
 
         function emit (name, data) {
@@ -330,15 +327,14 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         }
 
         function once (name, listener) {
-            function wrapper () {
-                listener();
+            function wrapper (event) {
+                listener(event);
                 document.documentElement
                     .removeEventListener(name, wrapper, false);
                 registered[name] = null;
                 $rootScope.$apply();
             }
-            registered[name] = wrapper;
-            document.documentElement.addEventListener(name, wrapper);
+            listen(name, wrapper);
         }
 
         function removeListener (name) {
@@ -347,11 +343,18 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             registered[name] = null;
         }
 
+        function listen(name, listener) {
+            document.documentElement.
+                removeEventListener(name, registered[name], false);
+            document.documentElement.addEventListener(name, listener, false);
+            registered[name] = listener;
+        }
+
         return {
-            on: on,
-            once: once,
-            emit: emit,
-            removeListener: removeListener
+            on,
+            once,
+            emit,
+            removeListener,
         };
     })
 
@@ -656,9 +659,9 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
     })
 
-    .controller ("settings", function ($scope, $modalInstance, $modal, ConfigManager, ChannelList, VideoStorage, Bridge) {
+    .controller("settings", function ($scope, $modalInstance, $modal, ConfigManager, ChannelList, VideoStorage, Bridge) {
         $scope.channels = ChannelList;
-        $scope.config = angular.copy(ConfigManager.config);  // clone it
+        $scope.config = angular.copy(ConfigManager.config);
         $scope.config.filters.forEach(e => e.inspect_tags = e.inspect_tags || false);
         // TODO: If there is going to be more warning banners, use a directive.
         $scope.tabs = {};
@@ -777,6 +780,27 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 $scope.tabs.import_export.import_error = false;
                 $scope.tabs.import_export.import_success = false;
                 Bridge.emit("import", input);
+            }
+        };
+
+        $scope.tabs.logs = {
+            dump_failed: false,
+            request_logs() {
+                Bridge.emit("get-error-logs");
+                Bridge.once("error-logs", ev => {
+                    Bridge.removeListener("dump-logs-failed");
+                    var a = document.createElement("a");
+                    a.download = "logs.json";
+                    a.href = URL.createObjectURL(new Blob([ev.detail], {type : 'application/json'}));
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    a.revokeObjectURL(a.href);
+                });
+                Bridge.once("dump-logs-failed", () => {
+                    Bridge.removeListener("error-logs");
+                    $scope.tabs.logs.dump_failed = true;
+                });
             }
         };
 

@@ -11,6 +11,9 @@ body, html {
 button{
     outline: 0 !important;
 }
+.no-padding {
+    padding: 0;
+}
 .hub-link{
     text-align: center;
     width: 100%;
@@ -347,4 +350,8 @@ button{
     border-top: 10px solid transparent;
     border-bottom: 10px solid transparent;
     border-right: 5px solid rgba(0, 0, 0, 0.9);
+}
+.in-out-textarea {
+    width: 100%;
+    resize: none;
 }
