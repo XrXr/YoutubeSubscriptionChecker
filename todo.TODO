@@ -61,7 +61,7 @@
    ✔ refetch duration during every check @done (16-05-11 18:27)
    □ a logging module
      √ "download logs" and screen for failling to open log db @done (16-05-16 20:56)
-     □ display storage usage and a way to clear log
+     √ clear log @done (16-05-17 23:17)
    □ error screen for storage limit
    □ error screen for failing to open db
    □ unit tests

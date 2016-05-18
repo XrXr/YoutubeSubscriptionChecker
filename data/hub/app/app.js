@@ -785,6 +785,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
         $scope.tabs.logs = {
             dump_failed: false,
+            clear_success: false,
             request_logs() {
                 Bridge.emit("get-error-logs");
                 Bridge.once("error-logs", ev => {
@@ -801,6 +802,10 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     Bridge.removeListener("error-logs");
                     $scope.tabs.logs.dump_failed = true;
                 });
+            },
+            clear_logs() {
+                Bridge.emit("clear-logs");
+                $scope.tabs.logs.clear_success = true;
             }
         };
 

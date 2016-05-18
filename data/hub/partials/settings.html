@@ -115,10 +115,11 @@
         </div>
       </tab>
 
-      <tab heading="Logs" deselect="tabs.logs.dump_failed = false">
+      <tab heading="Logs" deselect="tabs.logs.dump_failed = false;
+                                    tabs.logs.clear_success = false">
         <br>
         <p>A log of unusual events is kept by this add-on. You
-          can <button type="button" ng-click="tabs.logs.request_logs()" class="btn btn-link no-padding">download the log</button> and send it to the developer to help resolve bugs. You can also <button type="button" class="btn btn-link no-padding">delete the log</button> if you beleive it is taking up a lot of disk space.
+          can <button type="button" ng-click="tabs.logs.request_logs()" class="btn btn-link no-padding">download the log</button> and send it to the developer to help resolve bugs. You can also <button ng-click="tabs.logs.clear_logs()" type="button" class="btn btn-link no-padding">delete the log</button> if you beleive it is taking up a lot of disk space.
         </p>
       </tab>
     </tabset>
@@ -132,6 +133,7 @@
     <div class="alert alert-danger setting-warning" ng-if="tabs.import_export.import_error">Import failed (malformed data?)</div>
     <div class="alert alert-success setting-warning" ng-if="tabs.import_export.import_success">Import successfully finished</div>
     <div class="alert alert-danger setting-warning" ng-if="tabs.logs.dump_failed">Error occurred while obtaining the log</div>
+    <div class="alert alert-success setting-warning" ng-if="tabs.logs.clear_success">Logs cleared</div>
     <button class="btn btn-primary" ng-click="save()" ng-disabled="!tabs.general.valid">Save</button>
     <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

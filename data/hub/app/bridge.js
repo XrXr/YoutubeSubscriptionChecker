@@ -32,7 +32,7 @@ let the_page_script = {
 the_page_script.sends(
     ["search-channel", "add-channel", "remove-channel", "clear-history",
      "remove-video", "skip-video", "export", "import", "open-video",
-     "update-config", "open-settings", "get-error-logs"
+     "update-config", "open-settings", "get-error-logs", "clear-logs"
     ]).recieves(
     ["open-settings", "videos", "config", "search-result", "open-changelog",
      "subscribed-channels", "channel-added", "channel-duplicate",
