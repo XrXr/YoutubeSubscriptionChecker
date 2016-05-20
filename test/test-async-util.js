@@ -9,14 +9,14 @@ function SettleResult(success, value) {
 }
 
 exports["test cb_settle"] = {
-    "test empty": (assert, done) => {
+    "test empty"(assert, done) {
         cb_settle([], e => e, (err, results) => {
             assert.ok(!err, "no error");
             assert.equal(results.length, 0, "empty array");
             done();
         });
     },
-    "test all success": (assert, done) => {
+    "test all success"(assert, done) {
         cb_settle([1, 2, 3], (e, instance_done) => {
             setTimeout(() => instance_done(null, e), e);
         }, (err, results) => {
@@ -27,7 +27,7 @@ exports["test cb_settle"] = {
             done();
         });
     },
-    "test some fails": (assert, done) => {
+    "test some fails"(assert, done) {
         let secret_error = Error("It's a secret");
         cb_settle([1, 2, 3], (e, instance_done) => {
             setTimeout(() => {
@@ -44,17 +44,37 @@ exports["test cb_settle"] = {
                 "correct settle results");
             done();
         });
+    },
+    "test catch excepts"(assert, done) {
+        const second_fail = "mega rager";
+        cb_settle([1, 2, 3], (e, instance_done) => {
+            if (e === 1) {
+                throw Error("fluke");
+            }
+            if (e === 2) {
+                instance_done(second_fail);
+                // should exceptions after calling callback
+                throw Error("fluke");
+            }
+            instance_done(null, 3);
+        }, (err, results) => {
+            assert.ok(!err, "No error");
+            assert.equal(results[0].success, false, "sync exceptions caught");
+            assert.deepEqual(results[1], SettleResult(false, second_fail));
+            assert.deepEqual(results[2], SettleResult(true, 3));
+            done();
+        });
     }
 };
 
 exports["test cb_each"] = {
-    "test empty": (assert, done) => {
+    "test empty"(assert, done) {
         cb_each([], e => e, (err) => {
             assert.ok(!err, "no error");
             done();
         });
     },
-    "test all success": (assert, done) => {
+    "test all success"(assert, done) {
         let tracker = "";
         cb_each([1, 2, 3], (e, instance_done) => {
             setTimeout(() => {
@@ -68,7 +88,7 @@ exports["test cb_each"] = {
             done();
         });
     },
-    "test some fails": (assert, done) => {
+    "test some fails"(assert, done) {
         let main_cb_call_count = 0;
         cb_each([10, 50, 3], (e, instance_done) => {
             setTimeout(() => {
@@ -94,10 +114,35 @@ exports["test cb_each"] = {
             }, 100);
         });
     },
+    "test catch excepts"(assert, done) {
+        let secret_error = Error("food");
+        cb_each([1, 2, 3], (e, instance_done) => {
+            if (e === 3) {
+                throw secret_error;
+            }
+            instance_done();
+        }, err => {
+            assert.equal(secret_error, err, "sync exception caught");
+            done();
+        });
+    },
+    "test except after cb reject"(assert, done) {
+        let secret_error = Error("food");
+        cb_each([1, 2, 3], (e, instance_done) => {
+            if (e === 2) {
+                instance_done(secret_error);
+                throw Error("I should be ignored");
+            }
+            instance_done();
+        }, err => {
+            assert.equal(secret_error, err, "get error from cb");
+            done();
+        });
+    }
 };
 
 exports["test cb_join"] = {
-    "test all success": (assert, done) => {
+    "test all success"(assert, done) {
         cb_join([cb => setTimeout(() => cb(null, "first"), 5),
                  cb => setTimeout(() => cb(null, "second"), 10),
                  cb => setTimeout(() => cb(null, "third"), 3)],
@@ -108,7 +153,7 @@ exports["test cb_join"] = {
                 done();
             });
     },
-    "test multi fail": (assert, done) => {
+    "test multi fail"(assert, done) {
         cb_join([cb => setTimeout(() => cb(null, "first"), 5),
                  cb => setTimeout(() => cb(Error("second")), 10),
                  cb => setTimeout(() => cb(Error("first")), 3)],
@@ -116,6 +161,33 @@ exports["test cb_join"] = {
                 assert.equal(err.message, "first", "called with first error");
                 done();
             });
-    }
+    },
+    "test catch excepts"(assert, done) {
+        let secret_error = Error("food");
+        cb_join([done => {
+            done();
+        }, () => {
+            throw secret_error;
+        }, done => {
+            done();
+        }], err => {
+            assert.equal(secret_error, err, "sync exception caught");
+            done();
+        });
+    },
+    "test except after cb reject"(assert, done) {
+        let secret_error = Error("food");
+        cb_join([done => {
+            done();
+        }, done => {
+            done(secret_error);
+            throw Error("don't catch me");
+        }, done => {
+            done();
+        }], err => {
+            assert.equal(secret_error, err, "get error from cb");
+            done();
+        });
+    },
 };
 require("sdk/test").run(exports);
