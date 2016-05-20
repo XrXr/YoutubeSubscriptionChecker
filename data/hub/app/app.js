@@ -614,11 +614,11 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             event.preventDefault();
             event.stopPropagation();
             if (VideoStorage.history_mode) {
-                return Bridge.emit("open-video", video);
+                return Bridge.emit("open-video", video.video_id);
             }
             if (VideoStorage.remove_video(video)) {
                 var event_name = event.ctrlKey || event.metaKey ? "skip-video" : "remove-video";
-                Bridge.emit(event_name, video);
+                Bridge.emit(event_name, video.video_id);
                 var masonry_container = document.querySelector("[masonry]");
                 var masonry = Masonry.data(masonry_container);
                 var video_div = event.target;

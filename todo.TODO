@@ -62,9 +62,10 @@
    √ a logging module @done (16-05-17 23:18)
      √ "download logs" and screen for failling to open log db @done (16-05-16 20:56)
      √ clear log @done (16-05-17 23:17)
-   □ error screen for storage limit
+   x error screen for storage limit @cancelled (16-05-19 22:19)
    □ error screen for failing to open db
    □ unit tests
      □ storage functions
      □ logger
-   □ write full manual testing procedure
+   x write full manual testing procedure @cancelled (16-05-17 23:40)
+   □ selenium tests

@@ -1,4 +1,4 @@
-#!/usr/bin/node
+#!/usr/bin/env node
 // Make a temporary profile which contains an xpi then start a Firefox instance
 // with it
 const offset = process.argv[0].includes("node") ? 2 : 1;
