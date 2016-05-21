@@ -79,7 +79,7 @@ exports["test channel operations"] = {
             let trans = db.transaction(["channel", "check_stamp"], "readwrite");
             storage.channel.add_one(trans, channel_fixture, err => {
                 assert.ok(!err, "no error");
-                storage.channel.get_by_id(channel_fixture.id, (err, result) => {
+                storage.channel.get_by_id(trans, channel_fixture.id, (err, result) => {
                     assert.ok(!err, "no error");
                     assert.deepEqual(result, channel_fixture, "channel added");
                 });
