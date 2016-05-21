@@ -11,7 +11,16 @@ const channel_fixture = {
 const vid_fixture = {
     video_id: "I am not a snowflake",
     title: "just making sure",
-    channel_id: channel_fixture.id
+    thumbnails: {
+        medium: {
+            url: "example.com",
+            width: 100,
+            height: 200
+        }
+    },
+    duration: "",
+    channel_id: channel_fixture.id,
+    published_at: "2016-05-11T13:00:00.000Z"
 };
 
 exports["test video operations"] = {
@@ -31,7 +40,25 @@ exports["test video operations"] = {
                 });
             });
         });
-    }
+    },
+    "test add_video strip extra info"(assert, done) {
+        clear_db().then(ensure_open).then(db => {
+            let trans = db.transaction("video", "readwrite");
+            storage.video.add_one(trans, Object.assign({
+                description: "extra info that takes up space",
+                junk: "I should also be gone"
+            }, vid_fixture));
+            trans.oncomplete = () => {
+                let read = db.transaction("video", "readwrite");
+                let req = storage.video_store(read).get(vid_fixture.video_id);
+                storage.forward_idb_request(req, (err, vid) => {
+                    assert.ok(!err, "no error");
+                    assert.deepEqual(vid, vid_fixture, "extra fields stripped");
+                    done();
+                });
+            };
+        });
+    },
 };
 
 exports["test channel operations"] = {
