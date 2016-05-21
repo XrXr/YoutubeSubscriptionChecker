@@ -40,6 +40,15 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         });
     })
 
+    .run(function(Bridge, $modal) {
+        Bridge.on("fail-state", function (event) {
+            $modal.open({
+                templateUrl: `partials/error-screens/${event.detail}.html`,
+                backdrop: 'static'
+            });
+        });
+    })
+
     .directive('videoCanvas', function() {
         return {
             templateUrl: "partials/videos.html"

@@ -14,14 +14,14 @@ function send_dom_event (name, data) {
 }
 
 let the_page_script = {
-    sends: event_names => {
+    sends(event_names) {
         event_names.map(name => {
             document.documentElement.addEventListener(name,
                 event => self.port.emit(name, event.detail), false);
         });
         return the_page_script;
     },
-    recieves: event_names => {
+    recieves(event_names) {
         event_names.map(name => {
             self.port.on(name, data => send_dom_event(name, data));
         });
@@ -37,7 +37,7 @@ the_page_script.sends(
     ["open-settings", "videos", "config", "search-result", "open-changelog",
      "subscribed-channels", "channel-added", "channel-duplicate",
      "duration-update", "import-error", "export-result", "import-success",
-     "error-logs", "dump-logs-failed"
+     "error-logs", "dump-logs-failed", "fail-state"
     ]);
 
 self.port.emit("get-videos", null);  // get all videos once contentscript loads
