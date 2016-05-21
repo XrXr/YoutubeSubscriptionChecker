@@ -503,6 +503,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
     .service("ChannelList", function($rootScope, VideoStorage) {
         this.channels = [];
         this.current_channel = "";
+        var map = new Map();
 
         var parent = this;
         function get_channel_by_id (id) {
@@ -528,7 +529,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
 
         this.update_channels = function(new_list) {
-            // This method will update the channel list
+            // This method will merge the current list with another one
             // returns whether the new_list is empty
             for (var element of new_list) {
                 var matching = get_channel_by_id(element.id);
@@ -536,8 +537,10 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     matching.video_count = element.video_count;
                 } else {
                     parent.channels.push(element);
+                    map.set(element.id, element);
                 }
             }
+
             $rootScope.$apply();
             return new_list.length === 0;
         };
@@ -556,9 +559,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             parent.channels.splice(parent.channels.indexOf(channel), 1);
         };
 
-        this.has_channel = channel => {
-            return !!get_channel_by_id(channel.id);
-        };
+        this.has_channel = Map.prototype.has.bind(map);
     })
 
     .controller('frame', function($scope, $modal, $timeout, refresh_masonry, ChannelList, VideoStorage, ConfigManager, Bridge) {
@@ -614,10 +615,12 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         });
     })
 
-    .controller('videos', function($scope, $timeout, refresh_masonry, VideoStorage, ChannelList, Bridge) {
+    .controller("videos", function($scope, $timeout, refresh_masonry, VideoStorage, ChannelList, Bridge) {
         $scope.v = VideoStorage;
         // state to keep the no video message hidden until the first playload
         $scope.first_payload = false;
+
+        $scope.title = ({channel_id}) => ChannelList.get_channel_by_id(channel_id).title;
 
         $scope.open_video = function(video, event) {
             event.preventDefault();
