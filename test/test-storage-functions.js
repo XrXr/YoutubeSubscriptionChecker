@@ -82,6 +82,26 @@ exports["test channel operations"] = {
             trans.oncomplete = () => done();
         });
     },
+    "test strip extra fields"(assert, done) {
+        clear_db().then(ensure_open).then(db => {
+            let trans = db.transaction(["channel", "check_stamp"], "readwrite");
+            let channel_with_extra = Object.assign({
+                description: "junk everywhere",
+                thumbnails: {
+                    url: "www.example.org/jpg.jpg",
+                }
+            }, channel_fixture);
+            storage.channel.add_one(trans, channel_with_extra, err => {
+                assert.ok(!err, "no error");
+                let read = db.transaction("channel");
+                storage.channel.get_by_id(read, channel_fixture.id, (err, channel) => {
+                    assert.ok(!err, "no error");
+                    assert.deepEqual(channel, channel_fixture);
+                    done();
+                });
+            });
+        });
+    },
     "test remove_one"(assert, done) {
         clear_db().then(ensure_open).then(db => {
             let fill = db.transaction(["channel", "check_stamp", "video"], "readwrite");
