@@ -41,25 +41,37 @@ exports["test video operations"] = {
             });
         });
     },
-    "test add_video strip extra info"(assert, done) {
+    "test add_one strip extra info"(assert, done) {
         clear_db().then(ensure_open).then(db => {
             let trans = db.transaction("video", "readwrite");
             storage.video.add_one(trans, Object.assign({
                 description: "extra info that takes up space",
                 junk: "I should also be gone"
             }, vid_fixture));
-            trans.oncomplete = () => {
-                let read = db.transaction("video", "readwrite");
-                let req = storage.video_store(read).get(vid_fixture.video_id);
-                storage.forward_idb_request(req, (err, vid) => {
-                    assert.ok(!err, "no error");
-                    assert.deepEqual(vid, vid_fixture, "extra fields stripped");
-                    done();
-                });
-            };
+            trans.oncomplete = () => video_stripped(assert, db, done);
+        });
+    },
+    "test add_list strip extra info"(assert, done) {
+        clear_db().then(ensure_open).then(db => {
+            let trans = db.transaction("video", "readwrite");
+            storage.video.add_list(trans, [Object.assign({
+                description: "extra info that takes up space",
+                junk: "I should also be gone"
+            }, vid_fixture)]);
+            trans.oncomplete = () => video_stripped(assert, db, done);
         });
     },
 };
+
+function video_stripped(assert, db, done) {
+    let read = db.transaction("video", "readwrite");
+    let req = storage.video_store(read).get(vid_fixture.video_id);
+    storage.forward_idb_request(req, (err, vid) => {
+        assert.ok(!err, "no error");
+        assert.deepEqual(vid, vid_fixture, "extra fields stripped");
+        done();
+    });
+}
 
 exports["test channel operations"] = {
     "test add_one"(assert, done) {
