@@ -64,9 +64,9 @@
      √ clear log @done (16-05-17 23:17)
    x error screen for storage limit @cancelled (16-05-19 22:19)
    □ error screen for failing to open db
-   □ make sure no extra data is written into the db
-   □ unit tests
+   √ make sure no extra data is written into the db @done (16-05-21 15:22)
+   √ unit tests @done (16-05-21 17:24)
      √ storage functions @done (16-05-20 18:19)
-     □ logger
+     √ logger @done (16-05-21 17:24)
    x write full manual testing procedure @cancelled (16-05-17 23:40)
    □ selenium tests
