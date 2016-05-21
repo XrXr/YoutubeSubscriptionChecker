@@ -67,8 +67,7 @@ exports["test channel operations"] = {
             let trans = db.transaction(["channel", "check_stamp"], "readwrite");
             storage.channel.add_one(trans, channel_fixture, err => {
                 assert.ok(!err, "no error");
-                let req = storage.channel_store(trans).get(channel_fixture.id);
-                storage.forward_idb_request(req, (err, result) => {
+                storage.channel.get_by_id(channel_fixture.id, (err, result) => {
                     assert.ok(!err, "no error");
                     assert.deepEqual(result, channel_fixture, "channel added");
                 });
@@ -79,7 +78,28 @@ exports["test channel operations"] = {
                 });
             });
 
-            trans.oncomplete = () => done();
+            done_after_trans(trans, done);
+        });
+    },
+    "test add_one bad data"(assert, done) {
+        clear_db().then(ensure_open).then(db => {
+            let start_trans = () => db.transaction(["channel", "check_stamp"], "readwrite");
+            util.cb_join([cb => {
+                storage.channel.add_one(start_trans(), undefined, err => {
+                    assert.ok(err, "shouldn't add undefined");
+                    cb();
+                });
+            }, cb => {
+                storage.channel.add_one(start_trans(), {}, err => {
+                    assert.ok(err, "shouldn't add object without id");
+                    cb();
+                });
+            }, cb => {
+                storage.channel.add_one(start_trans(), 3, err => {
+                    assert.ok(err, "shouldn't add number");
+                    cb();
+                });
+            }], done);
         });
     },
     "test strip extra fields"(assert, done) {
@@ -100,6 +120,32 @@ exports["test channel operations"] = {
                     done();
                 });
             });
+        });
+    },
+    "test order kept"(assert, done) {
+        clear_db().then(ensure_open).then(db => {
+            let trans = db.transaction(["channel", "check_stamp"], "readwrite");
+            let fixtures = [{
+                id: "22981",
+                title: "one"
+            }, {
+                id: "1",
+                title: "bad"
+            }, {
+                id: "-dsf1",
+                title: "foo"
+            }, channel_fixture];
+            for (let e of fixtures) {
+                storage.channel.add_one(trans, e);
+            }
+            trans.oncomplete = () => {
+                let trans = db.transaction("channel");
+                storage.channel.get_all(trans, (err, channels) => {
+                    assert.ok(!err, "no error");
+                    assert.deepEqual(channels, fixtures);
+                    done();
+                });
+            };
         });
     },
     "test remove_one"(assert, done) {
@@ -127,9 +173,9 @@ exports["test channel operations"] = {
                 storage.check_stamp.get_for_channel(trans, channel_fixture.id, done);
             }], (err, channel, video, stamp) => {
                 assert.ok(!err, "no error");
-                assert.strictEqual(channel, undefined, "no channel after removal");
-                assert.strictEqual(video, undefined, "no video after removal");
-                assert.strictEqual(stamp, undefined, "no checkstamp after removal");
+                assert.equal(channel, null, "no channel after removal");
+                assert.equal(video, null, "no video after removal");
+                assert.equal(stamp, null, "no checkstamp after removal");
                 done();
             });
         }
@@ -167,6 +213,12 @@ function clear_db() {
         del_req.onerror = reject;
         del_req.onsuccess = resolve;
     });
+}
+
+function done_after_trans(trans, done) {
+    const finish = () => done();
+    trans.oncomplete = finish;
+    trans.onabort = finish;
 }
 
 require("sdk/test").run(exports);
