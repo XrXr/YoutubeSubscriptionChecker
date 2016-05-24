@@ -42,10 +42,15 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
     .run(function(Bridge, $modal) {
         Bridge.on("fail-state", function (event) {
-            $modal.open({
-                templateUrl: `partials/error-screens/${event.detail}.html`,
+            let error_name = event.detail;
+            let modal_options = {
+                templateUrl: `partials/error-screens/${error_name}.html`,
                 backdrop: 'static'
-            });
+            };
+            if (error_name === "open-db-error") {
+                modal_options.controller = error_name;
+            }
+            $modal.open(modal_options);
         });
     })
 
@@ -914,5 +919,19 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 $scope.search.searched_once = true;
                 $scope.duplicate = false;
             }
+        };
+    })
+
+    .controller("open-db-error", function ($scope, Bridge) {
+        $scope.drop_db = () => {
+            $scope.deleting = true;
+            Bridge.emit("drop-db");
+            Bridge.once("drop-db-success", () => {
+                window.alert("Database deleted. Sorry about the inconvenience");
+                window.location.reload();
+            });
+            Bridge.once("drop-db-error", () => {
+                window.alert("Failed to delete the database. This is really bad. You should contact the developer");
+            });
         };
     });

@@ -1,0 +1,11 @@
+<h3 class="heading">Failed to open internal database</h3>
+
+<div class="modal-body open-db-error">
+  <p>I was not able to access the internal database which stores all your data.
+  This is likely due to file corruption or some other catasrophic event.<p>
+  <p>You can try running file system repair tools on your system which might
+  fix the issue. If all else fail, you can delete the corrupted database by
+  typing <b>clear my data</b> in the input below</p>
+  <input type="text" ng-model="confirm_text">
+  <button type="button" class="btn btn-danger" ng-disabled="confirm_text !== 'clear my data' || deleting" ng-click="drop_db()">Delete the database</button>
+</div>
