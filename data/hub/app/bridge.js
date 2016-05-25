@@ -38,7 +38,7 @@ the_page_script.sends(
      "subscribed-channels", "channel-added", "channel-duplicate",
      "duration-update", "import-error", "export-result", "import-success",
      "error-logs", "dump-logs-failed", "fail-state", "drop-db-success",
-     "drop-db-error"
+     "drop-db-error", "migration-failed",
     ]);
 
 self.port.emit("get-videos", null);  // get all videos once contentscript loads

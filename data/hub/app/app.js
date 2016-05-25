@@ -610,12 +610,20 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
 
         Bridge.on("open-settings", () => $scope.open_settings());
-        Bridge.on("open-changelog", () => $modal.open(
-            {templateUrl: 'partials/changelog.html'}));
-
+        let show_changelog, migration_failed;
+        Bridge.on("open-changelog", () => show_changelog = true);
+        Bridge.on("migration-failed", () => migration_failed = true);
         Bridge.on("subscribed-channels", event => {
             if (ChannelList.update_channels(JSON.parse(event.detail))) {
                 $scope.open_subscriptions();
+            }
+            if (show_changelog) {
+                $modal.open({templateUrl: 'partials/changelog.html'});
+            }
+            if (migration_failed) {
+                $modal.open({
+                    templateUrl: "partials/error-screens/migration-failed.html"
+                });
             }
         });
     })
