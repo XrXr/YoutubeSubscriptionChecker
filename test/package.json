@@ -1,0 +1,18 @@
+{
+  "name": "yt-checker-e2e",
+  "version": "0.0.0",
+  "description": "End to end tests for Youtube Subscription Checker",
+  "author": "XrXr",
+  "scripts": {
+    "test": "node selenium/development_tests.js",
+    "testbuild": "node selenium/build-tests.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/XrXr/YoutubeSubscriptionChecker.git"
+  },
+  "license": "MPL-2.0",
+  "dependencies": {
+    "selenium-webdriver": "2.53.2"
+  }
+}
