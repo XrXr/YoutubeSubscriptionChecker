@@ -720,8 +720,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 }
                 Bridge.emit("clear-history");
             },
-            changelog: () => $modal.open({
-                templateUrl: 'partials/changelog.html'})
+            changelog: () => $modal.open({ templateUrl: "partials/changelog.html" })
         };
 
         var new_filter_channel;
@@ -829,8 +828,10 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 });
             },
             clear_logs() {
-                Bridge.emit("clear-logs");
-                $scope.tabs.logs.clear_success = true;
+                if (window.confirm("Are you sure?")) {
+                    Bridge.emit("clear-logs");
+                    $scope.tabs.logs.clear_success = true;
+                }
             }
         };
 
