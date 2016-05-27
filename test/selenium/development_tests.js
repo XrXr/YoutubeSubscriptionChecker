@@ -5,6 +5,8 @@ const webdriver = require('selenium-webdriver'),
       until = webdriver.until;
 const firefox = require('selenium-webdriver/firefox');
 
+process.env.YTCHECKERDEBUG = true;
+
 let root_path = path.resolve(path.join(__dirname), "../../");
 let xpi_path = path.join(root_path, `${main_pkg.id}-${main_pkg.version}.xpi`);
 
@@ -15,8 +17,6 @@ let options = new firefox.Options().setProfile(profile);
 
 profile.addExtension(xpi_path);
 let driver = new firefox.Driver(options);
-
-process.env.YTCHECKERDEBUG=true;
 
 const test_interval = "1906";
 
