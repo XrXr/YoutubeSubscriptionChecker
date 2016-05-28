@@ -6,9 +6,9 @@ const webdriver = require('selenium-webdriver'),
 exports.run = run;
 exports.need_debug = true;
 
-function run(driver) {
-    const test_interval = "1906";
+const test_interval = "1906";
 
+function run(driver) {
     driver.get(util.hub_url);
     open_settings(driver);
     let input = driver.findElement(By.className("interval-input"));
