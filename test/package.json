@@ -4,6 +4,7 @@
   "description": "End to end tests for Youtube Subscription Checker",
   "author": "XrXr",
   "scripts": {
+    "build-and-test": "cd .. && jpm xpi && cd - && npm test",
     "test": "node selenium/development_tests.js",
     "testbuild": "node selenium/build-tests.js"
   },
