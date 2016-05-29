@@ -8,9 +8,11 @@ exports.open_settings = click_btn_wait_for_modal.bind(null, "settings-btn");
 exports.open_sub_manager = click_btn_wait_for_modal.bind(null, "subscriptions-btn");
 exports.wait_for_element = wait_for_element;
 
-function wait_for_element(driver, class_name, timeout=1000) {
-    driver.wait(until.elementLocated(By.className(class_name)), timeout);
-    return driver.findElement(By.className(class_name));
+function wait_for_element(driver, selection, timeout=1000) {
+    let cond = typeof selection === "string" ? By.className(selection)
+                                             : By.js(selection);
+    driver.wait(until.elementLocated(cond), timeout);
+    return driver.findElement(cond);
 }
 
 function click_btn_wait_for_modal(class_name, driver) {
