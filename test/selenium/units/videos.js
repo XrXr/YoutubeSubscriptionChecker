@@ -5,6 +5,7 @@ exports.need_debug = true;
 
 function run(driver, no_debug) {
     driver.get(util.hub_url);
+    driver.sleep(500);
 
     util.wait_for_element(driver, "video-link").click();
     // driver.getAllWindowHandles() doesn't return multiple for tabs...
