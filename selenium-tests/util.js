@@ -1,7 +1,7 @@
 const webdriver = require('selenium-webdriver'),
       By = webdriver.By,
       until = webdriver.until;
-const main_pkg = require("../../package.json");
+const main_pkg = require("../jetpack/package.json");
 
 exports.hub_url = `resource://${main_pkg.id.replace("@", "-at-")}/data/hub/home.html`;
 exports.open_settings = click_btn_wait_for_modal.bind(null, "settings-btn");

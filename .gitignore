@@ -1,4 +1,5 @@
 /*.xpi
+jetpack/*.xpi
 *.ps1
 node_modules
 *.sublime-workspace

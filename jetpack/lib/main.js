@@ -15,6 +15,7 @@ const self = require("sdk/self");
 let db;  // will be set once db is opened
 let fatal_error;  // puts hub page into a fail state when set
 
+/*#BUILD_TIME_REPLACE_START*/
 function init(cb=util.noop) {
     if ("YTCHECKERDEBUG" in require("sdk/system").env) {
         require("./development").run(actual_init.bind(null, cb));
@@ -22,6 +23,7 @@ function init(cb=util.noop) {
         actual_init(cb);
     }
 }
+/*#BUILD_TIME_REPLACE_END*/
 
 exports.get_db = get_db;
 

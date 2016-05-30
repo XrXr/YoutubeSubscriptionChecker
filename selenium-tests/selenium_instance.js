@@ -1,9 +1,9 @@
 const path = require("path");
-const main_pkg = require("../../package.json");
+const main_pkg = require("../jetpack/package.json");
 
 const firefox = require('selenium-webdriver/firefox');
 
-let root_path = path.resolve(__dirname, "../../");
+let root_path = path.resolve(__dirname, "../jetpack");
 const xpi_path = path.join(root_path, `${main_pkg.id}-${main_pkg.version}.xpi`);
 
 exports.with_current_xpi = make_instance.bind(null, xpi_path);
