@@ -511,14 +511,8 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         var map = new Map();
 
         var parent = this;
-        function get_channel_by_id (id) {
-            for (var channel of parent.channels) {
-                if (channel.id === id) {
-                    return channel;
-                }
-            }
-        }
 
+        const get_channel_by_id = Map.prototype.get.bind(map);
         this.get_channel_by_id = get_channel_by_id;
 
         this.update_video_count = function() {
@@ -545,6 +539,8 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     map.set(element.id, element);
                 }
             }
+
+            this.update_video_count();
 
             $rootScope.$apply();
             return new_list.length === 0;
@@ -633,7 +629,10 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         // state to keep the no video message hidden until the first playload
         $scope.first_payload = false;
 
-        $scope.title = ({channel_id}) => ChannelList.get_channel_by_id(channel_id).title;
+        $scope.channel_title = ({channel_id}) => {
+            let channel = ChannelList.get_channel_by_id(channel_id);
+            return channel ? channel.title : '';
+        };
 
         $scope.open_video = function(video, event) {
             event.preventDefault();
