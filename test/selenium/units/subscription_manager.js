@@ -2,8 +2,12 @@ const util = require("../util");
 
 exports.run = run;
 
-function run(driver) {
+function run(driver, no_debug) {
     driver.get(util.hub_url);
+
+    if (no_debug) {
+        util.open_sub_manager(driver);
+    }
 
     let input = util.wait_for_element(driver, "channel-search");
     input.clear();

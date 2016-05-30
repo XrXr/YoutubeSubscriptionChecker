@@ -6,14 +6,16 @@
   "scripts": {
     "build-and-test": "cd .. && jpm xpi && cd - && npm test",
     "test": "node selenium/development_tests.js",
-    "testbuild": "node selenium/build-tests.js"
+    "test-migration": "node selenium/development_tests.js --migration",
+    "test-deploy-build": "node selenium/development_tests.js --no-dev"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/XrXr/YoutubeSubscriptionChecker.git"
   },
   "license": "MPL-2.0",
-  "dependencies": {
+  "devDependencies": {
+    "request": "2.72.0",
     "selenium-webdriver": "2.53.2"
   }
 }

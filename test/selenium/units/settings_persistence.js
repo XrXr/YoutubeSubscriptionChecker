@@ -21,5 +21,5 @@ function run(driver) {
         let input = driver.findElement(By.className("interval-input"));
         return input.getAttribute("value").then(val => val === test_interval);
     }, 1000);
-
+    util.close_settings(driver);
 }

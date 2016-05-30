@@ -3,7 +3,7 @@ const { Key } = require("selenium-webdriver/lib/input");
 exports.run = run;
 exports.need_debug = true;
 
-function run(driver) {
+function run(driver, no_debug) {
     driver.get(util.hub_url);
 
     util.wait_for_element(driver, "video-link").click();
@@ -14,14 +14,19 @@ function run(driver) {
             .then(() => {
                 return driver.getCurrentUrl()
                     .then(url => url.includes("youtube.com"));
-            }), 1000);
+            }), 3000);
 
     driver.get(util.hub_url);
     // recorded into history
     util.wait_for_element(driver, "history-btn").click();
     util.wait_for_element(driver, "video-link");
 
+    if (no_debug) {
+        return;
+    }
+
     driver.get(util.hub_url);
+    driver.sleep(1000);
     util.wait_for_element(driver, function look_for_youtube() {
         // jshint undef: false
         let bars = Array.from(document.getElementsByClassName("channel-title"));

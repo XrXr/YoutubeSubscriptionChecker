@@ -2,18 +2,21 @@ const fs = require("fs");
 const path = require("path");
 const util = require("../util"),
       open_settings = util.open_settings,
-      close_modals = util.close_modals;
+      close_modals = util.close_modals,
+      close_settings = util.close_settings;
 const webdriver = require('selenium-webdriver'),
       By = webdriver.By;
 
 exports.run = run;
 
-function run(driver) {
+function run(driver, no_debug) {
     const b64 = fs.readFileSync(path.join(__dirname, "backup-fixture.b64"), 'utf8');
     const json = fs.readFileSync(path.join(__dirname, "backup-fixture.json"), 'utf8');
 
     driver.get(util.hub_url);
-    util.wait_for_element(driver, "modal");
+    if (!no_debug) {
+        util.wait_for_element(driver, "modal");
+    }
 
     import_backup(driver, b64);
 
@@ -26,8 +29,7 @@ function run(driver) {
         // jshint undef: false
         let titles = Array.from(document.getElementsByClassName('video-title'));
         return titles.filter(e => {
-
-            return e.firstElementChild.textContent.includes("special fabricated video")
+            return e.firstElementChild.textContent.includes("special fabricated video");
         });
         // jshint undef: true
     }, 5000);
@@ -51,13 +53,4 @@ function assert_interval(driver, expected) {
         return input.getAttribute("value").then(val => val === expected);
     }, 1000);
     close_settings(driver);
-}
-
-function close_settings(driver) {
-    driver.findElement(By.className("cancel-btn")).click();
-    driver.switchTo().alert()
-        .then(alert => alert.accept(), () => {});
-    driver.wait(() => {
-        return driver.isElementPresent(By.className("modal-backdrop")).then(e => !e);
-    });
 }
