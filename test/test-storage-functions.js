@@ -1,4 +1,5 @@
 const storage = require("../lib/core/storage");
+const config = require("../lib/config");
 const util = require("../lib/util");
 const TEST_DB_NAME = "youtube-checker-test";
 const { indexedDB } = require('sdk/indexed-db');
@@ -189,6 +190,85 @@ exports["test channel operations"] = {
                 assert.equal(video, null, "no video after removal");
                 assert.equal(stamp, null, "no checkstamp after removal");
                 done();
+            });
+        }
+    }
+};
+
+exports["test config"] = {
+    "test last_checked not overwritten by config update"(assert, done) {
+        clear_db().then(ensure_open).then(db => {
+            let trans = db.transaction(["config"], "readwrite");
+
+            let dummy_stamp = Date.now() - 1282;
+            storage.update_last_check(trans, err => {
+                assert.ok(!err, "no error");
+            }, dummy_stamp);
+
+            config.update(trans, {
+                interval: 100000
+            }, err => {
+                assert.ok(!err, "no error");
+
+                config.get_one(trans, "last_checked", (err, val) => {
+                    assert.ok(!err, "no error");
+                    assert.strictEqual(val, dummy_stamp);
+                });
+            });
+
+            done_after_trans(trans, done);
+        });
+    }
+};
+
+exports["test initialize_db"] = {
+    "test multiple init"(assert, done) {
+        clear_db().then(() => {
+            storage.initialize_db((err, did_init) => {
+                assert.ok(!err, "first init no error");
+                assert.ok(did_init, "first init did init");
+
+                storage.open((err, db) => {
+                    assert.ok(!err, "no error");
+
+                    let trans = db.transaction(["video", "config"], "readwrite");
+                    storage.video.add_one(trans, vid_fixture);
+                    config.update(trans, {
+                        interval: 1000,
+                        play_sound: false,
+                        animations: true
+                    }, err => {
+                        assert.ok(!err, "no error");
+                    });
+
+                    trans.oncomplete = () => second_round(db);
+                }, TEST_DB_NAME);
+            }, TEST_DB_NAME);
+        });
+
+        function second_round(db) {
+            db.close();
+
+            storage.initialize_db((err, did_init) => {
+                assert.ok(!err, "second init no error");
+                assert.ok(did_init, "second init not inited");
+
+                storage.open((err, db) => {
+                    let trans = db.transaction(["video", "config"]);
+
+                    let vid_req = storage.video_store(trans).get(vid_fixture.video_id);
+                    vid_req.onsuccess = () => {
+                        assert.ok(vid_req.result, "video not wiped");
+                    };
+
+                    config.get_all(trans, (err, config) => {
+                        assert.ok(!err, "no error");
+                        assert.equal(config.interval, 1000, "config is kept");
+                        assert.equal(config.play_sound, false, "config is kept");
+                    });
+
+                    done_after_trans(trans, done);
+                }, TEST_DB_NAME);
             });
         }
     }
