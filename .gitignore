@@ -4,3 +4,4 @@ jetpack/*.xpi
 node_modules
 *.sublime-workspace
 npm-debug.log
+build

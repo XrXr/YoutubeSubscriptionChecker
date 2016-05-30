@@ -3,18 +3,13 @@
   "private": true,
   "version": "0.0.0",
   "author": "XrXr",
-  "scripts": {
-    "build-and-test": "cd .. && jpm xpi && cd - && npm test",
-    "test": "node selenium/development_tests.js",
-    "test-migration": "node selenium/development_tests.js --migration",
-    "test-deploy-build": "node selenium/development_tests.js --no-dev"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/XrXr/YoutubeSubscriptionChecker.git"
   },
   "license": "MPL-2.0",
   "devDependencies": {
+    "gulp": "3.9.1",
     "request": "2.72.0",
     "selenium-webdriver": "2.53.2"
   }
