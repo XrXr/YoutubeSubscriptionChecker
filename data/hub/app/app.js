@@ -765,33 +765,14 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 }
                 $scope.config.filters.push(filter);
             },
-            get_filter_class: filter => filter.include ?
-                                        "bg-success": "bg-danger",
-            move_up: index => {
-                if (index <= 0 || !index) {
-                    return;
-                }
-                var below = $scope.config.filters[index - 1];
-                $scope.config.filters[index - 1] = $scope.config.filters[index];
-                $scope.config.filters[index] = below;
-            },
-            move_down: index => {
-                if (index === $scope.config.filters.length - 1 ||
-                    index === undefined || index < 0) {
-                    return;
-                }
-                var above = $scope.config.filters[index + 1];
-                $scope.config.filters[index + 1] = $scope.config.filters[index];
-                $scope.config.filters[index] = above;
-            },
+            get_filter_class: filter => filter.include ? "bg-success": "bg-danger",
             remove_filter: index => $scope.config.filters.splice(index, 1),
             include_radio_getter_setter(val) {
                 if (arguments.length === 0) {
                     return $scope.tabs.filter.new_filter.
                                 include_on_match ? "include" : "exclude";
                 }
-                $scope.tabs.filter.new_filter.include_on_match =
-                    val === "include";
+                $scope.tabs.filter.new_filter.include_on_match = val === "include";
             }
         };
 

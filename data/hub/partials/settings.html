@@ -64,8 +64,6 @@
                  -->
                 <button type="button" ng-click="tabs.filter.add_filter(tabs.filter.new_filter)" ng-disabled="tabs.filter.new_filter.channel === undefined || tabs.filter.new_filter.channel.length === 0 || tabs.filter.new_filter.video_title_pattern.length === 0" class="btn btn-success">Add</button>
                 <button type="button" ng-click="tabs.filter.remove_filter(tabs.filter.current_filter)" class="btn btn-danger">Remove</button>
-                <button type="button" ng-click="tabs.filter.move_up(tabs.filter.current_filter)" class="btn btn-primary">&and;</button>
-                <button type="button" ng-click="tabs.filter.move_down(tabs.filter.current_filter)" class="btn btn-primary">&or;</button>
             </form>
           </div>
           <div class="col-md-7">
