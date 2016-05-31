@@ -7,14 +7,17 @@ const util = require("../util"),
 const webdriver = require('selenium-webdriver'),
       By = webdriver.By;
 
+const json_fixture = fs.readFileSync(path.join(__dirname, "backup-fixture.json"), 'utf8');
+
+exports.json_fixture = json_fixture;
+exports.import_backup = import_backup;
 exports.run = run;
 
-function run(driver, no_debug) {
+function run(driver, debug) {
     const b64 = fs.readFileSync(path.join(__dirname, "backup-fixture.b64"), 'utf8');
-    const json = fs.readFileSync(path.join(__dirname, "backup-fixture.json"), 'utf8');
 
     driver.get(util.hub_url);
-    if (!no_debug) {
+    if (!debug) {
         util.wait_for_element(driver, "modal");
     }
 
@@ -24,7 +27,7 @@ function run(driver, no_debug) {
     util.wait_for_element(driver, "video-link");
     assert_interval(driver, "64");
 
-    import_backup(driver, json);
+    import_backup(driver, json_fixture);
     util.wait_for_element(driver, function find_special_video () {
         // jshint undef: false
         let titles = Array.from(document.getElementsByClassName('video-title'));

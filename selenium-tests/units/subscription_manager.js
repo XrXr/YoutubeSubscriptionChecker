@@ -2,10 +2,10 @@ const util = require("../util");
 
 exports.run = run;
 
-function run(driver, no_debug) {
+function run(driver, debug) {
     driver.get(util.hub_url);
 
-    if (no_debug) {
+    if (debug) {
         util.open_sub_manager(driver);
     }
 

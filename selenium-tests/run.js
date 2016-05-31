@@ -30,7 +30,7 @@ function run_in_sequence(i) {
         process.env.YTCHECKERDEBUG = true;
     }
     let driver = selenium_instance.with_current_xpi();
-    mod.run(driver, no_dev);
+    mod.run(driver, mod.need_debug && !no_dev);
     driver.quit().finally(() => {
         delete process.env.YTCHECKERDEBUG;
         run_in_sequence(i + 1);

@@ -1,11 +1,19 @@
-const util = require("../util");
 const { Key } = require("selenium-webdriver/lib/input");
+const util = require("../util");
+const { import_backup, json_fixture } = require("./backup-import");
+
 exports.run = run;
 exports.need_debug = true;
 
-function run(driver, no_debug) {
+function run(driver, debug) {
     driver.get(util.hub_url);
-    driver.sleep(500);
+
+    if (!debug) {
+        util.wait_for_element(driver, "modal");
+        import_backup(driver, json_fixture);
+    } else {
+        driver.sleep(1000);
+    }
 
     util.wait_for_element(driver, "video-link").click();
     // driver.getAllWindowHandles() doesn't return multiple for tabs...
@@ -22,16 +30,16 @@ function run(driver, no_debug) {
     util.wait_for_element(driver, "history-btn").click();
     util.wait_for_element(driver, "video-link");
 
-    if (no_debug) {
+    if (!debug) {
         return;
     }
 
     driver.get(util.hub_url);
     driver.sleep(1000);
-    util.wait_for_element(driver, function look_for_youtube() {
+    util.wait_for_element(driver, function look_for_nl() {
         // jshint undef: false
         let bars = Array.from(document.getElementsByClassName("channel-title"));
-        return bars.filter(e => e.textContent === "Youtube");
+        return bars.filter(e => e.textContent === "Northernlion");
         // jshint undef: true
     }, 10 * 1000).click();
     util.wait_for_element(driver, "video-link");

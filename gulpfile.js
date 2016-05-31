@@ -1,16 +1,89 @@
+const source = require('vinyl-source-stream');
 const gulp = require("gulp");
-const { current_xpi_path } = require("./selenium-tests/selenium_instance");
-const path = require("path");
+const JSZip = require("jszip");
+const fs = require("fs");
+const path = require("path"),
+      join = path.join;
 const { exec } = require('child_process');
+const main_pkg = require("./jetpack/package.json");
 
-gulp.task("default", ["copy-xpi"]);
+const main_path = join(__dirname, "jetpack");
+const xpi_name = `${main_pkg.id}-${main_pkg.version}.xpi`;
+const original_xpi_path = join(main_path, xpi_name);
+
+function jpm(command, cb) {
+    let base = "jpm";
+    if (process.env.FIREFOX_PATH) {
+        base += " -b " + process.env.FIREFOX_PATH;
+    }
+
+    let child = exec(`${base} ${command}`, {
+        cwd: main_path
+    }, cb);
+
+    child.stdout.pipe(process.stdout);
+    child.stderr.pipe(process.stderr);
+}
 
 gulp.task("build", function (cb) {
-    exec("jpm xpi", {
-        cwd: path.join(__dirname, "jetpack")
-    }, cb);
+    jpm("xpi", cb);
 });
 
 gulp.task("copy-xpi", ["build"], function () {
-    return gulp.src(current_xpi_path).pipe(gulp.dest("build/"));
+    return gulp.src(original_xpi_path).pipe(gulp.dest("build/"));
 });
+
+gulp.task("strip-dev-code", ["copy-xpi"], function () {
+    const START_PRAGMA = "/*#BUILD_TIME_REPLACE_START*/";
+    const END_PRAGMA = "/*#BUILD_TIME_REPLACE_END*/";
+    let xpi = new JSZip();
+    let file_name = path.basename(original_xpi_path);
+    let zip = fs.readFileSync(join("build", file_name));
+    let main = fs.readFileSync(join("jetpack", "lib", "main.js"), "utf8");
+    return xpi.loadAsync(zip).then(xpi => {
+        xpi.remove("lib/development.js");
+
+        let head = main.slice(0, main.indexOf(START_PRAGMA));
+        let tail = main.slice(main.indexOf(END_PRAGMA) + END_PRAGMA.length);
+
+        let nl = "\n";
+        xpi.file("lib/main.js", head + nl +
+            "const init = actual_init;  // line put in by build tool" +
+            nl + tail, "built with love");
+
+        return xpi.generateNodeStream()
+            .pipe(source(file_name))
+            .pipe(gulp.dest("build/"));
+    });
+});
+
+gulp.task("default", ["strip-dev-code"]);
+
+gulp.task("unit-tests", cb => {
+    jpm("test", cb);
+});
+
+function run_tests(xpi_path, selenium_opt, cb) {
+    const selenium_path = join(__dirname, "selenium-tests", "run.js");
+    exec(`${process.execPath} ${selenium_path} ${selenium_opt} ${xpi_path}`, cb);
+}
+
+gulp.task("test-e2e", ["strip-dev-code"], cb => {
+    run_tests(join("build", xpi_name), "--no-dev", cb);
+});
+
+gulp.task("test-migration", ["strip-dev-code"], cb => {
+    run_tests(join("build", xpi_name), "--migration", cb);
+});
+
+gulp.task("test", ["strip-dev-code", "unit-tests", "test-e2e", "test-migration"]);
+
+gulp.task("test-raw-e2e", ["build"], cb => {
+    run_tests(original_xpi_path, "--", cb);
+});
+
+gulp.task("test-raw-migration", ["build"], cb => {
+    run_tests(original_xpi_path, "--migration", cb);
+});
+
+gulp.task("test-raw", ["unit-tests", "test-raw-e2e", "test-raw-migration"]);

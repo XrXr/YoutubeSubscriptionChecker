@@ -70,4 +70,4 @@
      √ logger @done (16-05-21 17:24)
    x write full manual testing procedure @cancelled (16-05-17 23:40)
    √ selenium tests @done (16-05-30 16:51)
-   □ build tool which strips dev related code
+   √ build tool which strips dev related code @done (16-05-30 22:55)
