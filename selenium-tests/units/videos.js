@@ -41,6 +41,6 @@ function run(driver, debug) {
         let bars = Array.from(document.getElementsByClassName("channel-title"));
         return bars.filter(e => e.textContent === "Northernlion");
         // jshint undef: true
-    }, 10 * 1000).click();
-    util.wait_for_element(driver, "video-link");
+    }, 2000).click();
+    util.wait_for_element(driver, "video-link", 10 * 1000);
 }
