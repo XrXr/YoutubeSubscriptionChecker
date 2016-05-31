@@ -122,7 +122,10 @@ function handle_basic_events (target) {
 
     target.on("remove-video", id => remove_video(id, true));
     target.on("skip-video", id => remove_video(id, false));
-    target.on("open-video", util.open_video);
+    target.on("open-video", id => {
+        let trans = get_db().transaction("config");
+        util.open_video(trans, id);
+    });
     target.on("update-config", new_config => {
         let trans = get_db().transaction(["config", "filter"], "readwrite");
         filters.update(trans, new_config.filters);
