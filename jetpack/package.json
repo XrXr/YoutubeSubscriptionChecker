@@ -1,0 +1,17 @@
+{
+  "name": "youtube-subscription-checker",
+  "title": "Youtube Subscription Checker",
+  "id": "youtube-subscription-checker@xrxr",
+  "description": "Checks for new uploads from Youtube channels periodically. Sends notification when there are new videos!",
+  "icon": "resource://youtube-subscription-checker-at-xrxr/data/icons/active64.png",
+  "author": "XrXr",
+  "license": "MPL 2.0",
+  "version": "2.3.0",
+  "main": "lib/main.js",
+  "preferences": [{
+    "type":  "control",
+    "label": "Open Settings",
+    "name":  "open_settings",
+    "title": " "
+  }]
+}

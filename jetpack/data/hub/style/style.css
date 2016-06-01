@@ -1,0 +1,357 @@
+/*
+This Source Code Form is subject to the terms of the
+Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file,
+You can obtain one at http://mozilla.org/MPL/2.0/.
+Author: XrXr
+*/
+body, html {
+    overflow-x: hidden;
+}
+button{
+    outline: 0 !important;
+}
+.no-padding {
+    padding: 0;
+}
+.hub-link{
+    text-align: center;
+    width: 100%;
+    text-decoration: none !important;
+    outline: 0px none !important;
+    margin-bottom: 10px;
+    display: block;
+}
+.video-canvas{
+    position:absolute;
+    left: 15.75%;
+    top: 1.5%;
+    width: 83%;
+}
+.video-link {
+    display: inline-block;
+}
+.hide{
+    display: none;
+}
+.history-selected{
+    border: 2px solid grey;
+    border-radius: 10px;
+}
+.filter-input{
+    display: inline;
+    width: 77%
+}
+.filter-regex-checkbox{
+    margin-left: 5px;
+    display: inline-block;
+}
+.filter-select{
+    height: 100%;
+    margin-bottom: 10px;
+}
+.heading{
+    margin-left: 10px;
+    margin-bottom: 0;
+}
+.history-info{
+    position: fixed;
+    right: 2px;
+    bottom: 2px;
+    color: grey;
+    cursor: default;
+    -moz-user-select: none;
+    z-index: -9999;
+}
+.center-icon{
+    margin: auto;
+    width: 32px;
+    height: 32px;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    position: absolute;
+}
+.animate-li{
+    width: calc(16.6667% - 25px);
+    font-size: 18px;
+    line-height:26px;
+    clear: both;
+    margin-bottom: 10px;
+}
+.animate-li.ng-enter,
+.animate-li.ng-leave {
+    transition: 0.5s ease-in-out all ;
+}
+.animate-li.ng-leave.ng-leave-active,
+.animate-li.ng-enter {
+    opacity: 0;
+    height: 0;
+    margin-bottom: 0;
+}
+.animate-li.ng-leave,
+.animate-li.ng-enter.ng-enter-active {
+    height: 26px;
+    opacity: 1;
+    margin-bottom: 10px;
+}
+.flat-ul{
+    list-style-type: none;
+    padding-left: 0;
+}
+.channel-button {
+    cursor: default;
+    overflow: hidden;
+    padding-left: 15px;
+    padding-right: 15px;
+    -moz-user-select: none;
+}
+.channel-button:hover {
+    background-color: gainsboro;
+    color: grey;
+}
+.channel-title{
+    float: left;
+    max-width: calc(100% - 1.2em);
+}
+.ellipses{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.video-count {
+    color: grey;
+    float: right;
+    text-align: right;
+}
+.selected-button {
+    background-color: grey;
+    color: white;
+}
+.video {
+    float: left;
+    list-style-type: none;
+    position: relative;
+    width:300px;
+    margin-bottom: 15px;
+    transform-origin: 50% 50%;
+}
+.open-animation{
+    animation: leave 700ms;
+}
+.no-videos {
+    color: gainsboro;
+    font-size: 38px;
+    position: fixed;
+    text-align: center;
+    top: 30%;
+    width: calc(100% - 15.75%);
+    cursor: default;
+    -moz-user-select: none;
+}
+.no-videos.ng-enter{
+    transition: opacity linear 0.5s;
+    transition-delay: 400ms;
+    opacity: 0;
+}
+.no-videos.ng-enter-active {
+    opacity: 1;
+}
+.disappear{
+  transform-origin: 50% 50% !important;
+  animation: leave 400ms !important;
+}
+@keyframes leave{
+    from{
+        opacity: 1;
+        transform: scale(1);
+    }
+    to{
+        opacity: 0;
+        transform: scale(0.001);
+    }
+}
+@media (max-width:768px) {
+    .no-videos {
+        /*display: none;*/
+    }
+}
+@media (max-width:768px) {
+    .video-count {
+        display: none;
+    }
+}
+.hub-ui {
+    min-width: 98px;
+}
+.tooltip {
+    cursor: default;
+}
+.video-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    list-style-type: none;
+    font-size: 18px;
+}
+.setting {
+    margin-top: 10px
+}
+.setting-check-box {
+    position: absolute !important;
+    margin-left: 2.7% !important;
+    margin-top: .7% !important;
+}
+.setting-warning {
+    width: 55%;
+    position: absolute;
+    text-align: center;
+    bottom: -10px;
+    left: 12%;
+}
+.fine-print {
+    color: grey;
+    font-size: 13px;
+    font-style: italic;
+}
+/*subscription editor modal begin. These are fine tweaked and fragile*/
+.subscription-modal-window > .modal-dialog {
+    width:600px;
+}
+.subscription-modal-body {
+    width:600px;
+}
+.delete-channel {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+.channel-search-result {
+    display: inline-block;
+    position: relative;
+    left: 13%;
+}
+.modal-channel-row {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+}
+.modal-channel-title {
+    position:relative;
+    margin: 0;
+    max-width: 180px;
+    display: inline-block;
+}
+/*subscription editor modal end*/
+.modal-notice{
+    opacity:1;
+    position: absolute;
+    margin: 0px auto;
+    text-align: center;
+    left: 0px;
+    right: 0px;
+    bottom: 10px;
+}
+.modal-notice.ng-hide-add,
+.modal-notice.ng-hide-remove {
+    display:block!important;
+    transition: opacity linear 0.5s;
+}
+.modal-notice.ng-hide{
+    opacity: 0;
+}
+.modal {
+    overflow-y: auto;
+}
+.inout-button {
+    margin-top: 5px
+}
+.filter-fine-print {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    text-align: center;
+    color: grey;
+}
+.tag-checkbox {
+    font-weight: initial;
+}
+.filter-shouldbe {
+    margin-top: 0;
+}
+.channel-add {
+    cursor: pointer;
+    position:relative;
+    top: -6px;
+}
+.no-channel-result {
+    color: grey;
+    font-size: 20px;
+    text-align: center;
+    width: 100%;
+}
+.settings-btn, .history-btn, .subscriptions-btn {
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+}
+.settings-btn {
+    float: right;
+}
+.hover-tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.9);
+    border-radius: 5px;
+    padding: 5px;
+    top: 0;
+    color: white;
+    white-space: nowrap;
+    visibility: hidden;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity linear .1s;
+}
+.hover-tooltip > .arrow-left {
+    position: absolute;
+    left: -5px;
+}
+.hover-tooltip > .arrow-right {
+    position: absolute;
+    right: -5px;
+}
+.subscriptions-btn:hover + .hover-tooltip {
+    visibility: visible;
+    opacity: 1;
+    left: 60px;
+}
+.history-btn:hover + .hover-tooltip {
+    visibility: visible;
+    opacity: 1;
+    left: 45px;
+}
+.settings-btn:hover + .hover-tooltip {
+    visibility: visible;
+    opacity: 1;
+    right: 55px;
+}
+.arrow-right {
+    width: 0;
+    height: 0;
+    top: 5px;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 5px solid rgba(0, 0, 0, 0.9);
+}
+.arrow-left {
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 5px solid rgba(0, 0, 0, 0.9);
+}
+.in-out-textarea {
+    width: 100%;
+    resize: none;
+}

@@ -1,0 +1,32 @@
+{
+    "channels": [
+        {
+            "filters": [],
+            "id": "UCK8sQmJBp8GCxrOtXWBpyEA",
+            "title": "Google"
+        }
+    ],
+    "config": {
+        "animations": true,
+        "in_background": true,
+        "interval": 65536,
+        "play_sound": true
+    },
+    "videos": [
+        {
+            "channel_id": "UC3tNpTOHsTnkmbwztCs30sA",
+            "channel_title": "Youtube Subscription Checker",
+            "duration": "",
+            "published_at": "2016-05-11T13:00:00.000Z",
+            "thumbnails": {
+                "medium": {
+                    "height": 180,
+                    "url": "http://loremflickr.com/320/180",
+                    "width": 320
+                }
+            },
+            "title": "special fabricated video",
+            "video_id": "fake"
+        }
+    ]
+}
