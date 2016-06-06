@@ -433,17 +433,23 @@ function fresh_install_init(cb=util.noop) {
     });
 }
 
-if (self.loadReason === "upgrade") {
+if (self.loadReason === "install") {
+    fresh_install_init();
+} else {
     const init_and_show_changelog = err => {
         init();
         events.once_new_target(() => {
             if (err) {
                 events.notify.migration_failed_notice();
             }
-            events.notify.open_changelog();
+            if (self.loadReason === "upgrade") {
+                events.notify.open_changelog();
+            }
         });
     };
 
+    // If the add-on is updated while it's disabled, we don't get the "upgrade"
+    // load reason. Try to migrate during every boot to ensure db is initialized
     migration.decide_migration_path((err, migration_proc) => {
         if (err) {
             log_error(err);
@@ -456,8 +462,4 @@ if (self.loadReason === "upgrade") {
             init_and_show_changelog();
         }
     });
-} else if (self.loadReason === "install") {
-    fresh_install_init();
-} else {
-    init();
 }
