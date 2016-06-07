@@ -6,7 +6,7 @@ You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
 /* global angular, Masonry */
-angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
+angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
     .config(function ($httpProvider) {
         /*
         This Angular app does not, and should not send out any network
@@ -45,7 +45,8 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             let error_name = event.detail;
             let modal_options = {
                 templateUrl: `partials/error-screens/${error_name}.html`,
-                backdrop: 'static'
+                backdrop: "static",
+                keyboard: false
             };
             if (error_name === "open-db-error") {
                 modal_options.controller = error_name;
@@ -54,15 +55,15 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         });
     })
 
-    .directive('videoCanvas', function() {
+    .directive("videoCanvas", function() {
         return {
             templateUrl: "partials/videos.html"
         };
     })
 
-    .directive('masonry', function($timeout, ChannelList, ConfigManager, VideoStorage) {
+    .directive("masonry", function($timeout, ChannelList, ConfigManager, VideoStorage) {
         return {
-            restrict: 'AC',
+            restrict: "AC",
             link: link
         };
 
@@ -70,7 +71,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             scope.items = [];
             var container = elem[0];
             var options = angular.extend({
-                itemSelector: '.item'
+                itemSelector: ".item"
             }, JSON.parse(attrs.masonry));
 
             scope.create_instance = function (enable_transition) {
@@ -79,7 +80,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 }
                 options.transitionDuration = 0;
                 if (enable_transition) {
-                    options.transitionDuration = '0.4s';
+                    options.transitionDuration = "0.4s";
                 }
                 scope.obj = new Masonry(container, options);
             };
@@ -95,7 +96,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 filter(function(v) {
                     return v.$$NG_REMOVED;
                 });
-                try{
+                try {
                     // this might fail when the element is already removed from the dom
                     scope.obj.remove(garbage);
                 } catch(_) {
@@ -292,9 +293,9 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
     })
 
-    .directive('masonryTile', function() {
+    .directive("masonryTile", function() {
         return {
-            restrict: 'AC',
+            restrict: "AC",
             link: function(_, elem) {
                 elem.css("opacity", 0);
                 elem.ready(function() {
@@ -486,7 +487,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             // remake masonry instance
             $animate.enabled(new_config.animations);
             if (new_config.animations != parent.config.animations) {
-                angular.element(document.querySelector('[masonry]')).
+                angular.element(document.querySelector("[masonry]")).
                     scope().create_instance(new_config.animations);
             }
             parent.config = new_config;
@@ -563,7 +564,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         this.has_channel = Map.prototype.has.bind(map);
     })
 
-    .controller('frame', function($scope, $modal, $timeout, refresh_masonry, ChannelList, VideoStorage, ConfigManager, Bridge) {
+    .controller("frame", function($scope, $modal, $timeout, refresh_masonry, ChannelList, VideoStorage, ConfigManager, Bridge) {
         $scope.chnl = ChannelList;
         $scope.vs = VideoStorage;
 
@@ -573,20 +574,22 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         }
         $scope.open_settings = function() {
             if (setting_modal_opened) {
-                return;  // don't open multiple
+                return;  // don"t open multiple
             }
             setting_modal_opened = true;
             $modal.open({
-              templateUrl: "partials/settings.html",
-              controller: "settings"
+                templateUrl: "partials/settings.html",
+                controller: "settings",
+                backdrop: "static",
+                keyboard: false
             }).result.then(set_close, set_close);
         };
 
         $scope.open_subscriptions = function() {
             $modal.open({
-              templateUrl: "partials/subscriptions.html",
-              controller: "subscriptions",
-              windowClass: "subscription-modal-window"
+                templateUrl: "partials/subscriptions.html",
+                controller: "subscriptions",
+                windowClass: "subscription-modal-window"
             });
         };
 
@@ -596,7 +599,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
         $scope.toggle_history = function() {
             VideoStorage.toggle_history();
-            angular.element(document.querySelector('[masonry]')).
+            angular.element(document.querySelector("[masonry]")).
                     scope().create_instance(
                         VideoStorage.history_mode ?
                         false : ConfigManager.config.animations);
@@ -614,7 +617,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 $scope.open_subscriptions();
             }
             if (show_changelog) {
-                $modal.open({templateUrl: 'partials/changelog.html'});
+                $modal.open({templateUrl: "partials/changelog.html"});
             }
             if (migration_failed) {
                 $modal.open({
@@ -631,7 +634,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
         $scope.channel_title = ({channel_id}) => {
             let channel = ChannelList.get_channel_by_id(channel_id);
-            return channel ? channel.title : '';
+            return channel ? channel.title : "";
         };
 
         $scope.open_video = function(video, event) {
@@ -646,7 +649,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 var masonry_container = document.querySelector("[masonry]");
                 var masonry = Masonry.data(masonry_container);
                 var video_div = event.target;
-                while (video_div && !video_div.classList.contains('video')) {
+                while (video_div && !video_div.classList.contains("video")) {
                     video_div = video_div.parentElement;
                 }
                 $timeout(()=>{
@@ -675,7 +678,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         });
     })
 
-    .filter('escape', function () {
+    .filter("escape", function () {
         return function (text) {
             var dummy = document.createElement("div");
             dummy.textContent = text;
@@ -694,7 +697,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             less_than_5: false,
             bad_input: false,
             valid: true,
-            validate: value => {
+            validate(value) {
                 $scope.tabs.general.interval_class = "";
                 $scope.tabs.general.less_than_5 = false;
                 $scope.tabs.general.bad_input = false;
@@ -711,7 +714,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     $scope.tabs.general.interval_class = "has-error";
                 }
             },
-            clear_history: () => {
+            clear_history() {
                 VideoStorage.new_history([]);
                 if (VideoStorage.history_mode) {
                     VideoStorage.switch_to("history");
@@ -756,8 +759,8 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 Object.assign(new_filter, filter);
                 new_filter.channel = ChannelList.get_channel_by_id(filter.channel_id);
             },
-            is_dup: filter => $scope.config.filters.some(
-                e => e.video_title_pattern === filter.video_title_pattern &&
+            is_dup: filter => $scope.config.filters.some(e =>
+                e.video_title_pattern === filter.video_title_pattern &&
                 e.channel_title === filter.channel_title &&
                 e.video_title_is_regex === filter.video_title_is_regex &&
                 e.include_on_match === filter.include_on_match),
@@ -779,8 +782,8 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             },
             include_radio_getter_setter(val) {
                 if (arguments.length === 0) {
-                    return $scope.tabs.filter.new_filter.
-                                include_on_match ? "include" : "exclude";
+                    return $scope.tabs.filter.new_filter.include_on_match ?
+                        "include" : "exclude";
                 }
                 $scope.tabs.filter.new_filter.include_on_match = val === "include";
             }
@@ -806,7 +809,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     Bridge.removeListener("dump-logs-failed");
                     var a = document.createElement("a");
                     a.download = "logs.json";
-                    a.href = URL.createObjectURL(new Blob([ev.detail], {type : 'application/json'}));
+                    a.href = URL.createObjectURL(new Blob([ev.detail], {type : "application/json"}));
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
@@ -837,7 +840,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
         $scope.cancel = function() {
             if (!angular.equals($scope.config, ConfigManager.config) &&
-                !window.confirm('You have unsaved settings. Are you sure?')) {
+                !window.confirm("You have unsaved settings. Are you sure?")) {
                 return;
             }
             $modalInstance.close();
@@ -870,7 +873,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
         };
 
         $scope.cancel = function () {
-            $modalInstance.dismiss('cancel');
+            $modalInstance.dismiss("cancel");
         };
 
         $scope.add_channel = function(channel) {
