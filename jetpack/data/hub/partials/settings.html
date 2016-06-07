@@ -50,7 +50,7 @@
             <select select-index="tabs.filter.current_filter" multiple="true" class="form-control filter-select" size="10">
               <option ng-repeat="f in config.filters" class="ellipses" ng-class="get_filter_class(f)" ng-click="tabs.filter.fill_input_form(f)" ng-value="$index">{{f.channel_title + " | " + f.video_title_pattern}}</option>
             </select>
-            <form class="form-inline" role="form">
+            <div class="button-row">
                 <!-- Since the title matcher input box has typeahead-editable=false, the model will be `undefined` when the user has not selected one of the options in the popup. Test cases:
                     channel is empty                  | pattern is empty     : disabled
                     channel is empty                  | pattern is non-empty : disabled
@@ -63,8 +63,10 @@
                 The getting undefined is special, this needs testing.
                  -->
                 <button type="button" ng-click="tabs.filter.add_filter(tabs.filter.new_filter)" ng-disabled="tabs.filter.new_filter.channel === undefined || tabs.filter.new_filter.channel.length === 0 || tabs.filter.new_filter.video_title_pattern.length === 0" class="btn btn-success">Add</button>
-                <button type="button" ng-click="tabs.filter.remove_filter(tabs.filter.current_filter)" class="btn btn-danger">Remove</button>
-            </form>
+                <button type="button" class="btn btn-danger"
+                 ng-click="tabs.filter.remove_filter(tabs.filter.current_filter)"
+                 ng-disabled="tabs.filter.current_filter < 0">Remove</button>
+            </div>
           </div>
           <div class="col-md-7">
             <h4>For the channel...</h4>

@@ -281,12 +281,12 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
 
     .directive("selectIndex", function ($parse) {
         return {
-            link: function(scope, elem, attrs) {
-                var setter = $parse(attrs.selectIndex).assign;
+            link(scope, elem, attrs) {
+                const { assign } = $parse(attrs.selectIndex);
                 scope.$watch(function() {
                     return elem[0].selectedIndex;
                 }, function(newVal) {
-                    setter(scope, newVal);
+                    assign(scope, newVal);
                 });
             }
         };
@@ -766,7 +766,11 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                 $scope.config.filters.push(filter);
             },
             get_filter_class: filter => filter.include ? "bg-success": "bg-danger",
-            remove_filter: index => $scope.config.filters.splice(index, 1),
+            remove_filter(index) {
+                if (index >= 0) {
+                    $scope.config.filters.splice(index, 1);
+                }
+            },
             include_radio_getter_setter(val) {
                 if (arguments.length === 0) {
                     return $scope.tabs.filter.new_filter.
@@ -800,7 +804,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
-                    a.revokeObjectURL(a.href);
+                    setTimeout(() => URL.revokeObjectURL(a.href));
                 });
                 Bridge.once("dump-logs-failed", () => {
                     Bridge.removeListener("error-logs");

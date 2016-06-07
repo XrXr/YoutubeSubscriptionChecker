@@ -355,3 +355,10 @@ button{
     width: 100%;
     resize: none;
 }
+.button-row {
+    display: flex;
+    justify-content: space-around;
+}
+.button-row > .btn {
+    width: 85px;
+}
