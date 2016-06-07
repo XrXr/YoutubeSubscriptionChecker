@@ -35,6 +35,11 @@ function run(cb) {
         });
 
         add_channel({
+            "title": "Minute Physic",
+            "id": "UCUHW94eEFW7hkUMVaZz4eDg",
+        });
+
+        add_channel({
             "title": `<div onmouseover="alert('cats')">hi!</div>`,
             "id": "this channel doesn't exist",
         });

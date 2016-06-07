@@ -122,7 +122,7 @@ function maintain_maximum(store, cb) {
             return cb(err);
         }
 
-        if (history_count < max_history_size) {
+        if (history_count <= max_history_size) {
             return cb(null);
         }
 
