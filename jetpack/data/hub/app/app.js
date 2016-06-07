@@ -559,6 +559,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
 
         this.remove_channel = function(channel) {
             parent.channels.splice(parent.channels.indexOf(channel), 1);
+            map.delete(channel.id);
         };
 
         this.has_channel = Map.prototype.has.bind(map);
