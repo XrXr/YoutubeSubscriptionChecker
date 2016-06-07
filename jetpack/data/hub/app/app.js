@@ -722,33 +722,39 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             changelog: () => $modal.open({ templateUrl: "partials/changelog.html" })
         };
 
-        var new_filter_channel;
-
         $scope.tabs.filter = {
             filter_active: false,
             dup_filter: false,
             filters_bad_channel_name: false,
             filters_bad_pattern: true,
-            new_filter: {
-                channel_id: "",
-                channel_title: "",
-                video_title_pattern: "",
-                video_title_is_regex: false,
-                inspect_tags: false,
-                include_on_match: false,
-                get channel() {
-                    return new_filter_channel ? new_filter_channel.title
-                                              : $scope.tabs.filter.new_filter.channel_title;
-                },
-                set channel(newVal) {
-                    new_filter_channel = newVal;
-                    $scope.tabs.filter.new_filter.channel_title = newVal && newVal.title;
-                    $scope.tabs.filter.new_filter.channel_id = newVal && newVal.id;
-                }
-            },
+            new_filter: (function () {
+                let filter = {
+                    channel_id: "",
+                    channel_title: "",
+                    video_title_pattern: "",
+                    video_title_is_regex: false,
+                    inspect_tags: false,
+                    include_on_match: false,
+                };
+                let new_filter_channel;
+                Object.defineProperty(filter, "channel", {
+                    get() {
+                        return new_filter_channel ? new_filter_channel.title
+                                                  : filter.channel_title;
+                    },
+                    set(newVal) {
+                        new_filter_channel = newVal;
+                        filter.channel_title = newVal && newVal.title;
+                        filter.channel_id = newVal && newVal.id;
+                    }
+                });
+                return filter;
+            })(),
             fill_input_form(filter) {
                 filter.inspect_tags = filter.inspect_tags || false;
-                angular.extend($scope.tabs.filter.new_filter, filter);
+                let { new_filter } = $scope.tabs.filter;
+                Object.assign(new_filter, filter);
+                new_filter.channel = ChannelList.get_channel_by_id(filter.channel_id);
             },
             is_dup: filter => $scope.config.filters.some(
                 e => e.video_title_pattern === filter.video_title_pattern &&
@@ -872,7 +878,7 @@ angular.module('subscription_checker', ['ngAnimate', 'ui.bootstrap'])
             Bridge.emit("add-channel", channel);
 
             Bridge.once("channel-added", () => {
-                ChannelList.channels.push(channel);
+                ChannelList.update_channels([channel]);
                 Bridge.removeListener("channel-duplicate");
             });
             Bridge.once("channel-duplicate", () => {

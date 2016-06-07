@@ -47,7 +47,7 @@
         <br>
         <div class="row">
           <div class="col-md-5">
-            <select select-index="tabs.filter.current_filter" multiple="true" class="form-control filter-select" size="10">
+            <select select-index="tabs.filter.current_filter" class="form-control filter-select" size="10">
               <option ng-repeat="f in config.filters" class="ellipses" ng-class="get_filter_class(f)" ng-click="tabs.filter.fill_input_form(f)" ng-value="$index">{{f.channel_title + " | " + f.video_title_pattern}}</option>
             </select>
             <div class="button-row">
