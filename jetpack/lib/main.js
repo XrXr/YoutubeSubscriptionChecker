@@ -131,7 +131,7 @@ function process_channel_activities (response_json, cb) {
     let channel_id = api_util.activity.get_channel_id(new_uploads[0]);
     storage.filter.get_for_channel(trans, channel_id, (err, video_filters) => {
         if (err) {
-            log_error("Could not get channel while processing a check", err);
+            log_error(`Can't get filters for ${channel_id} in a check `, err);
             return;
         }
         // update latest date to match the publish date of the most recent
@@ -168,7 +168,7 @@ function fetch_duration(video_id) {
     function process_duration_result(duration_result) {
         let { video_id:vid, duration } = duration_result;
         if (vid !== video_id) {
-            log_error("Youtube responed with different video id than requested");
+            log_error("Youtube responded with different video id than requested");
             return;
         }
         let trans = db.transaction(["video", "history"], "readwrite");
@@ -202,7 +202,7 @@ function check_all () {
     let check = db.transaction(["channel", "config", "check_stamp", "filter"], "readwrite");
     storage.channel.get_all(check, (err, channel_list) => {
         if (err) {
-            log_error("Fatal Error! Can't get channel list for check", err);
+            log_error("Fatal: Can't get channel list for check", err);
             return;
         }
 
@@ -354,7 +354,7 @@ function start_checking() {
         config.get_one(get_interval, "interval", (err, interval) => {
             if (err) {
                 log_error("Failed to get interval, " +
-                              "defaulting to 10 min for this check", err);
+                          "defaulting to 10 min for this check", err);
                 interval = 10;
             }
             timers.setTimeout(check_cycle, interval * 60 * 1000);
@@ -376,7 +376,7 @@ function start_checking() {
             const since_last = Date.now() - last_checked;
             const interval_mili = interval * 60 * 1000;
             if (!last_checked || since_last >= interval_mili) {
-                // checking imediately
+                // the check is past due, checking imediately
                 check_cycle();
             } else if (since_last <= 0) {
                 // system time would have to be altered for this to be possible
@@ -395,7 +395,7 @@ function actual_init(cb=util.noop) {
 
     storage.open((err, opened_db) => {
         if (err) {
-            log_error("Fatal error! Cannot open database.");
+            log_error("Fatal: Can't open database");
             fatal_error = "open-db-error";
             return cb(err);
         }

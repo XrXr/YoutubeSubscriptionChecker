@@ -91,7 +91,7 @@ function handle_basic_events (target) {
             let count = get_db().transaction("video", "readonly");
             storage.video.count(count, (err, count) => {
                 if (err) {
-                    log_error("could not get video count removing a channel", err);
+                    log_error("could not get video count after removing a channel", err);
                     return;
                 }
                 button.update(count);
