@@ -36,19 +36,6 @@ exports.channel_store = channel_store;
 exports.filter_store = filter_store;
 exports.check_stamp_store = check_stamp_store;
 
-function compare(a, b) {
-    if (a === undefined && b !== undefined) {
-        return -1;
-    }
-    if (b === undefined && a !== undefined) {
-        return 1;
-    }
-    if (a === b) {
-        return 0;
-    }
-    return a > b ? 1 : -1;
-}
-
 const video = {
     // remove a video from the video storage, then put it into the history
     // storage
@@ -78,21 +65,7 @@ const video = {
     get_all(trans, cb) {
         let req = video_store(trans).getAll();
         //TODO: videos that a channel have should be sorted
-        forward_idb_request(req, cb, vids => {
-            vids.sort((a, b) => {
-                // by channel id then by published_at
-                let ac = a.channel_id;
-                let bc = b.channel_id;
-                let ap = a.published_at;
-                let bp = b.published_at;
-                if (ac === bc) {
-                    return compare(ap, bp);
-                } else {
-                    return compare(ac, bc);
-                }
-            }).reverse();
-            return vids;
-        });
+        forward_idb_request(req, cb, util.sort_videos);
     },
     add_one(trans, video, cb=util.noop) {
         let req = video_store(trans).add(new Video(video));

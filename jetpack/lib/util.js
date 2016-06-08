@@ -5,6 +5,7 @@ exports.fetch_properties = fetch_properties;
 exports.open_video = open_video;
 exports.nice_duration = nice_duration;
 exports.wrap_promise = wrap_promise;
+exports.sort_videos = sort_videos;
 exports.cb_settle = cb_settle;
 exports.cb_each = cb_each;
 exports.cb_join = cb_join;
@@ -50,6 +51,71 @@ function wrap_promise (p) {
             resolve(new SettleResult(false, reason));
         });
     });
+}
+
+function SettleResult(success, value) {
+    this.success = success;
+    this.value = value;
+}
+
+// sort videos so that videos from the same channel are grouped together,
+// videos are sorted in reverse chronological order within each group, and
+// groups are sorted in reverse chronological order by the most recent video
+// in the group
+function sort_videos(vids) {
+    vids.sort((a, b) => {
+        // by channel id then by published_at
+        let ac = a.channel_id;
+        let bc = b.channel_id;
+        let ap = a.published_at;
+        let bp = b.published_at;
+        if (ac === bc) {
+            return compare(bp, ap);
+        } else {
+            return compare(ac, bc);
+        }
+    });
+    return flatten(group_by_channel(vids).sort((a, b) => {
+        return compare(b[0].published_at, a[0].published_at);
+    }));
+}
+
+function compare(a, b) {
+    if (a === undefined && b !== undefined) {
+        return -1;
+    }
+    if (b === undefined && a !== undefined) {
+        return 1;
+    }
+    if (a === b) {
+        return 0;
+    }
+    return a > b ? 1 : -1;
+}
+
+function group_by_channel(videos) {
+    if (videos.length === 0) {
+        return [];
+    }
+    let result = [];
+    let current_channel = videos[0].channel_id;
+    let current_group = [];
+    for (let v of videos) {
+        if (current_channel === v.channel_id) {
+            current_group.push(v);
+        } else {
+            result.push(current_group);
+            current_channel = v.channel_id;
+            current_group = [v];
+        }
+    }
+    result.push(current_group);
+    return result;
+}
+
+// flatten by one level
+function flatten(l) {
+    return [].concat(...l);
 }
 
 // run a list of async operations and collect their result in an array with
@@ -146,11 +212,6 @@ function cb_join(tasks, handler) {
             return handler.apply(null, results);
         }
     }
-}
-
-function SettleResult(success, value) {
-    this.success = success;
-    this.value = value;
 }
 
 function open_video (trans, id) {
