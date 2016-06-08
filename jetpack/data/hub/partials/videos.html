@@ -8,7 +8,7 @@
     "gutter": 19,
     "isFitWidth": true
     }' class="container-fluid" style="margin-left:0; margin-right:0">
-    <div masonry-tile ng-repeat="video in v.current_view" class="video" id="{{video.title}}">
+    <div masonry-tile ng-repeat="video in v.current_view" class="video">
         <ul class="flat-ul" title="{{video.title}}">
             <li>
                 <a class="video-link" ng-click="open_video(video, $event)" ng-href="https://www.youtube.com/watch?v={{video.video_id}}">

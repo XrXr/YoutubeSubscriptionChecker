@@ -101,19 +101,18 @@ button{
     padding-left: 0;
 }
 .channel-button {
-    cursor: default;
+    display: flex;
+    cursor: pointer;
     overflow: hidden;
     padding-left: 15px;
     padding-right: 15px;
-    -moz-user-select: none;
 }
 .channel-button:hover {
     background-color: gainsboro;
     color: grey;
 }
 .channel-title{
-    float: left;
-    max-width: calc(100% - 1.2em);
+    flex-grow: 1;
 }
 .ellipses{
     white-space: nowrap;
