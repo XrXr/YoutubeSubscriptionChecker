@@ -162,32 +162,51 @@ exports["test channel operations"] = {
         });
     },
     "test remove_one"(assert, done) {
+        const special_id = "special";
+
         clear_db().then(ensure_open).then(db => {
             let fill = db.transaction(["channel", "check_stamp", "video"], "readwrite");
             storage.video.add_one(fill, vid_fixture);
             storage.channel.add_one(fill, channel_fixture);
+
+            storage.video.add_one(fill, Object.create(vid_fixture, {
+                video_id: { value: special_id },
+                channel_id: { value: special_id },
+            }));
+
+            storage.channel.add_one(fill, Object.create(channel_fixture, {
+                id: { value: special_id },
+            }));
+
             fill.oncomplete = () => {
                 let del = db.transaction(["channel", "check_stamp", "video"], "readwrite");
                 storage.channel.remove_one(del, channel_fixture, err => {
                     assert.ok(!err, "no error");
-                    check_nothing_is_present(db);
+                    check_deleted_correctly(db);
                 });
             };
         });
 
-        function check_nothing_is_present(db) {
+        function check_deleted_correctly(db) {
             let trans = db.transaction(["channel", "check_stamp", "video"]);
-            util.cb_join([done => {
+            util.cb_join([done => {  // channel being deleted
                 storage.channel.get_by_id(trans, channel_fixture.id, done);
-            }, done => {
+            }, done => {  // unrelated channel
+                storage.channel.get_by_id(trans, special_id, done);
+            }, done => {  // video tied to deleted channel
                 let req = storage.video_store(trans).get(vid_fixture.video_id);
                 storage.forward_idb_request(req, done);
-            }, done => {
+            }, done => {  // video tied to unrelated channel
+                let req = storage.video_store(trans).get(special_id);
+                storage.forward_idb_request(req, done);
+            }, done => {  // check stamp tied to deleted channel
                 storage.check_stamp.get_for_channel(trans, channel_fixture.id, done);
-            }], (err, channel, video, stamp) => {
+            }], (err, channel, unrelated_channel, video, unrelated_video, stamp) => {
                 assert.ok(!err, "no error");
                 assert.equal(channel, null, "no channel after removal");
+                assert.ok(unrelated_channel, null, "unrelated channel kept");
                 assert.equal(video, null, "no video after removal");
+                assert.ok(unrelated_video, null, "unrelated video kept");
                 assert.equal(stamp, null, "no checkstamp after removal");
                 done();
             });

@@ -214,7 +214,7 @@ const channel = {
         }, cb => {  // delete all videos the channel has
             let vs = video_store(trans);
             let index = vs.index("channel_id");
-            index.openCursor().onsuccess = ev => {
+            index.openCursor(id).onsuccess = ev => {
                 let cursor = ev.target.result;
                 if (cursor) {
                     let del_req = cursor.delete();
