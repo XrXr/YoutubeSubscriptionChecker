@@ -11,6 +11,9 @@ body, html {
 button{
     outline: 0 !important;
 }
+.left-pannel {
+    overflow-y: hidden;
+}
 .no-padding {
     padding: 0;
 }
