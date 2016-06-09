@@ -41,13 +41,12 @@ button{
     border: 2px solid grey;
     border-radius: 10px;
 }
-.filter-input{
-    display: inline;
-    width: 77%
+.filter-input-row{
+    display: flex;
+    align-items: center;
 }
 .filter-regex-checkbox{
     margin-left: 5px;
-    display: inline-block;
 }
 .filter-select{
     height: 100%;

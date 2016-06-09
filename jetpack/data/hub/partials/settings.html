@@ -74,8 +74,8 @@
               <input ng-model="tabs.filter.new_filter.channel" class="form-control" type="text" uib-typeahead="channel for channel in channels.channels | filter:{title:$viewValue} | limitTo:4" typeahead-template-url="channel-title.html" typeahead-editable="false" placeholder="cases are ignored">
             </div>
             <h4>only videos with title that match...</h4>
-            <div>
-              <input ng-model="tabs.filter.new_filter.video_title_pattern" class="form-control filter-input" type="text" placeholder="cases are ignored">
+            <div class="filter-input-row">
+              <input ng-model="tabs.filter.new_filter.video_title_pattern" class="form-control" type="text" placeholder="cases are ignored">
               <div class="checkbox filter-regex-checkbox">
                 <label>
                   <input type="checkbox" ng-model="tabs.filter.new_filter.video_title_is_regex"> RegEx
