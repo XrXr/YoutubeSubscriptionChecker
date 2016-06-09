@@ -5,14 +5,14 @@
 -->
 <script type="text/ng-template" id="channel-title.html">
   <a>
-    <span bind-html-unsafe="match.model.title | escape | typeaheadHighlight:query"></span>
+    <span ng-bind-html="match.model.title | escape | uibTypeaheadHighlight:query"></span>
   </a>
 </script>
 <h3 class="heading">Settings</h3>
 
 <div class="modal-body">
-    <tabset>
-      <tab heading="General">
+    <uib-tabset>
+      <uib-tab heading="General">
         <br>
         <form class="form-inline" ng-class="tabs.general.interval_class" role="form">
             <label class="control-label">Check Interval &nbsp;</label>
@@ -41,9 +41,9 @@
         <br>
         <button type="button" class="btn btn-primary" ng-click="tabs.general.clear_history()">Clear History</button>
         <button type="button" class="btn btn-primary" ng-click="tabs.general.changelog()">Changelog</button>
-      </tab>
+      </uib-tab>
 
-      <tab heading="Filters" select="tabs.filter.filter_active = true" deselect="tabs.filter.filter_active = false" class="container-fluid">
+      <uib-tab heading="Filters" select="tabs.filter.filter_active = true" deselect="tabs.filter.filter_active = false" class="container-fluid">
         <br>
         <div class="row">
           <div class="col-md-5">
@@ -71,7 +71,7 @@
           <div class="col-md-7">
             <h4>For the channel...</h4>
             <div>
-              <input ng-model="tabs.filter.new_filter.channel" class="form-control" type="text" typeahead="channel for channel in channels.channels | filter:{title:$viewValue} | limitTo:4" typeahead-template-url="channel-title.html" typeahead-editable="false" placeholder="cases are ignored">
+              <input ng-model="tabs.filter.new_filter.channel" class="form-control" type="text" uib-typeahead="channel for channel in channels.channels | filter:{title:$viewValue} | limitTo:4" typeahead-template-url="channel-title.html" typeahead-editable="false" placeholder="cases are ignored">
             </div>
             <h4>only videos with title that match...</h4>
             <div>
@@ -96,11 +96,11 @@
             <div class="filter-fine-print">Include filters are applied first</div>
           </div>
         </div>
-      </tab>
+      </uib-tab>
 
-      <tab heading="Import/Export" class="backup-tab"
-            deselect="tabs.import_export.import_error = false;
-                      tabs.import_export.import_success = false;">
+      <uib-tab heading="Import/Export" class="backup-tab"
+              deselect="tabs.import_export.import_error = false;
+                        tabs.import_export.import_success = false;">
         <div class="row">
           <div class="col-md-6">
             <h4>Export</h4>
@@ -114,16 +114,16 @@
             <button class="btn btn-primary inout-button import-btn" ng-click="tabs.import_export.import_settings(config_input)">Import</button>
           </div>
         </div>
-      </tab>
+      </uib-tab>
 
-      <tab heading="Logs" deselect="tabs.logs.dump_failed = false;
-                                    tabs.logs.clear_success = false">
+      <uib-tab heading="Logs" deselect="tabs.logs.dump_failed = false;
+                                        tabs.logs.clear_success = false">
         <br>
         <p>A log of unusual events is kept by this add-on. You
           can <button type="button" ng-click="tabs.logs.request_logs()" class="btn btn-link no-padding">download the log</button> and send it to the developer to help resolve bugs. You can also <button ng-click="tabs.logs.clear_logs()" type="button" class="btn btn-link no-padding">delete the log</button> if you beleive it is taking up a lot of disk space.
         </p>
-      </tab>
-    </tabset>
+      </uib-tab>
+    </uib-tabset>
 </div>
 
 <div class="modal-footer" style="margin: 0">

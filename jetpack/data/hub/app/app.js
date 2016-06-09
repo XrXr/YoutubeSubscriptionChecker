@@ -40,7 +40,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         });
     })
 
-    .run(function(Bridge, $modal) {
+    .run(function(Bridge, $uibModal) {
         Bridge.on("fail-state", function (event) {
             let error_name = event.detail;
             let modal_options = {
@@ -51,7 +51,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             if (error_name === "open-db-error") {
                 modal_options.controller = error_name;
             }
-            $modal.open(modal_options);
+            $uibModal.open(modal_options);
         });
     })
 
@@ -565,7 +565,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         this.has_channel = Map.prototype.has.bind(map);
     })
 
-    .controller("frame", function($scope, $modal, $timeout, refresh_masonry, ChannelList, VideoStorage, ConfigManager, Bridge) {
+    .controller("frame", function($scope, $uibModal, $timeout, refresh_masonry, ChannelList, VideoStorage, ConfigManager, Bridge) {
         $scope.chnl = ChannelList;
         $scope.vs = VideoStorage;
 
@@ -578,7 +578,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 return;  // don"t open multiple
             }
             setting_modal_opened = true;
-            $modal.open({
+            $uibModal.open({
                 templateUrl: "partials/settings.html",
                 controller: "settings",
                 backdrop: "static",
@@ -587,7 +587,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         };
 
         $scope.open_subscriptions = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: "partials/subscriptions.html",
                 controller: "subscriptions",
                 windowClass: "subscription-modal-window"
@@ -618,10 +618,10 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 $scope.open_subscriptions();
             }
             if (show_changelog) {
-                $modal.open({templateUrl: "partials/changelog.html"});
+                $uibModal.open({templateUrl: "partials/changelog.html"});
             }
             if (migration_failed) {
-                $modal.open({
+                $uibModal.open({
                     templateUrl: "partials/error-screens/migration-failed.html"
                 });
             }
@@ -687,7 +687,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         };
     })
 
-    .controller("settings", function ($scope, $modalInstance, $modal, ConfigManager, ChannelList, VideoStorage, Bridge) {
+    .controller("settings", function ($scope, $uibModalInstance, $uibModal, ConfigManager, ChannelList, VideoStorage, Bridge) {
         $scope.channels = ChannelList;
         $scope.config = angular.copy(ConfigManager.config);
         $scope.config.filters.forEach(e => e.inspect_tags = e.inspect_tags || false);
@@ -723,7 +723,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 }
                 Bridge.emit("clear-history");
             },
-            changelog: () => $modal.open({ templateUrl: "partials/changelog.html" })
+            changelog: () => $uibModal.open({ templateUrl: "partials/changelog.html" })
         };
 
         $scope.tabs.filter = {
@@ -834,7 +834,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         }
 
         $scope.save = function () {
-            $modalInstance.close();
+            $uibModalInstance.close();
             ConfigManager.update_config($scope.config);
             Bridge.emit("update-config", $scope.config);
         };
@@ -844,7 +844,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 !window.confirm("You have unsaved settings. Are you sure?")) {
                 return;
             }
-            $modalInstance.close();
+            $uibModalInstance.close();
         };
 
         Bridge.on("export-result", event =>
@@ -859,7 +859,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         });
     })
 
-    .controller("subscriptions", function ($scope, $modalInstance, ChannelList, VideoStorage, Bridge, ConfigManager) {
+    .controller("subscriptions", function ($scope, $uibModalInstance, ChannelList, VideoStorage, Bridge, ConfigManager) {
         $scope.chnl = ChannelList;
         $scope.search = {
             term: "",
@@ -870,11 +870,11 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         $scope.duplicate = false;
 
         $scope.save = function () {
-            $modalInstance.close();
+            $uibModalInstance.close();
         };
 
         $scope.cancel = function () {
-            $modalInstance.dismiss("cancel");
+            $uibModalInstance.dismiss("cancel");
         };
 
         $scope.add_channel = function(channel) {
