@@ -51,9 +51,11 @@ gulp.task("strip-dev-code", ["copy-xpi"], function () {
             "const init = actual_init;  // line put in by build tool" +
             nl + tail, "built with love");
 
-        return xpi.generateNodeStream()
-            .pipe(source(file_name))
-            .pipe(gulp.dest("build/"));
+        return xpi.generateNodeStream({
+            compression: "DEFLATE",
+            compressionOptions : { level:9 }
+        }).pipe(source(file_name))
+          .pipe(gulp.dest("build/"));
     });
 });
 
