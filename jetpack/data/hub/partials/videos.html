@@ -4,22 +4,19 @@
    - Author: XrXr
 -->
 <div class="container-fluid video-container">
-    <div class="video" ng-repeat="video in v.current_view"
-                       data-channel-id="{{video.channel_id}}">
-        <ul class="flat-ul" title="{{video.title}}">
-            <li>
-                <a class="video-link" ng-click="open_video(video, $event)" ng-href="https://www.youtube.com/watch?v={{video.video_id}}">
-                  <img width="300px" height="169px" src="loading.png" ng-src="{{video.thumbnails.medium.url}}"></img>
-                </a>
-            </li>
-            <li class="video-title">
-                <span ng-bind="video.title"></span>
-            </li>
-            <li>
-                <span class="pull-left" ng-bind="channel_title(video)"></span>
-                <span class="pull-right" ng-bind="video.duration"></span>
-            </li>
-        </ul>
+    <div ng-repeat="video in v.current_view"
+         class="video flat-ul"
+         title="{{video.title}}"
+         data-channel-id="{{video.channel_id}}">
+      <a class="video-link"
+         ng-click="open_video(video, $event)"
+         ng-href="https://www.youtube.com/watch?v={{video.video_id}}">
+        <img width="300px" height="169px" src="loading.png"
+             ng-src="{{video.thumbnails.medium.url}}"></img>
+      </a>
+      <div class="video-title" ng-bind="video.title"></div>
+      <span class="pull-left" ng-bind="channel_title(video)"></span>
+      <span class="pull-right" ng-bind="video.duration"></span>
     </div>
 </div>
 <span ng-if="first_payload && (!(v.current_view.length) || v.to_remove.length >= v.current_view.length)" class="no-videos">
