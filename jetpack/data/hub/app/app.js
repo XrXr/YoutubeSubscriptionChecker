@@ -76,7 +76,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
 
     .factory("Isotope", function(ConfigManager, $timeout) {
         let isotope;
-        return wrap_in_timeout({
+        return Object.assign(wrap_in_timeout({
             layout() {
                 if (isotope) {
                     isotope.destroy();
@@ -104,6 +104,10 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                     isotope.destroy();
                 }
                 isotope = init_isotope(enabled);
+            }
+        }), {
+            get_instance() {
+                return isotope;
             }
         });
 
@@ -687,7 +691,14 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             ChannelList.remove_channel(channel);
             VideoStorage.remove_video_by_channel(channel.id);
             ConfigManager.remove_filter(channel.title);
-            Isotope.layout();
+            let container = document.querySelector(".video-container");
+            let iso = Isotope.get_instance();
+            for (let node of container.children) {
+                if (node.dataset.channelId === channel.id) {
+                    iso.remove(node);
+                }
+            }
+            iso.layout();
             ChannelList.current_channel = "";
         };
 
