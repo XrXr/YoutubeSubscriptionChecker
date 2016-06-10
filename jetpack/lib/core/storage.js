@@ -63,9 +63,9 @@ const video = {
         forward_idb_request(req, cb);
     },
     get_all(trans, cb) {
-        let req = video_store(trans).getAll();
-        //TODO: videos that a channel have should be sorted
-        forward_idb_request(req, cb, util.sort_videos);
+        let req = video_store(trans).index("published_at")
+                                    .openCursor(null, "prev");
+        collect_cursor(req, cb);
     },
     add_one(trans, video, cb=util.noop) {
         let req = video_store(trans).add(new Video(video));

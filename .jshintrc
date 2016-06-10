@@ -2,5 +2,6 @@
   "undef": true,
   "unused": true,
   "esnext": true,
+  "loopfunc": true,
   "node": true
 }

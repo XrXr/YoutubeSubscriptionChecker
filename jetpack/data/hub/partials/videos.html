@@ -3,12 +3,9 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/.
    - Author: XrXr
 -->
-<div masonry='{
-    "itemSelector": ".video",
-    "gutter": 19,
-    "isFitWidth": true
-    }' class="container-fluid" style="margin-left:0; margin-right:0">
-    <div masonry-tile ng-repeat="video in v.current_view" class="video">
+<div class="container-fluid video-container">
+    <div class="video" ng-repeat="video in v.current_view"
+                       data-channel-id="{{video.channel_id}}">
         <ul class="flat-ul" title="{{video.title}}">
             <li>
                 <a class="video-link" ng-click="open_video(video, $event)" ng-href="https://www.youtube.com/watch?v={{video.video_id}}">

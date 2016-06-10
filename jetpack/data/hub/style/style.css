@@ -134,9 +134,13 @@ button{
     float: left;
     list-style-type: none;
     position: relative;
-    width:300px;
+    width: 300px;
     margin-bottom: 15px;
     transform-origin: 50% 50%;
+    opacity: 0;
+}
+.video.shown {
+    opacity: 1;
 }
 .open-animation{
     animation: leave 700ms;
@@ -362,4 +366,8 @@ button{
 }
 .button-row > .btn {
     width: 85px;
+}
+.video-container {
+    margin-left:0;
+    margin-right:0
 }
