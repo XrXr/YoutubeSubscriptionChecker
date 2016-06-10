@@ -444,7 +444,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
 
         function add_history (video) {
             history.unshift(video);
-            if (history.length >= 50) {
+            if (history.length > 50) {
                 history.pop();
             }
         }

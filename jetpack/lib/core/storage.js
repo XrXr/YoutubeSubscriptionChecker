@@ -99,7 +99,7 @@ function maintain_maximum(store, cb) {
             return cb(null);
         }
 
-        store.openCursor().onsuccess = ev => {
+        store.index("entry_time").openCursor().onsuccess = ev => {
             let cursor = ev.target.result;
             if (!cursor) {
                 return cb(null);
