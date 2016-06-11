@@ -239,6 +239,8 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             return false;
         };
 
+        this.clear_history = () => history = [];
+
         this.remove_video_by_channel = channel_id => {
             for (let i = this.videos.length - 1; i >= 0; i--) {
                 if (this.videos[i].channel_id === channel_id) {
@@ -487,9 +489,12 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 }
             },
             clear_history() {
-                VideoStorage.new_history([]);
+                if (!window.confirm("Are you sure?")) {
+                    return;
+                }
+                VideoStorage.clear_history();
                 if (VideoStorage.history_mode) {
-                    VideoStorage.switch_to("history");
+                    VideoStorage.videos = [];
                     ChannelList.update_video_count();
                 }
                 Bridge.emit("clear-history");
