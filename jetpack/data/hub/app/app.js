@@ -401,6 +401,12 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         };
 
         $scope.toggle_history = function() {
+            // empty the video container so they they don't get caught into
+            // the new Isotope instance right as they are about to be removed
+            let con = document.querySelector(".video-container");
+            while (con.firstElementChild) {
+                con.removeChild(con.firstElementChild);
+            }
             VideoStorage.toggle_history();
             ChannelList.current_channel = "";
             ChannelList.update_video_count();
