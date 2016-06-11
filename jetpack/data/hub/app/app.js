@@ -22,19 +22,19 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         error messages being logged.
         */
         $httpProvider.interceptors.push(function() {
-          return {
-           request: function(config) {
-                config.responseType = "text";
-                return config;
-            }
-          };
+            return {
+                request(config) {
+                    config.responseType = "text";
+                    return config;
+                }
+            };
         });
     })
 
     .run(function(ConfigUpdater, Bridge) {
         Bridge.on("config", function(event) {
-            var config_and_filters = JSON.parse(event.detail);
-            var new_config = config_and_filters.config;
+            let config_and_filters = JSON.parse(event.detail);
+            let new_config = config_and_filters.config;
             new_config.filters = config_and_filters.filters;
             ConfigUpdater.update_config(new_config);
         });
@@ -138,7 +138,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
       that only one listener is register for any given event name at a time
     */
     .factory("Bridge", function($rootScope) {
-        var registered = {};
+        let registered = {};
         function on (name, listener) {
             function wrapper (event) {
                 listener(event);
@@ -265,15 +265,14 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
 
     .service("ConfigManager", function() {
         this.config = {};
-        var parent = this;
 
         this.remove_filter = name => {
             if (name === "") {
                 return;
             }
-            for (var i = parent.config.filters.length - 1; i >= 0; i--) {
-                if (parent.config.filters[i].channel_title === name) {
-                    parent.config.filters.splice(i, 1);
+            for (let i = this.config.filters.length - 1; i >= 0; i--) {
+                if (this.config.filters[i].channel_title === name) {
+                    this.config.filters.splice(i, 1);
                 }
             }
         };
@@ -283,46 +282,40 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
     .service("ChannelList", function($rootScope, VideoStorage) {
         this.channels = [];
         this.current_channel = "";
-        var map = new Map();
-
-        var parent = this;
+        let map = new Map();
 
         const get_channel_by_id = Map.prototype.get.bind(map);
         this.get_channel_by_id = get_channel_by_id;
 
-        this.update_video_count = function() {
-            for (var c of parent.channels) {
+        this.update_video_count = () => {
+            for (let c of this.channels) {
                 c.video_count = 0;
             }
-            for (var v of VideoStorage.videos) {
-                var channel = get_channel_by_id(v.channel_id);
+            for (let v of VideoStorage.videos) {
+                let channel = get_channel_by_id(v.channel_id);
                 if (channel) {
                     channel.video_count++;
                 }
             }
         };
 
-        this.update_channels = function(new_list) {
-            // This method will merge the current list with another one
-            // returns whether the new_list is empty
-            for (var element of new_list) {
-                var matching = get_channel_by_id(element.id);
+        // merge the current list with another one
+        this.update_channels = new_list => {
+            for (let element of new_list) {
+                let matching = get_channel_by_id(element.id);
                 if (matching) {
                     matching.video_count = element.video_count;
                 } else {
-                    parent.channels.push(element);
+                    this.channels.push(element);
                     map.set(element.id, element);
                 }
             }
 
             this.update_video_count();
-
-            $rootScope.$apply();
-            return new_list.length === 0;
         };
 
-        this.decrease_video_count = function(channel_id) {
-            parent.channels.some(function (element) {
+        this.decrease_video_count = channel_id => {
+            this.channels.some(function (element) {
                 if (element.id === channel_id) {
                     element.video_count = Math.max(element.video_count - 1, 0);
                     return true;
@@ -331,8 +324,8 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             });
         };
 
-        this.remove_channel = function(channel) {
-            parent.channels.splice(parent.channels.indexOf(channel), 1);
+        this.remove_channel = channel => {
+            this.channels.splice(this.channels.indexOf(channel), 1);
             map.delete(channel.id);
         };
 
@@ -343,7 +336,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         $scope.chnl = ChannelList;
         $scope.vs = VideoStorage;
 
-        var setting_modal_opened = false;
+        let setting_modal_opened = false;
         function set_close () {
             setting_modal_opened = false;
         }
@@ -391,7 +384,9 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         Bridge.on("open-changelog", () => show_changelog = true);
         Bridge.on("migration-failed", () => migration_failed = true);
         Bridge.on("subscribed-channels", event => {
-            if (ChannelList.update_channels(JSON.parse(event.detail))) {
+            let channels = JSON.parse(event.detail);
+            ChannelList.update_channels(channels);
+            if (channels.length === 0) {
                 $scope.open_subscriptions();
             }
             if (show_changelog) {
@@ -410,7 +405,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         // state to keep the no video message hidden until the first playload
         $scope.first_payload = false;
 
-        $scope.channel_title = ({channel_id}) => {
+        $scope.channel_title = ({ channel_id }) => {
             let channel = ChannelList.get_channel_by_id(channel_id);
             return channel ? channel.title : "";
         };
@@ -436,7 +431,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
 
 
         Bridge.on("videos", event => {
-            var details = JSON.parse(event.detail);
+            let details = JSON.parse(event.detail);
             VideoStorage.replace_videos(...details);
             VideoStorage.switch_to("main");
             ChannelList.current_channel = "";
@@ -446,14 +441,14 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         });
 
         Bridge.on("duration-update", event => {
-            var detail = JSON.parse(event.detail);
+            let detail = JSON.parse(event.detail);
             VideoStorage.update_duration(detail.id, detail.duration);
         });
     })
 
     .filter("escape", function () {
         return function (text) {
-            var dummy = document.createElement("div");
+            let dummy = document.createElement("div");
             dummy.textContent = text;
             return dummy.innerHTML;
         };
@@ -496,7 +491,9 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 }
                 Bridge.emit("clear-history");
             },
-            changelog: () => $uibModal.open({ templateUrl: "partials/changelog.html" })
+            changelog: () => $uibModal.open({
+                templateUrl: "partials/changelog.html"
+            })
         };
 
         $scope.tabs.filter = {
@@ -538,7 +535,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 e.channel_title === filter.channel_title &&
                 e.video_title_is_regex === filter.video_title_is_regex &&
                 e.include_on_match === filter.include_on_match),
-            add_filter: filter => {
+            add_filter(filter) {
                 $scope.tabs.filter.dup_filter = false;
                 filter = angular.copy(filter);
                 filter.video_title_pattern = filter.video_title_pattern.trim();
@@ -548,7 +545,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 }
                 $scope.config.filters.push(filter);
             },
-            get_filter_class: filter => filter.include ? "bg-success": "bg-danger",
+            get_filter_class: filter => filter.include ? "bg-success" : "bg-danger",
             remove_filter(index) {
                 if (index >= 0) {
                     $scope.config.filters.splice(index, 1);
@@ -567,7 +564,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             import_success: "",
             import_error: "",
             export_settings: () => Bridge.emit("export", null),
-            import_settings: input => {
+            import_settings(input) {
                 $scope.tabs.import_export.import_error = false;
                 $scope.tabs.import_export.import_success = false;
                 Bridge.emit("import", input);
@@ -581,7 +578,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 Bridge.emit("get-error-logs");
                 Bridge.once("error-logs", ev => {
                     Bridge.removeListener("dump-logs-failed");
-                    var a = document.createElement("a");
+                    let a = document.createElement("a");
                     a.download = "logs.json";
                     a.href = URL.createObjectURL(new Blob([ev.detail], {type : "application/json"}));
                     document.body.appendChild(a);
@@ -681,7 +678,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         };
 
         function search_result_listener (event) {
-            var result = JSON.parse(event.detail);
+            let result = JSON.parse(event.detail);
             if (result.length > 0 && result[0]) {
                 $scope.search.result = result;
             }
