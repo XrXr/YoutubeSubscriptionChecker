@@ -108,6 +108,14 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         }), {
             get_instance() {
                 return isotope;
+            },
+            // while Isotope is animating the removal of nodes, it could be
+            // destroyed and reinitialized. The new instance shouldn't catch
+            // the nodes for the removal animation
+            clear_container_immediately(con=document.querySelector(".video-container")) {
+                while (con.firstElementChild) {
+                    con.removeChild(con.firstElementChild);
+                }
             }
         });
 
@@ -367,12 +375,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         };
 
         $scope.toggle_history = function() {
-            // empty the video container so they they don't get caught into
-            // the new Isotope instance right as they are about to be removed
-            let con = document.querySelector(".video-container");
-            while (con.firstElementChild) {
-                con.removeChild(con.firstElementChild);
-            }
+            Isotope.clear_container_immediately();
             VideoStorage.toggle_history();
             ChannelList.current_channel = "";
             ChannelList.update_video_count();
@@ -666,7 +669,16 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             ChannelList.remove_channel(channel);
             VideoStorage.remove_video_by_channel(channel.id);
             ConfigManager.remove_filter(channel.title);
+
             let container = document.querySelector(".video-container");
+
+            if (ChannelList.current_channel === channel.id ||
+                    ChannelList.channels.length === 0) {
+                ChannelList.current_channel = "";
+                Isotope.clear_container_immediately(container);
+                return Isotope.layout();
+            }
+
             let iso = Isotope.get_instance();
             for (let node of container.children) {
                 if (node.dataset.channelId === channel.id) {
@@ -674,7 +686,6 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 }
             }
             iso.layout();
-            ChannelList.current_channel = "";
         };
 
         function search_result_listener (event) {

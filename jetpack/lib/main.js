@@ -373,13 +373,13 @@ function start_checking() {
         }
         config.get_one(trans, "last_checked", (err, last_checked) => {
             if (err) {
-                log_error("Failed to get last_checked. Checking imediately.", err);
+                log_error("Failed to get last_checked. Checking immediately.", err);
                 last_checked = null;
             }
             const since_last = Date.now() - last_checked;
             const interval_mili = interval * 60 * 1000;
             if (!last_checked || since_last >= interval_mili) {
-                // the check is past due, checking imediately
+                // the check is past due, checking immediately
                 check_cycle();
             } else if (since_last <= 0) {
                 // system time would have to be altered for this to be possible
