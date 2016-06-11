@@ -6,6 +6,7 @@ You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
 /* global angular */
+/* jshint unused:strict */
 angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
     .config(function ($httpProvider) {
         /*
@@ -289,7 +290,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
 
     })
 
-    .service("ChannelList", function($rootScope, VideoStorage) {
+    .service("ChannelList", function(VideoStorage) {
         this.channels = [];
         this.current_channel = "";
         let map = new Map();
@@ -342,7 +343,8 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         this.has_channel = Map.prototype.has.bind(map);
     })
 
-    .controller("frame", function($scope, $uibModal, $timeout, Isotope, ChannelList, VideoStorage, ConfigManager, Bridge) {
+    .controller("frame", function($scope, $uibModal, VideoStorage, Bridge,
+                                  ChannelList, Isotope) {
         $scope.chnl = ChannelList;
         $scope.vs = VideoStorage;
 
@@ -405,7 +407,8 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         });
     })
 
-    .controller("videos", function($scope, $timeout, Isotope, VideoStorage, ChannelList, Bridge) {
+    .controller("videos", function($scope, Isotope, VideoStorage, ChannelList,
+                                   Bridge) {
         $scope.v = VideoStorage;
         // state to keep the no video message hidden until the first playload
         $scope.first_payload = false;
@@ -460,8 +463,8 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
     })
 
     .controller("settings", function ($scope, $uibModalInstance, $uibModal,
-                                      ConfigManager, ConfigUpdater,
-                                      ChannelList, VideoStorage, Bridge) {
+                                      ConfigManager, ConfigUpdater, Bridge,
+                                      ChannelList, VideoStorage) {
         $scope.channels = ChannelList;
         $scope.config = angular.copy(ConfigManager.config);
         $scope.config.filters.forEach(e => e.inspect_tags = e.inspect_tags || false);
@@ -588,7 +591,9 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                     Bridge.removeListener("dump-logs-failed");
                     let a = document.createElement("a");
                     a.download = "logs.json";
-                    a.href = URL.createObjectURL(new Blob([ev.detail], {type : "application/json"}));
+                    a.href = URL.createObjectURL(new Blob([ev.detail], {
+                        type: "application/json"
+                    }));
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
@@ -637,7 +642,9 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         });
     })
 
-    .controller("subscriptions", function ($scope, $uibModalInstance, Isotope, ChannelList, VideoStorage, Bridge, ConfigManager) {
+    .controller("subscriptions", function ($scope, $uibModalInstance, Isotope,
+                                           ChannelList, VideoStorage, Bridge,
+                                           ConfigManager) {
         $scope.chnl = ChannelList;
         $scope.search = {
             term: "",
