@@ -185,58 +185,32 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
     })
 
     .service("VideoStorage", function() {
-        var main = [];
-        var history = [];
+        let main = [];
+        let history = [];
+        let id_index = new Map();
 
         this.videos = [];
-        this.current_view = [];
-        this.to_remove = [];
         this.history_mode = false;
 
         this.switch_to = target => {
             this.history_mode = target === "history";
             let video_array = this.history_mode ? history : main;
             this.videos = video_array;
-            this.current_view = angular.copy(video_array);
-            this.to_remove = [];
-        };
-
-        this.new_main = new_list => main = new_list;
-
-        this.new_history = new_list => history = new_list;
-
-        function get_video_by_id (id, array) {
-            for (let elem of array) {
-                if (elem.video_id === id) {
-                    return elem;
-                }
-            }
-            return null;
-        }
-
-        this.remove_from_view = (video) => {
-            for (var i = this.current_view.length - 1; i >= 0; i--) {
-                if (this.current_view[i].video_id === video.video_id) {
-                    this.current_view.splice(i, 1);
-                    return;
-                }
-            }
-        };
-
-        this.clean_current_view = () => {
-            this.to_remove.forEach((v) => {
-                this.remove_from_view(v);
-            });
-            this.to_remove = [];
         };
 
         this.update_duration = (id, duration) => {
-            // update the video in the back storage
-            var video = get_video_by_id(id, this.videos);
-            video.duration = duration;
-            // update the video in current view
-            video = get_video_by_id(id, this.current_view);
-            video.duration = duration;
+            let video = id_index.get(id);
+            if (video) {
+                video.duration = duration;
+            }
+        };
+
+        this.replace_videos = (new_main, new_history) => {
+            main = new_main;
+            history = new_history;
+
+            id_index = new Map(new_main.concat(new_history)
+                                       .map(e => [e.video_id, e]));
         };
 
         function add_history (video) {
@@ -246,11 +220,10 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             }
         }
 
-        this.remove_video = (video) => {
+        this.remove_video = video => {
             for (let i = this.videos.length - 1; i >= 0; i--) {
                 if (this.videos[i].video_id === video.video_id) {
                     this.videos.splice(i, 1);
-                    this.to_remove.push(video);
                     add_history(video);
                     return true;
                 }
@@ -258,7 +231,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             return false;
         };
 
-        this.remove_video_by_channel = (channel_id) => {
+        this.remove_video_by_channel = channel_id => {
             for (let i = this.videos.length - 1; i >= 0; i--) {
                 if (this.videos[i].channel_id === channel_id) {
                     this.videos.splice(i, 1);
@@ -266,13 +239,13 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             }
         };
 
-        this.toggle_history = ()  =>{
+        this.toggle_history = () => {
             this.history_mode = !this.history_mode;
             let target = this.history_mode ? "history" : "main";
             this.switch_to(target);
         };
 
-        this.total_video_count = () =>{
+        this.total_video_count = () => {
             let l = this.videos.length;
             return l > 0 ? l : "";
         };
@@ -464,8 +437,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
 
         Bridge.on("videos", event => {
             var details = JSON.parse(event.detail);
-            VideoStorage.new_main(details[0]);
-            VideoStorage.new_history(details[1]);
+            VideoStorage.replace_videos(...details);
             VideoStorage.switch_to("main");
             ChannelList.current_channel = "";
             ChannelList.update_video_count();

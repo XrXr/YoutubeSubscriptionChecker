@@ -256,21 +256,25 @@ function collect_cursor(cursor_req, cb) {
 
 // attempt to update the duration for a given video_id in both video and
 // history store.
-function update_duration(trans, video_id, new_duration) {
-    update_in_store(video_store(trans));
-    update_in_store(history_store(trans));
+function update_duration(trans, video_id, new_duration, cb=util.noop) {
+    util.cb_join([done => {
+        update_in_store(video_store(trans), done);
+    }, done => {
+        update_in_store(history_store(trans), done);
+    }], cb);
 
-    function update_in_store(store) {
+    function update_in_store(store, cb) {
         let req = store.openCursor(video_id);
         req.onsuccess = () => {
             let cursor = req.result;
             if (!cursor) {
-                return;
+                return cb();
             }
             cursor.value.duration = new_duration;
-            cursor.update(cursor.value);
-            cursor.continue();
+            let update_req = cursor.update(cursor.value);
+            forward_idb_request(update_req, cb);
         };
+        req.onerror = () => cb(req.error);
     }
 }
 

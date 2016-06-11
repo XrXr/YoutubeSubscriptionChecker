@@ -15,16 +15,6 @@ const self = require("sdk/self");
 let db;  // will be set once db is opened
 let fatal_error;  // puts hub page into a fail state when set
 
-/*#BUILD_TIME_REPLACE_START*/
-function init(cb=util.noop) {
-    if ("YTCHECKERDEBUG" in require("sdk/system").env) {
-        require("./development").run(actual_init.bind(null, cb));
-    } else {
-        actual_init(cb);
-    }
-}
-/*#BUILD_TIME_REPLACE_END*/
-
 exports.get_db = get_db;
 
 function get_db() {
@@ -44,6 +34,16 @@ const { initialize: logger_init, log_error, assert } = require("./logger");
 const api_util = require("./api/util");
 
 const hub_url = data.url("hub/home.html");
+
+/*#BUILD_TIME_REPLACE_START*/
+function init(cb=util.noop) {
+    if ("YTCHECKERDEBUG" in require("sdk/system").env) {
+        require("./development").run(actual_init.bind(null, cb));
+    } else {
+        actual_init(cb);
+    }
+}
+/*#BUILD_TIME_REPLACE_END*/
 
 // try to focus on the hub page, omitting a tab
 // return true if focus was successful
@@ -172,11 +172,14 @@ function fetch_duration(video_id) {
             return;
         }
         let trans = db.transaction(["video", "history"], "readwrite");
-        storage.update_duration(trans, video_id, duration);
-        // notify the ui about the duration
-        events.notify.new_duration({
-            id: duration_result.video_id,
-            duration: duration_result.duration
+        storage.update_duration(trans, video_id, duration, err => {
+            if (!err) {
+                // notify the ui about the duration
+                events.notify.new_duration({
+                    id: duration_result.video_id,
+                    duration: duration_result.duration
+                });
+            }
         });
     }
 }

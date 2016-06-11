@@ -4,7 +4,7 @@
    - Author: XrXr
 -->
 <div class="container-fluid video-container">
-    <div ng-repeat="video in v.current_view"
+    <div ng-repeat="video in v.videos"
          class="video flat-ul"
          title="{{video.title}}"
          data-channel-id="{{video.channel_id}}">
@@ -19,6 +19,6 @@
       <span class="pull-right" ng-bind="video.duration"></span>
     </div>
 </div>
-<span ng-if="first_payload && (!(v.current_view.length) || v.to_remove.length >= v.current_view.length)" class="no-videos">
+<span ng-if="first_payload && (!(v.videos.length) || v.to_remove.length >= v.videos.length)" class="no-videos">
     No {{v.history_mode ? "history" : "new videos"}}<br>Control click to skip video
 </span>
