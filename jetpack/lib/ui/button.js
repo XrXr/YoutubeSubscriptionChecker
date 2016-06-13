@@ -14,6 +14,9 @@ const inactive_label = "Youtube Subscription Checker\nNo new videos";
 
 // Initialize the button in inactive state, with click action being `on_click`
 function init (on_click) {
+    if (button) {
+        return;
+    }
     button = ActionButton({
         id: "hub",
         icon: {

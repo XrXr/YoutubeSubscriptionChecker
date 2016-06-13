@@ -429,7 +429,7 @@ function fresh_install_init(cb=util.noop) {
     storage.initialize_db(err => {
         if (err) {
             log_error(err);
-            fatal_error = "init-error";
+            fatal_error = "open-db-error";
             return cb(err);
         }
         init(cb);
@@ -455,8 +455,9 @@ if (self.loadReason === "install") {
     // load reason. Try to migrate during every boot to ensure db is initialized
     migration.decide_migration_path((err, migration_proc) => {
         if (err) {
+            button.init(open_or_focus);
+            fatal_error = "open-db-error";
             log_error(err);
-            fatal_error = "init-error";
             return;
         }
         if (migration_proc) {
