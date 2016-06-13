@@ -4,21 +4,26 @@
    - Author: XrXr
 -->
 <div class="container-fluid video-container">
-    <div ng-repeat="video in v.videos"
-         class="video flat-ul"
-         title="{{video.title}}"
-         data-channel-id="{{video.channel_id}}">
-      <a class="video-link"
-         ng-click="open_video(video, $event)"
-         ng-href="https://www.youtube.com/watch?v={{video.video_id}}">
-        <img width="300px" height="169px" src="loading.png"
-             ng-src="{{video.thumbnails.medium.url}}"></img>
-      </a>
-      <div class="video-title" ng-bind="video.title"></div>
-      <span class="pull-left" ng-bind="channel_title(video)"></span>
-      <span class="pull-right" ng-bind="video.duration"></span>
-    </div>
+  <div ng-repeat="video in v.videos"
+       class="video flat-ul"
+       title="{{video.title}}"
+       data-channel-id="{{video.channel_id}}">
+    <a class="video-link"
+       ng-click="open_video(video, $event)"
+       ng-href="https://www.youtube.com/watch?v={{video.video_id}}">
+      <img width="300px" height="169px" src="loading.png"
+           ng-src="{{video.thumbnails.medium.url}}"></img>
+    </a>
+    <div class="video-title" ng-bind="video.title"></div>
+    <span class="pull-left" ng-bind="channel_title(video)"></span>
+    <span class="pull-right" ng-bind="video.duration"></span>
+  </div>
 </div>
-<span ng-if="first_payload && (!(v.videos.length) || v.to_remove.length >= v.videos.length)" class="no-videos">
-    No {{v.history_mode ? "history" : "new videos"}}<br>Control click to skip video
-</span>
+<div ng-if="first_payload">
+  <span ng-if="no_videos_at_all()" class="no-videos">
+    No {{v.history_mode ? "history" : "new videos"}}<br>Ctrl + click to skip video
+  </span>
+  <span ng-if="no_channel_videos()" class="no-videos">
+    No new videos for this channel<br>Ctrl + click to skip video
+  </span>
+</div>

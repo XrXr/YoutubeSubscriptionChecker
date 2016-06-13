@@ -437,6 +437,16 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             }
         };
 
+        function no_videos_at_all() {
+            return VideoStorage.videos.length === 0;
+        }
+
+        $scope.no_videos_at_all = no_videos_at_all;
+
+        $scope.no_channel_videos = () => {
+            return ChannelList.current_channel !== "" && !no_videos_at_all() &&
+                Isotope.get_instance().getFilteredItemElements().length === 0;
+        };
 
         Bridge.on("videos", event => {
             let details = JSON.parse(event.detail);
