@@ -203,6 +203,8 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
 
         const current_storage_array = () => this.history_mode ? history : main;
 
+        this.get_storage_array = current_storage_array;
+
         this.switch_to = target => {
             this.history_mode = target === "history";
             // take a snapshot, don't alias the storage array
@@ -302,7 +304,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             for (let c of this.channels) {
                 c.video_count = 0;
             }
-            for (let v of VideoStorage.videos) {
+            for (let v of VideoStorage.get_storage_array()) {
                 let channel = get_channel_by_id(v.channel_id);
                 if (channel) {
                     channel.video_count++;
@@ -484,7 +486,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
 
     .controller("settings", function ($scope, $uibModalInstance, $uibModal,
                                       ConfigManager, ConfigUpdater, Bridge,
-                                      ChannelList, VideoStorage) {
+                                      ChannelList, VideoStorage, Isotope) {
         $scope.channels = ChannelList;
         $scope.config = angular.copy(ConfigManager.config);
         $scope.config.filters.forEach(e => e.inspect_tags = e.inspect_tags || false);
@@ -517,7 +519,10 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 }
                 VideoStorage.clear_history();
                 if (VideoStorage.history_mode) {
-                    VideoStorage.videos = [];
+                    let iso = Isotope.get_instance();
+                    for (let e of iso.getItemElements()) {
+                        iso.remove(e);
+                    }
                     ChannelList.update_video_count();
                 }
                 Bridge.emit("clear-history");
