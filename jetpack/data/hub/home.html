@@ -51,7 +51,7 @@
         </div>
         <div class="animate-li channel-button" style="margin:10px 0 10px 0;" ng-click="switch_channel('')" ng-class="chnl.current_channel === '' ? 'selected-button': ''">
             <span class="channel-title ellipses">{{vs.history_mode ? "All History" : "All Videos"}}</span>
-            <span class="video-count" ng-bind="vs.total_video_count()" ng-style="chnl.current_channel === '' ? {color: 'white'} : ''"></span>
+            <span class="video-count" ng-bind="video_count()" ng-style="chnl.current_channel === '' ? {color: 'white'} : ''"></span>
         </div>
         <ul class="flat-ul">
             <li class="animate-li" ng-repeat="channel in chnl.channels | filter:{title: channel_search}">
