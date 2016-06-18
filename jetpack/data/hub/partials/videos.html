@@ -20,10 +20,16 @@
   </div>
 </div>
 <div ng-if="first_payload">
-  <span ng-if="no_videos_at_all()" class="no-videos">
-    No {{v.history_mode ? "history" : "new videos"}}<br>Ctrl + click to skip video
+  <span ng-if="!v.history_mode && no_videos_at_all()" class="no-videos">
+    No new videos<br>Ctrl + click to skip video
   </span>
-  <span ng-if="no_channel_videos()" class="no-videos">
+  <span ng-if="v.history_mode && no_videos_at_all()" class="no-videos">
+    History is empty<br>Ctrl + click to skip video
+  </span>
+  <span ng-if="!v.history_mode && no_channel_videos()" class="no-videos">
     No new videos for this channel<br>Ctrl + click to skip video
+  </span>
+  <span ng-if="v.history_mode && no_channel_videos()" class="no-videos">
+    No history for this channel<br>Ctrl + click to skip video
   </span>
 </div>
