@@ -697,6 +697,12 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             VideoStorage.remove_videos_by_channel(channel.id);
             ConfigManager.remove_filter(channel.title);
 
+            if (VideoStorage.history_mode) {
+                // removing a channel while in history mode should not touch
+                // the videos
+                return;
+            }
+
             let container = document.querySelector(".video-container");
 
             if (ChannelList.current_channel === channel.id ||
