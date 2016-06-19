@@ -65,16 +65,6 @@ button{
     -moz-user-select: none;
     z-index: -9999;
 }
-.center-icon{
-    margin: auto;
-    width: 32px;
-    height: 32px;
-    left: 0px;
-    right: 0px;
-    top: 0px;
-    bottom: 0px;
-    position: absolute;
-}
 .channel-button {
     display: flex;
     min-width: 96px;  /* match with the 3 buttons*/
@@ -194,10 +184,6 @@ button{
     text-overflow: ellipsis;
     list-style-type: none;
     font-size: 18px;
-}
-.setting {
-    position: relative;
-    margin: 10px 0;
 }
 .setting-check-box {
     position: absolute !important;
@@ -332,28 +318,24 @@ button{
     position: absolute;
     right: -5px;
 }
-.subscriptions-btn:hover + .hover-tooltip {
-    visibility: visible;
-    opacity: 1;
-    left: 60px;
+.setting-btn-row {
+    position: relative;
+    margin: 10px 0;
+    display: flex;
 }
-.history-btn:hover + .hover-tooltip {
-    visibility: visible;
-    opacity: 1;
-    left: 45px;
+.subscriptions-btn-box,.history-btn-box,.settings-btn-box {
+    display: flex;
 }
+.history-btn-box{
+    flex: 1 0;
+    justify-content: center;
+}
+.subscriptions-btn:hover + .hover-tooltip,
+.history-btn:hover + .hover-tooltip,
 .settings-btn:hover + .hover-tooltip {
     visibility: visible;
     opacity: 1;
-    right: 55px;
-}
-.arrow-right {
-    width: 0;
-    height: 0;
-    top: 5px;
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-    border-left: 5px solid rgba(0, 0, 0, 0.9);
+    margin-left: 10px;
 }
 .arrow-left {
     width: 0;
