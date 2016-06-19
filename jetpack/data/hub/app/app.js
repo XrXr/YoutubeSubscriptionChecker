@@ -135,8 +135,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 itemSelector: ".video",
                 transitionDuration: animate ? 400 : 0,
                 masonry: {
-                    gutter: 19,
-                    isFitWidth: true
+                    gutter: 19
                 }
             });
         }

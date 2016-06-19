@@ -5,14 +5,20 @@ If a copy of the MPL was not distributed with this file,
 You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
-body, html {
-    overflow-x: hidden;
+.main-container {
+    margin-top: 15px;
+    width: 98vw;  /* leave room for scrollbar*/
+    display: flex;
 }
 button{
     outline: 0 !important;
 }
 .left-pannel {
-    overflow-y: hidden;
+    width: 13vw;
+    min-width: 126px;  /* 3 images 32px each + 30px padding*/
+}
+.video-canvas{
+    width: 87vw;
 }
 .no-padding {
     padding: 0;
@@ -24,12 +30,6 @@ button{
     outline: 0px none !important;
     margin-bottom: 10px;
     display: block;
-}
-.video-canvas{
-    position:absolute;
-    left: 15.75%;
-    top: 1.5%;
-    width: 83%;
 }
 .video-link {
     display: inline-block;
@@ -75,35 +75,13 @@ button{
     bottom: 0px;
     position: absolute;
 }
-.animate-li{
-    width: calc(16.6667% - 25px);
+.channel-button {
+    display: flex;
+    min-width: 96px;  /* match with the 3 buttons*/
     font-size: 18px;
     line-height:26px;
     clear: both;
     margin-bottom: 10px;
-}
-.animate-li.ng-enter,
-.animate-li.ng-leave {
-    transition: 0.5s ease-in-out all ;
-}
-.animate-li.ng-leave.ng-leave-active,
-.animate-li.ng-enter {
-    opacity: 0;
-    height: 0;
-    margin-bottom: 0;
-}
-.animate-li.ng-leave,
-.animate-li.ng-enter.ng-enter-active {
-    height: 26px;
-    opacity: 1;
-    margin-bottom: 10px;
-}
-.flat-ul{
-    list-style-type: none;
-    padding-left: 0;
-}
-.channel-button {
-    display: flex;
     cursor: pointer;
     overflow: hidden;
     padding-left: 15px;
@@ -112,6 +90,26 @@ button{
 .channel-button:hover {
     background-color: gainsboro;
     color: grey;
+}
+.channel-button.ng-enter,
+.channel-button.ng-leave {
+    transition: 0.5s ease-in-out all;
+}
+.channel-button.ng-leave.ng-leave-active,
+.channel-button.ng-enter {
+    opacity: 0;
+    height: 0;
+    margin-bottom: 0;
+}
+.channel-button.ng-leave,
+.channel-button.ng-enter.ng-enter-active {
+    height: 26px;
+    opacity: 1;
+    margin-bottom: 10px;
+}
+.flat-ul{
+    list-style-type: none;
+    padding-left: 0;
 }
 .channel-title{
     flex-grow: 1;
@@ -187,9 +185,6 @@ button{
         display: none;
     }
 }
-.hub-ui {
-    min-width: 98px;
-}
 .tooltip {
     cursor: default;
 }
@@ -201,7 +196,8 @@ button{
     font-size: 18px;
 }
 .setting {
-    margin-top: 10px
+    position: relative;
+    margin: 10px 0;
 }
 .setting-check-box {
     position: absolute !important;
@@ -297,13 +293,23 @@ button{
     text-align: center;
     width: 100%;
 }
+.subscriptions-btn {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACO0lEQVRYhe2Xv2sUURDHJ2gTC220EESNoriwvpuZ77zbXJdgE7AwzVWC2NgppBEipDIiUdIE/ANsVLS0EyLGv0AQCwtBjKU/YuEPlGBs3h7vLnebzV32IODAF5a38973szOztxwREXnvvYisqOp3ABtVSFXfA1hsNBqjFIf33gP4U5Vxp8xsmYhGWgAisjIs86gaUy2AKsveSyIy1wKIbvwC8K1i5V4L3QBmqeKIIP4D7AIA59wYgDMADudrSZKcCmtldaBvAABvw/r9LgeUEjNf3r0AzrlzAKYBaJR7PqyV1dG+AaqIbQGISM05Nw7gZL6Wpqk558bLSkQOdQH4AWB+S4AqZkBEas1mc09nWYYG0KsvQ2tBkiTHzOwugMktAXY6wg/bavBaZ+aLhQCDvIZmdgHAvvg8Zp7paNE6gOmqZmA22nM2byOAm3Geqj6vAqB1jojUAHwC8NF7fyJU4lbbkBa0oJ+PUWtgmZkBfI7OX3XOjQWw28x8vXAGBgkACuBLl+p8YObjnck7CpCmqanq14IWLfUCuDGouffeq+pagfmTiYmJvW2bwj+WDTN7mWXZ/n7NVTUpGlJVfbzJnIgIwGKU9FtV18oKwKv8HGa+Y2ZPzewqgBexuYg82vQNyKPRaIya2XLJ97tNZnYvepDXAJrhejLKe9jTPIoRVZ0SkTkAC2XFzExElGXZEVX9C+BgeKBLwfxBGfOBg5mvBMM3AH4CeAdgfijmREQicg3AM2aeqdfrp7ez9x8onwm4USX8zgAAAABJRU5ErkJggg==);
+}
+.history-btn {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAEJ0lEQVRogdVav2sdRxBeCxwUiMAIVMiunOI9xMG7nfnmFcc118hVkr8gUgTC4IAbEUhQkzIkuAkyCGIhYzAYgoOkQo1BhNSO/BeoEAJj3Dv+kUixU7w9WJ137+39cngfbPPY/WZmb3ZmdvYp1RLSNJ0RkUWt9QqAdQAbAB6asQFgXWu9IiKLaZrOtCW3EYhoTkRWAewz8xsA70KGmbsvIqtENPfBFWfmBQC7AM5ClS4ZZwB2mXmhc8X7/f5lAFstKe4yZKvf71/uRHkRWQPwsgPFi+OliKy1pniWZdMicj9Q+CkzHwLYY+Yjy+ePzG+HAE5DuETkfpZl042U7/V6V4jo8Rhhr5h5R0SWkySZzdcC2MznENF2/nuSJLMisszMOwBelXET0eNer3eltvLM/LTMZ5n5DoB51/o4jiNmPgZworXWrjkA5g2H90wx89PKRmRZNl228yJyEBo1AFwcN4eZF0TkoOxLVHKnMp9n5ltKqalgsnBMMfOtsjMRqvyaR/E3RLQUqk0URZ+YXX2UJMnHoeuIaMmXFMdGJxPnnaGyivJGkS8s4z+vuHbJF2JL8wRGScrnNpUA4Ku6xiulVIk7bfkWLLiigYgcqBo+LyI3LQNuVF2vlJryHOwzZwDBqLYJmxwAjCrSnOebOhy+TQWwe24iEc25JjLznTqCDecPFtf3dXlMnnhvY89VsaYkfi/D+pJUoAG3cy6t9U91eQDMw5GxRWTVnrTv2P2dukIN5z3rDNxuwmXKjuIG7yulRjcpV9wVkeUmQonoN4vrbhMuEVl25aU0TWeUiCw6rDu1C7M6APDIEvZrE64kSWbhqGJFZFGZO2zRusMmAo0BTyzO35vymVL8nJ5a65ViuMvHXhNhplx+a52Bf5u6JIA9h57rCqOOQfELHBHRtq8MLsNgMLgK4HWRk4j+HgwGV6vyxXEcAdi0L0jW2FAYtT2cFSCAEwSUwza01td9fET0XVUDzJ3Cp9/DUgOY+biqwDIDADzTWl8K5QJw0WxiqQFOFwKwGcdxVNUAnwtZX+GPKIo+qrAhmoi2y1yok0NcZgSAB0qpC1U4vYe4qzBqvsTXIvKnx4gfq/B5w2hXiczCBWb+2eNOQWV2aSLrqpQoQkS+tXODGWdxHH8WsNZfSijVTTHnAjN/CeCfgpy/hsPhcMw6fzFnLGy9nPYBwDVmflGQ9dyX5BBSTndxoRljBAN4XpC365obdKExpK1eKcdhOBx+asd2V8kdfKUsm1z3Uh8C8+XvicgvjnZJtUu9Uu22VZqicltFqXYbW01Qu7GlVHutxSbK124t5pjo5q5S7bXXEXiXaL29rlTzBw6ttQZwwszHvrIcXT1w2EbUfWIiom1rzmb++wd7Ysox0Y98Nib2mdXGRD9025jYvxoUMbF/9nDh//q7zX+boYkkSV8XegAAAABJRU5ErkJggg==);
+}
+.settings-btn {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACwklEQVRYhdVWz0tUURR+Fk4EaaAS1iYwoSiyJoQQLCSCeNS793zncBOx2giPqCgoImpRY7WQ/oWaoKgggmjjSmhTtGvRxlWoYS3aWFD0w9JaOMLrcu99M/6CLpzVfOd83/nxzpwo+h+fiHQAKAN4VbGy1nrnSvHXARgH8Mey8RVhB2Ac5POml404juNGZi4B+BkQ8A3A2TiO1ywZsTGmAOASgKkAsW3vAZxYEKFSqoGIepRS7cysALyugdi2pyLSmSRJC4AupVRDXratngHz2ScAX2rATyilNnkFAHiSE2CGiO6LyME0Teszwtczcy+AF1WIeOYk11rvzVPPzHvyWkhExyrDGIrV5cr+ps+BiN4x88Y88oyIntDXwsw3XE5HfWUXkc5qyTMJnQ8I6PU5PXY4PHBhtdbbiegMgJMi0mb/bowpMPOYI97tkOrTjvL32DhmPgXgVwb33ZUVEV1zCDgSEnDRAv8wxqzOYpRS7QCmHWX9miRJixWv2yHAv64rq/afyXdgjvt6KyKHLOxmR0X7QhUYtBwmHRgOfF7dWayItDkw/aEKXLHA0/YfSxzHjZjb9XbgUWNMwRJ7wFEBCQm44OjtYRtXWVpvM7g3IrLDUa1bNQkgomGHw7ALm6ZpvYhsU0q124MaRVFkjFkH4KOjUo985AO+3hJR7FXteQCGAvEGXAKuB4ZrylXiAHk/gNlAvEGX064cp88AOERcOV6uApgJxJkVkaJP+b2A47y9JKJUKbXVGNMEYIOIFInoMqq4JYjoYSiDJgCjVYhYqI0CaA72zxizlpn3E9EWIuoDMLEIwuda630AmkWkY0HHqjGmQETnMHd+VUXMzGNa66Rmshwhrcx8J2dQfwMYyj0+F/MqN4BPgH/PL9UrlUqrAHxwkE9GUVS37AKiKIpEpAjgLhGNENEIgDIR7V4R8qV+fwHLEWuXrdjLAQAAAABJRU5ErkJggg==);
+    float: right;
+}
 .settings-btn, .history-btn, .subscriptions-btn {
+    border: medium none;
+    background-color: unset;
+    background-size: contain;
     cursor: pointer;
     width: 32px;
     height: 32px;
-}
-.settings-btn {
-    float: right;
 }
 .hover-tooltip {
     position: absolute;
