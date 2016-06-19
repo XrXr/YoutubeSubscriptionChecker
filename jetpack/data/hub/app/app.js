@@ -465,6 +465,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             VideoStorage.switch_to("main");
             ChannelList.current_channel = "";
             ChannelList.update_video_count();
+            Isotope.clear_container_immediately();
             Isotope.layout();
             $scope.first_payload = true;
         });
