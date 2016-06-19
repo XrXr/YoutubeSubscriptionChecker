@@ -276,7 +276,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
     })
 
     .service("ConfigManager", function() {
-        this.config = {};
+        this.config = { filters: [] };
 
         this.remove_filter = name => {
             if (name === "") {
