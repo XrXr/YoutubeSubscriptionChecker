@@ -42,7 +42,7 @@ button{
 .hide{
     display: none;
 }
-.history-selected{
+.history-btn.history-selected{
     border: 2px solid grey;
     border-radius: 10px;
 }
