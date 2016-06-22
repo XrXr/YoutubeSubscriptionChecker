@@ -15,7 +15,12 @@ button{
 }
 .left-pannel {
     width: 13vw;
-    min-width: 126px;  /* 3 images 32px each + 30px padding*/
+    min-width: 280px;
+}
+@media (max-width:1024px) {
+    .left-pannel {
+        min-width: 200px;
+    }
 }
 .video-canvas{
     width: 87vw;
@@ -163,16 +168,6 @@ button{
     to{
         opacity: 0;
         transform: scale(0.001);
-    }
-}
-@media (max-width:768px) {
-    .no-videos {
-        /*display: none;*/
-    }
-}
-@media (max-width:768px) {
-    .video-count {
-        display: none;
     }
 }
 .tooltip {
@@ -354,8 +349,4 @@ button{
 }
 .button-row > .btn {
     width: 85px;
-}
-.video-container {
-    margin-left:0;
-    margin-right:0
 }
