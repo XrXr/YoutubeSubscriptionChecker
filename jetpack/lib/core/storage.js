@@ -42,7 +42,6 @@ const video = {
     put_into_history(trans, id, cb=util.noop) {
         let vs = video_store(trans);
         let cursor_req = vs.openCursor(id);
-        let call_time = Date.now();
         cursor_req.onerror = () => cb(cursor_req.error);
         cursor_req.onsuccess = () => {
             let cursor = cursor_req.result;
@@ -54,7 +53,7 @@ const video = {
                 let req = vs.delete(id);
                 forward_idb_request(req, done);
             }, done => {
-                history.add_one(trans, cursor.value, done, call_time);
+                history.add_one(trans, cursor.value, done);
             }], cb);
         };
     },
@@ -99,7 +98,7 @@ function maintain_maximum(store, cb) {
             return cb(null);
         }
 
-        store.index("entry_time").openCursor().onsuccess = ev => {
+        store.openCursor().onsuccess = ev => {
             let cursor = ev.target.result;
             if (!cursor) {
                 return cb(null);
@@ -115,9 +114,8 @@ function maintain_maximum(store, cb) {
     });
 }
 
-function add_one_history(store, video, cb, entry_time=Date.now()) {
-    video.entry_time = entry_time;
-    let add_req = store.put(video);
+function add_one_history(store, video, cb) {
+    let add_req = store.add(video);
     forward_idb_request(add_req, err => {
         if (err) {
             return cb(err);
@@ -127,9 +125,9 @@ function add_one_history(store, video, cb, entry_time=Date.now()) {
 }
 
 const history = {
-    add_one(trans, video, cb, entry_time) {
+    add_one(trans, video, cb=util.noop) {
         let store = history_store(trans);
-        add_one_history(store, video, cb, entry_time);
+        add_one_history(store, video, cb);
     },
     add_list(trans, video_list) {
         let store = history_store(trans);
@@ -142,7 +140,9 @@ const history = {
         forward_idb_request(req, cb);
     },
     get_all(trans, cb) {
-        let req = history_store(trans).index("entry_time").openCursor(null, "prev");
+        // this ensure that the records are in order. The order of elements
+        // in getAll doesn't seem well defined
+        let req = history_store(trans).openCursor(null, "prev");
         collect_cursor(req, cb);
     },
 };
@@ -258,15 +258,15 @@ function collect_cursor(cursor_req, cb) {
 // history store.
 function update_duration(trans, video_id, new_duration, cb=util.noop) {
     util.cb_join([done => {
-        update_in_store(video_store(trans), done);
+        update_in_store(video_store(trans).openCursor(video_id), done);
     }, done => {
-        update_in_store(history_store(trans), done);
+        let req = history_store(trans).index("video_id").openCursor(video_id);
+        update_in_store(req, done);
     }], cb);
 
-    function update_in_store(store, cb) {
-        let req = store.openCursor(video_id);
-        req.onsuccess = () => {
-            let cursor = req.result;
+    function update_in_store(cursor_req, cb) {
+        cursor_req.onsuccess = () => {
+            let cursor = cursor_req.result;
             if (!cursor) {
                 return cb();
             }
@@ -274,7 +274,7 @@ function update_duration(trans, video_id, new_duration, cb=util.noop) {
             let update_req = cursor.update(cursor.value);
             forward_idb_request(update_req, cb);
         };
-        req.onerror = () => cb(req.error);
+        cursor_req.onerror = () => cb(cursor_req.error);
     }
 }
 
@@ -305,6 +305,7 @@ function initialize_db(cb, db_name=DB_NAME) {
         db.createObjectStore("config", { keyPath: "name" });
         db.createObjectStore("check_stamp", { keyPath: "channel_id" });
 
+        // `autoIncrement` is used to keep insertion order
         let channel = db.createObjectStore("channel", { autoIncrement: true });
         channel.createIndex("id", "id", { unique: true });
 
@@ -313,8 +314,8 @@ function initialize_db(cb, db_name=DB_NAME) {
         video.createIndex("channel_id", "channel_id");
         video.createIndex("duration", "duration");
 
-        let history = db.createObjectStore("history", { keyPath: "video_id" });
-        history.createIndex("entry_time", "entry_time");
+        let history = db.createObjectStore("history", { autoIncrement: true });
+        history.createIndex("video_id", "video_id");
         history.createIndex("duration", "duration");
 
         let filter = db.createObjectStore("filter", { autoIncrement: true });

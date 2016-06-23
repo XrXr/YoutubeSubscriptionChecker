@@ -35,11 +35,11 @@ exports["test video operations"] = {
 
             storage.video.put_into_history(trans, vid_fixture.video_id, (err) => {
                 assert.ok(!err, "no error");
-                let req = storage.history_store(trans).get(vid_fixture.video_id);
-                storage.forward_idb_request(req, (err, result) => {
+
+                let trans = db.transaction("history");
+                storage.history.get_all(trans, (err, [result]) => {
                     assert.ok(!err, "no error");
-                    assert.equal(result.video_id, vid_fixture.video_id, "same item put into history");
-                    assert.equal(result.title, vid_fixture.title, "same item put into history");
+                    assert.deepEqual(result, vid_fixture, "same item put into history");
                     done();
                 });
             });
