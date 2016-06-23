@@ -12,7 +12,7 @@ const channel_fixture = {
     title: "not a real Youtube channel"
 };
 
-const vid_fixture = {
+const vid_fixture = Object.freeze({
     video_id: "I am not a snowflake",
     title: "just making sure",
     thumbnails: {
@@ -25,7 +25,7 @@ const vid_fixture = {
     duration: "",
     channel_id: channel_fixture.id,
     published_at: "2016-05-11T13:00:00.000Z"
-};
+});
 
 exports["test video operations"] = {
     "test put_into_history"(assert, done) {
@@ -77,7 +77,6 @@ function video_stripped(assert, db, done) {
     });
 }
 
-
 const video_list_fixture = [
     Object.freeze(Object.assign({}, vid_fixture)),
     Object.freeze(Object.assign({}, vid_fixture, {
@@ -121,6 +120,43 @@ function assert_history_order(assert, trans, done) {
     });
 }
 
+exports["test duration update"] = {
+    "test update video store and history store"(assert, done) {
+        clear_db().then(ensure_open).then(db => {
+            let write = db.transaction(["video", "history"], "readwrite");
+            storage.history.add_one(write, vid_fixture);
+            storage.video.add_one(write, vid_fixture);
+
+            write.onerror = () => done(write.error);
+            write.oncomplete = () => {
+                const duration_fixture = "3:20";
+
+                let write_duration = db.transaction(["video", "history"], "readwrite");
+                storage.update_duration(write_duration, vid_fixture.video_id,
+                    duration_fixture, err => {
+                        assert.ok(!err, "no error");
+
+                        let read = db.transaction(["video", "history"]);
+                        storage.history.get_all(read, (err, history_list) => {
+                            assert.ok(!err, "no error");
+                            assert_duration("history", history_list);
+                        });
+                        storage.video.get_all(read, (err, video_list) => {
+                            assert.ok(!err, "no error");
+                            assert_duration("video", video_list);
+                        });
+
+                        function assert_duration(store_name, [vid]) {
+                            assert.deepEqual(vid.duration, duration_fixture,
+                                `duration updated in ${store_name}`);
+                        }
+
+                        done_after_trans(read, done);
+                    });
+            };
+        });
+    }
+};
 
 exports["test channel operations"] = {
     "test add_one"(assert, done) {
