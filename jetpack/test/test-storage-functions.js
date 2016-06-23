@@ -1,3 +1,4 @@
+// jshint unused: strict
 const storage = require("../lib/core/storage");
 const filters = require("../lib/core/filters");
 const backup = require("../lib/core/backup");
@@ -75,6 +76,51 @@ function video_stripped(assert, db, done) {
         done();
     });
 }
+
+
+const video_list_fixture = [
+    Object.freeze(Object.assign({}, vid_fixture)),
+    Object.freeze(Object.assign({}, vid_fixture, {
+        video_id: "the key to success"
+    }))
+];
+
+exports["test history operations"] = {
+    "test whether add_one() keeps insertion order"(assert, done) {
+        clear_db().then(ensure_open).then(db => {
+            let trans = db.transaction("history", "readwrite");
+            util.cb_each(video_list_fixture, (vid, done) => {
+                storage.history.add_one(trans, vid, done);
+            }, err => {
+                assert.ok(!err, "no error");
+                let read = db.transaction("history");
+                assert_history_order(assert, read, done);
+            });
+        });
+    },
+    "test whether add_list() keeps insertion order"(assert, done) {
+        clear_db().then(ensure_open).then(db => {
+            let trans = db.transaction("history", "readwrite");
+            storage.history.add_list(trans, video_list_fixture);
+
+            trans.onerror = () => done(trans.error);
+            trans.oncomplete = () => {
+                let read = db.transaction("history");
+                assert_history_order(assert, read, done);
+            };
+        });
+    }
+};
+
+function assert_history_order(assert, trans, done) {
+    let reversed_fixture = video_list_fixture.concat().reverse();
+    storage.history.get_all(trans, (err, videos) => {
+        assert.ok(!err, "no error");
+        assert.deepEqual(videos, reversed_fixture);
+        done();
+    });
+}
+
 
 exports["test channel operations"] = {
     "test add_one"(assert, done) {
@@ -275,6 +321,7 @@ exports["test initialize_db"] = {
                 assert.ok(did_init, "second init not inited");
 
                 storage.open((err, db) => {
+                    assert.ok(!err, "no error");
                     let trans = db.transaction(["video", "config"]);
 
                     let vid_req = storage.video_store(trans).get(vid_fixture.video_id);
