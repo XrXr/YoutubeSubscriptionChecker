@@ -1,4 +1,6 @@
 const storage = require("../lib/core/storage");
+const filters = require("../lib/core/filters");
+const backup = require("../lib/core/backup");
 const config = require("../lib/config");
 const util = require("../lib/util");
 const TEST_DB_NAME = "youtube-checker-test";
@@ -288,6 +290,76 @@ exports["test initialize_db"] = {
 
                     done_after_trans(trans, done);
                 }, TEST_DB_NAME);
+            });
+        }
+    }
+};
+
+const filter_fixture = {
+    "channel_id":"UCK8sQmJBp8GCxrOtXWBpyEA",
+    "include_on_match": true,
+    "inspect_tags": true,
+    "video_title_is_regex": false,
+    "video_title_pattern":"food for thought"
+};
+const filter_backup_fixture = {
+    "channels": [
+        {
+            "filters": [ filter_fixture ],
+            "id": "UCK8sQmJBp8GCxrOtXWBpyEA",
+            "title": "Google"
+        }
+    ],
+    "config": {
+        "animations": true,
+        "in_background": true,
+        "interval": 65536,
+        "play_sound": true
+    },
+    "videos": []
+};
+
+exports["test backup import"] = {
+    "test can't create filter duplicates"(assert, done) {
+        clear_db().then(ensure_open).then(db => {
+            let trans = db.transaction("filter", "readwrite");
+
+            filters.update(trans, [filter_fixture]);
+
+            trans.onerror = () => done(trans.error);
+            trans.oncomplete = () => {
+                let trans = db.transaction("filter");
+                let count_req = storage.filter_store(trans).count();
+                count_req.onerror = () => done(count_req.error);
+                count_req.onsuccess = () => {
+                    assert.equal(count_req.result, 1, "setup filter insert");
+                    try_import();
+                };
+
+
+            };
+        });
+
+        function try_import() {
+            let trans = db.transaction(["channel", "video", "check_stamp",
+                                        "filter", "config"], "readwrite");
+
+            backup.import_all(trans, JSON.stringify(filter_backup_fixture), err => {
+                assert.ok(!err, "no error");
+
+                let trans = db.transaction("filter");
+                let count_req = storage.filter_store(trans).count();
+                count_req.onsuccess = () => {
+                    assert.equal(count_req.result, 1, "no duplicate created");
+                };
+
+                let cursor_req = storage.filter_store(trans).openCursor();
+                cursor_req.onsuccess = () => {
+                    assert.deepEqual(cursor_req.result.value, filter_fixture,
+                        "filter in backup inserted");
+                };
+
+                done_after_trans(trans, done);
             });
         }
     }
