@@ -319,7 +319,9 @@ function initialize_db(cb, db_name=DB_NAME) {
 
         let filter = db.createObjectStore("filter", { autoIncrement: true });
         filter.createIndex("channel_id", "channel_id");
-        filter.createIndex("pattern", "video_title_pattern");
+        filter.createIndex("channel,pattern",
+            ["channel_id", "video_title_pattern"], { unique: true });
+
         just_populated = true;
     };
 

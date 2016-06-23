@@ -105,22 +105,15 @@ function import_all (trans, encoded, cb) {
     function insert_filters(channel, cb) {
         util.cb_each(channel.filters, (filter, filter_insert_done) => {
             let store = storage.filter_store(trans);
-            let cursor_req = store.index("pattern")
-                                  .openCursor(filter.video_title_pattern);
+            let cursor_req = store.index("channel,pattern")
+                                  .openCursor([filter.channel_id,
+                                               filter.video_title_pattern]);
             cursor_req.onerror = filter_insert_done;
             cursor_req.onsuccess = () => {
                 let cursor = cursor_req.result;
 
-                util.cb_join([add_done => {
-                    let req = store.add(filter);
-                    storage.forward_idb_request(req, add_done);
-                }, mayde_delete_done => {
-                    if (!cursor || filters.filters_equal(cursor.value, filter)) {
-                        return mayde_delete_done();
-                    }
-                    let req = cursor.delete();
-                    forward_idb_request(req, mayde_delete_done);
-                }], filter_insert_done);
+                let req = cursor ? cursor.update(filter) : store.add(filter);
+                forward_idb_request(req, filter_insert_done);
             };
         }, cb);
     }
