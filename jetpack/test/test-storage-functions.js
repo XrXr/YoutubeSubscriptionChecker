@@ -78,9 +78,14 @@ function video_stripped(assert, db, done) {
 }
 
 const video_list_fixture = [
-    Object.freeze(Object.assign({}, vid_fixture)),
     Object.freeze(Object.assign({}, vid_fixture, {
-        video_id: "the key to success"
+        video_id: "b - live"
+    })),
+    Object.freeze(Object.assign({}, vid_fixture, {
+        video_id: "c - the key to success"
+    })),
+    Object.freeze(Object.assign({}, vid_fixture, {
+        video_id: "a - fun dip"
     }))
 ];
 
