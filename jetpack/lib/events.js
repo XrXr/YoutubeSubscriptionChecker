@@ -77,8 +77,7 @@ function handle_basic_events (target) {
             }
             send_channels();
             send_videos();
-            send_configs();
-            emit("import-success");
+            send_configs(() => emit("import-success"));
         });
     });
     target.on("remove-channel", channel => {
@@ -167,7 +166,7 @@ function handle_basic_events (target) {
         });
     }
 
-    function send_configs() {
+    function send_configs(cb=noop) {
         let get_configs = get_db().transaction(["config", "filter", "channel"], "readonly");
         util.cb_join([done => config.get_all(get_configs, done),
                       done => storage.filter.get_all(get_configs, done)],
@@ -177,6 +176,7 @@ function handle_basic_events (target) {
                     return;
                 }
                 emit("config", { config, filters });
+                cb();
             });
     }
 

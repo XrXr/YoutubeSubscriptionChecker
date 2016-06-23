@@ -66,7 +66,6 @@ function import_all (trans, encoded, cb) {
         return cb(malform());
     }
 
-    // TODO: make sure nothing extra is written into the db
     util.cb_join([channels_done => {
         util.cb_each(backup.channels, (channel, done) => {
             storage.channel.get_by_id(trans, channel.id, (err, found_channel) => {

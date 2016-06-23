@@ -272,7 +272,6 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 Isotope.layout();
             }
         };
-
     })
 
     .service("ConfigManager", function() {
