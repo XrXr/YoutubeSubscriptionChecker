@@ -17,6 +17,11 @@ function make_instance (...extensions) {
         profile.addExtension(path);
     }
 
-    let options = new firefox.Options().setProfile(profile);
+    let options = new firefox.Options();
+    options.setProfile(profile);
+    if (process.env.FIREFOX_PATH) {
+        options.setBinary(process.env.FIREFOX_PATH);
+    }
+
     return new firefox.Driver(options);
 }
