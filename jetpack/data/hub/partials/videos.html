@@ -15,8 +15,11 @@
            ng-src="{{video.thumbnails.medium.url}}"></img>
     </a>
     <div class="video-title" ng-bind="video.title"></div>
-    <span class="pull-left" ng-bind="channel_title(video)"></span>
-    <span class="pull-right" ng-bind="video.duration"></span>
+    <div class="flex-container">
+      <div ng-bind="channel_title(video)"
+           class="video-channel-title ellipses"></div>
+      <div ng-bind="video.duration"></div>
+    </div>
   </div>
 </div>
 <div ng-if="first_payload">

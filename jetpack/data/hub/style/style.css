@@ -350,3 +350,10 @@ button{
 .button-row > .btn {
     width: 85px;
 }
+.flex-container {
+    display: flex;
+}
+.video-channel-title {
+    flex: 1;
+    margin-right: 20px;
+}

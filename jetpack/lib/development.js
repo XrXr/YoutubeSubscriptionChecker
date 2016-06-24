@@ -30,7 +30,7 @@ function run(cb) {
         });
 
         add_channel({
-            "title": "Youtube",
+            "title": "Youtube's name has been modified to be long for testing",
             "id": "UCBR8-60-B28hp2BmDPdntcQ",
         });
 
