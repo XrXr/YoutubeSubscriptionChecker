@@ -7,16 +7,18 @@ const util = require("../util");
 const api_util = require("../api/util");
 
 function decide_migration_path(cb) {
-    storage.initialize_db((err, did_init) => {
+    storage.initialize_db((err, did_db_setup) => {
         if (err) {
             return cb(err);
         }
 
-        if (!did_init) {  // already using indexed-db
+        if (!did_db_setup) {  // already using indexed-db
             return cb();
         }
 
-        if (ss.storage.videos && Array.isArray(ss.storage.videos)) {
+        if (Object.keys(ss.storage).length === 0) {
+            return cb();
+        } else if (ss.storage.videos && Array.isArray(ss.storage.videos)) {
             return cb(null, v2Tov3);
         } else {
             return cb(null, v1Tov3);

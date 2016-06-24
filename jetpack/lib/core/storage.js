@@ -292,12 +292,19 @@ function update_last_check(trans, cb=util.noop, now=Date.now()) {
     });
 }
 
+function DBSetupError(message, error_to_wrap) {
+    this.message = message;
+    this.wrapped = error_to_wrap;
+}
+
 // Create object stores and setup indexes that the app is going to use if
 // they don't already exist. Passes true to the cb if setup happened.
 function initialize_db(cb, db_name=DB_NAME) {
     let open_req = idb.open(db_name);
 
-    open_req.onerror = () => cb(open_req.error);
+    open_req.onerror = () => {
+        cb(new DBSetupError("Failed to open db for setup", open_req.error));
+    };
 
     let just_populated = false;
     open_req.onupgradeneeded = () => {
@@ -332,14 +339,18 @@ function initialize_db(cb, db_name=DB_NAME) {
             // we opened the database but it doens't have all the expected stores
             if (idb.cmp(Array.from(db.objectStoreNames), STORE_NAMES) !== 0) {
                 db.close();
-                return cb(Error("Not all object store present and db is not new. DB corrupted?"));
+                return cb(new DBSetupError("DB exists but not all object stores are present. DB corrupted?"));
             }
         }
         let trans = db.transaction("config", "readwrite");
         config.maybe_fill_defaults(trans);
         db.close();
         trans.oncomplete = () => cb(null, just_populated);
-        trans.onerror = () => cb(Error("Failed to populate db with default configs"));
+        trans.onerror = () => {
+            let error = new DBSetupError(
+                "Failed to populate db with default configs", trans.error);
+            cb(error);
+        };
     };
 }
 
@@ -359,3 +370,4 @@ exports.history = history;
 exports.check_stamp = check_stamp;
 exports.filter = filter;
 exports.STORE_NAMES = STORE_NAMES;
+exports.DBSetupError = DBSetupError;

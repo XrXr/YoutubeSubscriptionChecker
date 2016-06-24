@@ -305,10 +305,12 @@ function handle_recovery_events(port) {
 
             storage.drop_db(err => {
                 if (err) {
+                    log_error("Could not drop db", err);
                     return port.emit("drop-db-error");
                 }
                 fresh_install_init(err => {
                     if (err) {
+                        log_error("Could not init after dropping db", err);
                         return port.emit("drop-db-error");
                     }
                     fatal_error = null;
@@ -317,6 +319,17 @@ function handle_recovery_events(port) {
             });
         });
     }
+}
+
+function fresh_install_init(cb=util.noop) {
+    storage.initialize_db(err => {
+        if (err) {
+            log_error(err);
+            fatal_error = "open-db-error";
+            return cb(err);
+        }
+        init(cb);
+    });
 }
 
 // register listener for the button in Add-on Manager
@@ -425,20 +438,13 @@ function actual_init(cb=util.noop) {
     });
 }
 
-function fresh_install_init(cb=util.noop) {
-    storage.initialize_db(err => {
-        if (err) {
-            log_error(err);
-            fatal_error = "open-db-error";
-            return cb(err);
-        }
-        init(cb);
-    });
-}
+{
+    const show_fatal_error = err => {
+        button.init(open_or_focus);
+        fatal_error = "open-db-error";
+        log_error(err);
+    };
 
-if (self.loadReason === "install") {
-    fresh_install_init();
-} else {
     const init_and_show_changelog = err => {
         init();
         events.once_new_target(() => {
@@ -451,17 +457,22 @@ if (self.loadReason === "install") {
         });
     };
 
-    // If the add-on is updated while it's disabled, we don't get the "upgrade"
-    // load reason. Try to migrate during every boot to ensure db is initialized
+    // Note that the add-on might need to migrate on install, since Firefox
+    // doesn't delete simple-storage data when an add-on is uninstalled
     migration.decide_migration_path((err, migration_proc) => {
         if (err) {
-            button.init(open_or_focus);
-            fatal_error = "open-db-error";
-            log_error(err);
-            return;
+            return show_fatal_error(err);
         }
         if (migration_proc) {
-            migration_proc(init_and_show_changelog);
+            migration_proc(err => {
+                if (err instanceof storage.DBSetupError) {
+                    // setting up object stores have failed
+                    show_fatal_error(err);
+                } else {
+                    // migration failed
+                    init_and_show_changelog(err);
+                }
+            });
         } else {
             init_and_show_changelog();
         }
