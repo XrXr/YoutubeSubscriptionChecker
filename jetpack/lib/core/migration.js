@@ -64,7 +64,12 @@ function v1Tov3(cb) {
 
 function v2Tov3(cb) {
     do_migration((trans, done) => {
-        storage.video.add_list(trans, ss.storage.videos, done);
+        let videos = ss.storage.videos.map((e, i) =>
+            Object.assign({}, e, {
+                // this is a guess. The exact date is not in the v2 model
+                published_at: i
+            }));
+        storage.video.add_list(trans, videos, done);
     }, cb);
 }
 
