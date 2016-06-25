@@ -83,7 +83,11 @@ function import_all (trans, encoded, cb) {
             });
         }, channels_done);
     }, videos_done => {
+        let count = 0;
         util.cb_each(backup.videos, (video, done) => {
+            if (!video.published_at) {  // old backups do not have this
+                video.published_at = String(count++);
+            }
             storage.video.add_one(trans, video, (err, ev) => {
                 if (err) {
                     // already have it
