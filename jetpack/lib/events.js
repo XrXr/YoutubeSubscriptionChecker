@@ -75,6 +75,7 @@ function handle_basic_events (target) {
             if (err) {
                 return emit("import-error");
             }
+            update_button_count("after import");
             send_channels();
             send_videos();
             send_configs(() => emit("import-success"));
@@ -87,31 +88,29 @@ function handle_basic_events (target) {
                 log_error("could not remove a channel", err);
                 return;
             }
-            let count = get_db().transaction("video", "readonly");
-            storage.video.count(count, (err, count) => {
-                if (err) {
-                    log_error("could not get video count after removing a channel", err);
-                    return;
-                }
-                button.update(count);
-            });
+            update_button_count("after removing a channel");
         });
     });
+
+    function update_button_count(when) {
+        let count = get_db().transaction("video", "readonly");
+        storage.video.count(count, (err, count) => {
+            if (err) {
+                log_error(`Could not get video count ${when}`, err);
+                return;
+            }
+            button.update(count);
+        });
+    }
 
     function remove_video (id, open_video) {
         let trans = get_db().transaction(["video", "history"], "readwrite");
         storage.video.put_into_history(trans, id, err => {
             if (err) {
-                log_error("could not transfer video after user clicking");
+                log_error("after user clicking");
                 return;
             }
-            storage.video.count(trans, (err, count) => {
-                if (err) {
-                    log_error("could not get video count after transfering a video", err);
-                    return;
-                }
-                button.update(count);
-            });
+            update_button_count("after transfering a video to history");
             if (open_video) {
                 let open_request = get_db().transaction("config", "readonly");
                 util.open_video(open_request, id);
