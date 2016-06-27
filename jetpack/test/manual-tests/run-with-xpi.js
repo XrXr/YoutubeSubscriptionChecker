@@ -1,6 +1,14 @@
 #!/usr/bin/env node
-// Make a temporary profile which contains an xpi then start a Firefox instance
-// with it
+/*
+This Source Code Form is subject to the terms of the
+Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file,
+You can obtain one at http://mozilla.org/MPL/2.0/.
+Author: XrXr
+
+Make a temporary profile which contains an xpi then start a Firefox instance
+with it
+*/
 const offset = process.argv[0].includes("node") ? 2 : 1;
 function arg(pos) {
     return process.argv[pos + offset];

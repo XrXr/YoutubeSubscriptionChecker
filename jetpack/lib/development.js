@@ -1,6 +1,16 @@
+/*
+This Source Code Form is subject to the terms of the
+Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file,
+You can obtain one at http://mozilla.org/MPL/2.0/.
+Author: XrXr
+
+This module fills test data into either the indexed-db or simple storage for
+testing during development. This file is stripped out by the build tool from
+the final xpi file.
+*/
 "use strict";
-// this module fills test data into either the indexed-db or simple storage
-// for testing
+
 if (!("YTCHECKERDEBUG" in require("sdk/system").env)) {
     throw Error("this module is only for development");
 }
