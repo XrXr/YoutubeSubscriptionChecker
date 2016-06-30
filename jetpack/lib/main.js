@@ -14,6 +14,8 @@ const self = require("sdk/self");
 
 let db;  // will be set once db is opened
 let fatal_error;  // puts hub page into a fail state when set
+// pagemod workers that attach before db opens. See `actual_init()` and pagemod
+let pre_db_worker_buffer = new Set();
 
 exports.get_db = get_db;
 
@@ -102,14 +104,23 @@ require("sdk/page-mod").PageMod({
     contentScriptFile: data.url("hub/app/bridge.js"),
     contentScriptWhen: "end",
     onAttach(worker) {
-        if (fatal_error) {
-            worker.port.emit("fail-state", fatal_error);
-            handle_recovery_events(worker.port);
-            return;
+        if (db) {
+            init_hub(worker);
+        } else {
+            pre_db_worker_buffer.add(worker);
+            worker.on("detach", () => pre_db_worker_buffer.delete(worker));
         }
-        events.handle_basic_events(worker.port);
     }
 });
+
+function init_hub(worker) {
+    if (fatal_error) {
+        worker.port.emit("fail-state", fatal_error);
+        handle_recovery_events(worker.port);
+        return;
+    }
+    events.handle_basic_events(worker.port);
+}
 
 function process_channel_activities (response_json, cb) {
     if (!response_json.hasOwnProperty("items")) {
@@ -428,6 +439,11 @@ function actual_init(cb=util.noop) {
             }
             button.update(count);
         });
+
+        if (pre_db_worker_buffer) {
+            pre_db_worker_buffer.forEach(init_hub);
+            pre_db_worker_buffer = null;
+        }
 
         logger_init(err => {
             if (err) {
