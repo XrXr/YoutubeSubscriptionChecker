@@ -39,7 +39,7 @@ function run(driver, debug) {
         // jshint undef: false
         let titles = Array.from(document.getElementsByClassName('video-title'));
         return titles.filter(e => {
-            return e.firstElementChild.textContent.includes("special fabricated video");
+            return e.textContent.includes("special fabricated video");
         });
         // jshint undef: true
     }, 5000);

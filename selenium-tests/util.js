@@ -17,7 +17,7 @@ exports.wait_for_element = wait_for_element;
 exports.close_modals = close_modals;
 exports.close_settings = close_settings;
 
-function wait_for_element(driver, selection, timeout=1000) {
+function wait_for_element(driver, selection, timeout=8000) {
     let cond = typeof selection === "string" ? By.className(selection)
                                              : By.js(selection);
     driver.wait(until.elementLocated(cond), timeout);
