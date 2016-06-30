@@ -108,7 +108,11 @@ require("sdk/page-mod").PageMod({
             init_hub(worker);
         } else {
             pre_db_worker_buffer.add(worker);
-            worker.on("detach", () => pre_db_worker_buffer.delete(worker));
+            worker.on("detach", () => {
+                if (pre_db_worker_buffer) {
+                    pre_db_worker_buffer.delete(worker);
+                }
+            });
         }
     }
 });
