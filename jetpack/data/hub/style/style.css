@@ -50,6 +50,9 @@ button{
     display: flex;
     align-items: center;
 }
+.filter-input-row > .form-control{
+    min-width: 0;
+}
 .filter-regex-checkbox{
     margin-left: 5px;
 }
@@ -186,16 +189,15 @@ button{
     margin-top: .7% !important;
 }
 .setting-warning {
-    width: 55%;
-    position: absolute;
     text-align: center;
-    bottom: -10px;
-    left: 12%;
 }
 .fine-print {
     color: grey;
     font-size: 13px;
     font-style: italic;
+}
+.modal-content {
+    min-width: 280px;
 }
 /*subscription editor modal begin. These are fine tweaked and fragile*/
 .subscription-modal-window > .modal-dialog {
@@ -356,4 +358,21 @@ button{
 .video-channel-title {
     flex: 1;
     margin-right: 20px;
+}
+.settings-footer {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    box-sizing: content-box;
+    padding: 10px 20px;
+    min-height: 55px;
+}
+.settings-footer .error-container {
+    display: flex;
+    justify-content: center;
+    flex: 1;
+    margin-right: 5px;
+}
+.settings-footer .alert {
+    margin: 0;
 }

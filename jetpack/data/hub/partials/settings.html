@@ -11,7 +11,7 @@
 <h3 class="heading">Settings</h3>
 
 <div class="modal-body">
-    <uib-tabset>
+    <uib-tabset active="active_tab_idx">
       <uib-tab heading="General">
         <br>
         <form class="form-inline" ng-class="tabs.general.interval_class" role="form">
@@ -43,7 +43,7 @@
         <button type="button" class="btn btn-primary" ng-click="tabs.general.changelog()">Changelog</button>
       </uib-tab>
 
-      <uib-tab heading="Filters" select="tabs.filter.filter_active = true" deselect="tabs.filter.filter_active = false" class="container-fluid">
+      <uib-tab heading="Filters" deselect="clear_badge()" class="container-fluid">
         <br>
         <div class="row">
           <div class="col-md-5">
@@ -98,9 +98,7 @@
         </div>
       </uib-tab>
 
-      <uib-tab heading="Import/Export" class="backup-tab"
-              deselect="tabs.import_export.import_error = false;
-                        tabs.import_export.import_success = false;">
+      <uib-tab heading="Import/Export" deselect="clear_badge()" class="backup-tab">
         <div class="row">
           <div class="col-md-6">
             <h4>Export</h4>
@@ -116,8 +114,7 @@
         </div>
       </uib-tab>
 
-      <uib-tab heading="Logs" deselect="tabs.logs.dump_failed = false;
-                                        tabs.logs.clear_success = false">
+      <uib-tab heading="Logs" deselect="clear_badge()">
         <br>
         <p>A log of unusual events is kept by this add-on. You
           can <button type="button" ng-click="tabs.logs.request_logs()" class="btn btn-link no-padding">download the log</button> and send it to the developer to help resolve bugs. You can also <button ng-click="tabs.logs.clear_logs()" type="button" class="btn btn-link no-padding">delete the log</button> if you beleive it is taking up too much disk space.
@@ -126,15 +123,41 @@
     </uib-tabset>
 </div>
 
-<div class="modal-footer" style="margin: 0">
-    <div class="alert alert-danger setting-warning" ng-if="tabs.general.less_than_5">Check interval cannot be lower than 5 minutes</div>
-    <div class="alert alert-danger setting-warning" ng-if="tabs.general.bad_input">Check interval must be a positive number</div>
-    <div class="alert alert-info setting-warning" ng-if="tabs.filter.filter_active">Excluded videos can be found in history</div>
-    <div class="alert alert-danger setting-warning" ng-if="tabs.filter.dup_filter">This filter already exist</div>
-    <div class="alert alert-danger setting-warning" ng-if="tabs.import_export.import_error">Import failed (malformed data?)</div>
-    <div class="alert alert-success setting-warning" ng-if="tabs.import_export.import_success">Import successfully finished</div>
-    <div class="alert alert-danger setting-warning" ng-if="tabs.logs.dump_failed">Error occurred while obtaining the log</div>
-    <div class="alert alert-success setting-warning" ng-if="tabs.logs.clear_success">Logs cleared</div>
-    <button class="btn btn-primary save-btn" ng-click="save()" ng-disabled="!tabs.general.valid">Save</button>
-    <button class="btn btn-warning cancel-btn" ng-click="cancel()">Cancel</button>
+<div class="modal-footer settings-footer">
+  <div class="error-container">
+    <div class="alert alert-danger setting-warning"
+         ng-if="badge_is('sticky:less_than_5')">
+      Check interval cannot be lower than 5 minutes
+    </div>
+    <div class="alert alert-danger setting-warning"
+         ng-if="badge_is('sticky:bad_interval')">
+      Check interval must be a positive number
+    </div>
+    <div class="alert alert-info setting-warning"
+         ng-if="active_tab_idx === 1 && badge_is(null)">
+      Excluded videos can be found in history
+    </div>
+    <div class="alert alert-danger setting-warning"
+         ng-if="badge_is('dup_filter')">
+      This filter already exist
+    </div>
+    <div class="alert alert-danger setting-warning"
+         ng-if="badge_is('import_error')">
+      Import failed (malformed data?)
+    </div>
+    <div class="alert alert-success setting-warning"
+         ng-if="badge_is('import_success')">
+      Import successfully finished
+    </div>
+    <div class="alert alert-danger setting-warning"
+         ng-if="badge_is('dump_failed')">
+      Error occurred while obtaining the log
+    </div>
+    <div class="alert alert-success setting-warning"
+         ng-if="badge_is('clear_success')">
+      Logs cleared
+    </div>
+  </div>
+  <button class="btn btn-primary save-btn" ng-click="save()" ng-disabled="!tabs.general.valid">Save</button>
+  <button class="btn btn-warning cancel-btn" ng-click="cancel()">Cancel</button>
 </div>

@@ -486,29 +486,34 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
     .controller("settings", function ($scope, $uibModalInstance, $uibModal,
                                       ConfigManager, ConfigUpdater, Bridge,
                                       ChannelList, VideoStorage, Isotope) {
+        let badge = null;
+        $scope.badge_is = val => val === badge;
+        $scope.clear_badge = () => {
+            if (badge && badge.startsWith("sticky:")) {
+                return;
+            }
+            badge = null;
+        };
         $scope.channels = ChannelList;
         $scope.config = angular.copy(ConfigManager.config);
         $scope.config.filters.forEach(e => e.inspect_tags = e.inspect_tags || false);
         $scope.tabs = {};
         $scope.tabs.general = {
             interval_class: "",
-            less_than_5: false,
-            bad_input: false,
             valid: true,
             validate(value) {
                 $scope.tabs.general.interval_class = "";
-                $scope.tabs.general.less_than_5 = false;
-                $scope.tabs.general.bad_input = false;
+                badge = null;
                 $scope.tabs.general.valid = true;
                 if (isNumber(value)) {
                     if (Number(value) < 5) {
                         $scope.tabs.general.valid = false;
-                        $scope.tabs.general.less_than_5 = true;
+                        badge = "sticky:less_than_5";
                         $scope.tabs.general.interval_class = "has-error";
                     }
                 } else {
                     $scope.tabs.general.valid = false;
-                    $scope.tabs.general.bad_input = true;
+                    badge = "sticky:bad_interval";
                     $scope.tabs.general.interval_class = "has-error";
                 }
             },
@@ -533,7 +538,6 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
 
         $scope.tabs.filter = {
             filter_active: false,
-            dup_filter: false,
             filters_bad_channel_name: false,
             filters_bad_pattern: true,
             new_filter: (function () {
@@ -571,11 +575,11 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 e.video_title_is_regex === filter.video_title_is_regex &&
                 e.include_on_match === filter.include_on_match),
             add_filter(filter) {
-                $scope.tabs.filter.dup_filter = false;
+                badge = null;
                 filter = angular.copy(filter);
                 filter.video_title_pattern = filter.video_title_pattern.trim();
                 if ($scope.tabs.filter.is_dup(filter)) {
-                    $scope.tabs.filter.dup_filter = true;
+                    badge = "dup_filter";
                     return;
                 }
                 $scope.config.filters.push(filter);
@@ -600,15 +604,13 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             import_error: "",
             export_settings: () => Bridge.emit("export", null),
             import_settings(input) {
-                $scope.tabs.import_export.import_error = false;
-                $scope.tabs.import_export.import_success = false;
+                badge = null;
                 Bridge.emit("import", input);
             }
         };
 
         $scope.tabs.logs = {
             dump_failed: false,
-            clear_success: false,
             request_logs() {
                 Bridge.emit("get-error-logs");
                 Bridge.once("error-logs", ev => {
@@ -631,7 +633,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             clear_logs() {
                 if (window.confirm("Are you sure?")) {
                     Bridge.emit("clear-logs");
-                    $scope.tabs.logs.clear_success = true;
+                    badge = "clear_success";
                 }
             }
         };
@@ -657,12 +659,11 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         Bridge.on("export-result", event =>
             $scope.tabs.import_export.config_output = event.detail);
 
-        Bridge.on("import-error", () =>
-            $scope.tabs.import_export.import_error = true);
+        Bridge.on("import-error", () => badge = "import_error");
 
         Bridge.on("import-success", () => {
             $scope.config = angular.copy(ConfigManager.config);  // new configs
-            $scope.tabs.import_export.import_success = true;
+            badge = "import_success";
         });
     })
 
