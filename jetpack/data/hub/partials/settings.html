@@ -10,9 +10,9 @@
 </script>
 <h3 class="heading">Settings</h3>
 
-<div class="modal-body">
+<div class="modal-body settings-modal" ng-class="{invalid: !tabs.general.valid}">
     <uib-tabset active="active_tab_idx">
-      <uib-tab heading="General">
+      <uib-tab heading="General" classes="general-tab">
         <br>
         <form class="form-inline" ng-class="tabs.general.interval_class" role="form">
             <label class="control-label">Check Interval &nbsp;</label>

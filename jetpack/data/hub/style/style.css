@@ -359,6 +359,9 @@ button{
     flex: 1;
     margin-right: 20px;
 }
+.settings-modal.invalid .general-tab:not(.active) > a{
+    color: #a94442;
+}
 .settings-footer {
     display: flex;
     align-items: center;
