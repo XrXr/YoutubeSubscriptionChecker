@@ -104,6 +104,12 @@ require("sdk/page-mod").PageMod({
     contentScriptFile: data.url("hub/app/bridge.js"),
     contentScriptWhen: "end",
     onAttach(worker) {
+        if (fatal_error) {
+            worker.port.emit("fail-state", fatal_error);
+            handle_recovery_events(worker.port);
+            return;
+        }
+
         if (db) {
             init_hub(worker);
         } else {
@@ -118,11 +124,6 @@ require("sdk/page-mod").PageMod({
 });
 
 function init_hub(worker) {
-    if (fatal_error) {
-        worker.port.emit("fail-state", fatal_error);
-        handle_recovery_events(worker.port);
-        return;
-    }
     events.handle_basic_events(worker.port);
 }
 

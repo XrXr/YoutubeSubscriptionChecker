@@ -760,7 +760,9 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 window.location.reload();
             });
             Bridge.once("drop-db-error", () => {
-                window.alert("Failed to delete the database. This is really bad. You should contact the developer");
+                window.alert("Failed to delete the database. " +
+                             "You may need to manually delete the database.\n" +
+                             "Instructions can be found on the add-on's website");
             });
         };
     });
