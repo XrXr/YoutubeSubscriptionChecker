@@ -589,6 +589,8 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 if (index >= 0) {
                     $scope.config.filters.splice(index, 1);
                 }
+                // trigger the selectIndex directive to update
+                setTimeout(() => $scope.$apply());
             },
             include_radio_getter_setter(val) {
                 if (arguments.length === 0) {
