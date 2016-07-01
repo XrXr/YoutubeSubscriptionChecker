@@ -6,7 +6,7 @@
   "icon": "resource://youtube-subscription-checker-at-xrxr/data/icons/active64.png",
   "author": "XrXr",
   "license": "MPL 2.0",
-  "version": "2.3.1-beta.7",
+  "version": "2.3.1",
   "main": "lib/main.js",
   "permissions": {
     "multiprocess": true
