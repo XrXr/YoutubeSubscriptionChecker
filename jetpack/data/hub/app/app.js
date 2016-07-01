@@ -571,9 +571,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             },
             is_dup: filter => $scope.config.filters.some(e =>
                 e.video_title_pattern === filter.video_title_pattern &&
-                e.channel_title === filter.channel_title &&
-                e.video_title_is_regex === filter.video_title_is_regex &&
-                e.include_on_match === filter.include_on_match),
+                e.channel_title === filter.channel_title),
             add_filter(filter) {
                 badge = null;
                 filter = angular.copy(filter);
