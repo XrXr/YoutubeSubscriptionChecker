@@ -505,16 +505,21 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 $scope.tabs.general.interval_class = "";
                 badge = null;
                 $scope.tabs.general.valid = true;
+
+                const bad_interval_badge = "sticky:bad_interval";
+                const set_error = b => {
+                    $scope.tabs.general.valid = false;
+                    badge = b;
+                    $scope.tabs.general.interval_class = "has-error";
+                };
                 if (isNumber(value)) {
-                    if (Number(value) < 5) {
-                        $scope.tabs.general.valid = false;
-                        badge = "sticky:less_than_5";
-                        $scope.tabs.general.interval_class = "has-error";
+                    value = Number(value);
+                    if (value < 5) {
+                        set_error(value <= 0 ? bad_interval_badge :
+                                               "sticky:less_than_5");
                     }
                 } else {
-                    $scope.tabs.general.valid = false;
-                    badge = "sticky:bad_interval";
-                    $scope.tabs.general.interval_class = "has-error";
+                    set_error(bad_interval_badge);
                 }
             },
             clear_history() {
