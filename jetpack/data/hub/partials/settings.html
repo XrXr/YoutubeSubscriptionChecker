@@ -62,7 +62,12 @@
                                andThree p1 p2 p3 = p1 && p2 && p3
                 The getting undefined is special, this needs testing.
                  -->
-                <button type="button" ng-click="tabs.filter.add_filter(tabs.filter.new_filter)" ng-disabled="tabs.filter.new_filter.channel === undefined || tabs.filter.new_filter.channel.length === 0 || tabs.filter.new_filter.video_title_pattern.length === 0" class="btn btn-success">Add</button>
+                <button type="button"
+                        ng-click="tabs.filter.add_filter(tabs.filter.new_filter)"
+                        ng-disabled="!tabs.filter.can_add(tabs.filter.new_filter)"
+                        class="btn btn-success">
+                  Add
+                </button>
                 <button type="button" class="btn btn-danger"
                  ng-click="tabs.filter.remove_filter(tabs.filter.current_filter)"
                  ng-disabled="tabs.filter.current_filter < 0">Remove</button>

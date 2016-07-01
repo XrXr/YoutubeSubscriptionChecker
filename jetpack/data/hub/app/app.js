@@ -596,6 +596,9 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                         "include" : "exclude";
                 }
                 $scope.tabs.filter.new_filter.include_on_match = val === "include";
+            },
+            can_add(new_filter) {
+                return new_filter.channel && new_filter.video_title_pattern;
             }
         };
 
