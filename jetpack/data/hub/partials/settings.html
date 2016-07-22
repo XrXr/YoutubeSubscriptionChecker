@@ -43,29 +43,24 @@
         <button type="button" class="btn btn-primary" ng-click="tabs.general.changelog()">Changelog</button>
       </uib-tab>
 
-      <uib-tab heading="Filters" deselect="clear_badge()" class="container-fluid">
+      <uib-tab heading="Filters" deselect="clear_badge()" class="filters-tab">
         <br>
         <div class="row">
           <div class="col-md-5">
-            <select select-index="tabs.filter.current_filter" class="form-control filter-select" size="10">
-              <option ng-repeat="f in config.filters" class="ellipses" ng-class="get_filter_class(f)" ng-click="tabs.filter.fill_input_form(f)" ng-value="$index">{{f.channel_title + " | " + f.video_title_pattern}}</option>
+            <select select-index="tabs.filter.current_filter"
+                    size="10"
+                    class="form-control filter-select">
+              <option ng-repeat="f in config.filters"
+                      ng-class="get_filter_class(f)"
+                      ng-click="tabs.filter.fill_input_form(f)"
+                      ng-value="$index"
+                      class="ellipses filter-entry">{{f.channel_title + " | " + f.video_title_pattern}}</option>
             </select>
             <div class="button-row">
-                <!-- Since the title matcher input box has typeahead-editable=false, the model will be `undefined` when the user has not selected one of the options in the popup. Test cases:
-                    channel is empty                  | pattern is empty     : disabled
-                    channel is empty                  | pattern is non-empty : disabled
-                    channel is non-empty, not in list | pattern is empty     : disabled
-                    channel is non-empty, not in list | pattern is non-empty : disabled
-                    channel is non-empty, in list     | pattern is empty     : disabled
-                    channel is non-empty, in list     | pattern is non-empty : enabled
-                yes it's just  andThree :: Bool -> Bool -> Bool -> Bool
-                               andThree p1 p2 p3 = p1 && p2 && p3
-                The getting undefined is special, this needs testing.
-                 -->
                 <button type="button"
                         ng-click="tabs.filter.add_filter(tabs.filter.new_filter)"
                         ng-disabled="!tabs.filter.can_add(tabs.filter.new_filter)"
-                        class="btn btn-success">
+                        class="btn btn-success filter-add-btn">
                   Add
                 </button>
                 <button type="button" class="btn btn-danger"
@@ -76,11 +71,21 @@
           <div class="col-md-7">
             <h4>For the channel...</h4>
             <div>
-              <input ng-model="tabs.filter.new_filter.channel" class="form-control" type="text" uib-typeahead="channel for channel in channels.channels | filter:{title:$viewValue} | limitTo:4" typeahead-template-url="channel-title.html" typeahead-editable="false" placeholder="cases are ignored">
+              <input ng-model="tabs.filter.new_filter.channel"
+                     uib-typeahead="channel for channel in channels.channels |
+                                    filter:{title:$viewValue} | limitTo:4"
+                     typeahead-template-url="channel-title.html"
+                     typeahead-editable="false"
+                     class="form-control filter-channel-input"
+                     type="text"
+                     placeholder="cases are ignored">
             </div>
             <h4>only videos with title that match...</h4>
             <div class="filter-input-row">
-              <input ng-model="tabs.filter.new_filter.video_title_pattern" class="form-control" type="text" placeholder="cases are ignored">
+              <input ng-model="tabs.filter.new_filter.video_title_pattern"
+                     type="text"
+                     placeholder="cases are ignored"
+                     class="form-control filter-pattern-input">
               <div class="checkbox filter-regex-checkbox">
                 <label>
                   <input type="checkbox" ng-model="tabs.filter.new_filter.video_title_is_regex"> RegEx
