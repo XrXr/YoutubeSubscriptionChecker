@@ -56,7 +56,9 @@ function handle_basic_events (target) {
                 }
                 //TODO: show something?
             }
-            return emit("channel-added");
+            // send configs since the newly added channel might have unorphaned
+            // some filters
+            send_configs(() => emit("channel-added"));
         });
     });
     target.on("export", () => {
@@ -174,6 +176,9 @@ function handle_basic_events (target) {
                     log_error("couldn't get configs to send to hub");
                     return;
                 }
+                // a filter without a channel title is an orphan
+                filters = filters.filter(e => e.channel_title);
+                // TODO: bad news if the config modal is open when this is received
                 emit("config", { config, filters });
                 cb();
             });

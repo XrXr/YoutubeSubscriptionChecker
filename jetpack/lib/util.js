@@ -163,7 +163,7 @@ function cb_each(list, f, cb) {
     let done = false;
     let total = list.length;
     if (list.length === 0) {
-        return cb(null);
+        return cb(null, list);
     }
     for (let i = 0; i < list.length; i++) {
         try {
@@ -182,7 +182,7 @@ function cb_each(list, f, cb) {
             cb(err);
         } else if (--total === 0) {
             done = true;
-            cb(null);
+            cb(null, list);
         }
     }
 }

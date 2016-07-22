@@ -238,10 +238,12 @@ const filter = {
                     if (err) {
                         return done(err);
                     }
-                    filter.channel_title = channel.title;
+                    if (channel) {
+                        filter.channel_title = channel.title;
+                    }
                     done(null);
                 });
-            }, () => cb(null, filter_list));
+            }, cb);
         });
     }
 };

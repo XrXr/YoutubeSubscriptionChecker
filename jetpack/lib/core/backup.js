@@ -27,7 +27,7 @@ function export_all (trans, cb) {
                     channel.filters = filters;
                     filter_done();
                 });
-            }, () => done(null, channel_list));
+            }, done);
         });
     }, done => {
         storage.video.get_all(trans, done);

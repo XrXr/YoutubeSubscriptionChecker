@@ -76,22 +76,25 @@ exports["test cb_settle"] = {
 
 exports["test cb_each"] = {
     "test empty"(assert, done) {
-        cb_each([], e => e, (err) => {
+        let fixture = [];
+        cb_each(fixture, e => e, (err, result) => {
             assert.ok(!err, "no error");
+            assert.strictEqual(result, fixture, "resolve with same array");
             done();
         });
     },
     "test all success"(assert, done) {
         let tracker = "";
-        cb_each([1, 2, 3], (e, instance_done) => {
+        let fixture = [1, 2, 3];
+        cb_each(fixture, (e, instance_done) => {
             setTimeout(() => {
                 tracker += e;
                 instance_done(null, e);
             }, e);
-        }, function (err) {
+        }, function (err, result) {
             assert.ok(!err, "No error");
             assert.equal(tracker, "123", "all elements are iterated over");
-            assert.equal(arguments.length, 1, "main cb only gets one argument");
+            assert.strictEqual(result, fixture, "resolve with same array");
             done();
         });
     },
