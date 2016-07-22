@@ -12,6 +12,7 @@ const webdriver = require('selenium-webdriver'),
 
 exports.run = run;
 exports.need_debug = true;
+exports.after_migration = true;
 
 const test_interval = "1906";
 

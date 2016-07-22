@@ -13,6 +13,7 @@ const selenium_instance = require("./selenium_instance");
 const util = require("./util");
 const migration = require("./migration");
 
+// TODO: rip out tests that works with YTCHECKERDEBUG to make them simpler
 // whether to skip tests which relies on YTCHECKERDEBUG
 const no_dev = process.argv[2] === "--no-dev";
 
@@ -55,10 +56,12 @@ function test_migration() {
             driver.sleep(2000);
             migration.after_install(driver);
             for (let name of units) {
-                require(`./units/${name}`).run(driver, true);
-                util.close_modals(driver);
+                let unit = require(`./units/${name}`);
+                if (unit.after_migration) {
+                    unit.run(driver, true);
+                    util.close_modals(driver);
+                }
             }
         });
     });
-
 }

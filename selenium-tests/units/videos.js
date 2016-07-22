@@ -11,6 +11,7 @@ const { import_backup, json_fixture } = require("./backup-import");
 
 exports.run = run;
 exports.need_debug = true;
+exports.after_migration = true;
 
 function run(driver, debug) {
     driver.get(util.hub_url);

@@ -8,6 +8,7 @@ Author: XrXr
 const util = require("../util");
 
 exports.run = run;
+exports.after_migration = true;
 
 function run(driver, debug) {
     driver.get(util.hub_url);

@@ -19,6 +19,7 @@ const json_fixture = fs.readFileSync(path.join(__dirname, "backup-fixture.json")
 exports.json_fixture = json_fixture;
 exports.import_backup = import_backup;
 exports.run = run;
+exports.after_migration = true;
 
 function run(driver, debug) {
     const b64 = fs.readFileSync(path.join(__dirname, "backup-fixture.b64"), 'utf8');
