@@ -22,4 +22,4 @@ The layout of the db can be found in `initialize_db()` in `storage.js`
 [mpl]: https://www.mozilla.org/en-US/MPL/2.0/
 
 [badge-license]: https://img.shields.io/badge/license-MPL%202.0-blue.svg
-[badge-amo]: https://img.shields.io/badge/AMO-2.3.1-blue.svg
+[badge-amo]: https://img.shields.io/badge/AMO-2.3.3-blue.svg
