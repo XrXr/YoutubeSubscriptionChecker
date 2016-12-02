@@ -294,24 +294,30 @@ button{
     width: 32px;
     height: 32px;
 }
+.hover-tooltip-container {
+    width: 0;
+    height: 0;
+    opacity: 0;
+    transition: opacity linear .1s;
+    visibility: hidden;
+}
 .hover-tooltip {
+    margin-left: 10px;
     position: absolute;
     background-color: rgba(0, 0, 0, 0.9);
     border-radius: 5px;
     padding: 5px;
     top: 0;
     color: white;
+
     white-space: nowrap;
-    visibility: hidden;
     z-index: 1;
-    opacity: 0;
-    transition: opacity linear .1s;
 }
-.hover-tooltip > .arrow-left {
+.arrow-left {
     position: absolute;
     left: -5px;
 }
-.hover-tooltip > .arrow-right {
+.arrow-right {
     position: absolute;
     right: -5px;
 }
@@ -327,12 +333,9 @@ button{
     flex: 1 0;
     justify-content: center;
 }
-.subscriptions-btn:hover + .hover-tooltip,
-.history-btn:hover + .hover-tooltip,
-.settings-btn:hover + .hover-tooltip {
+.tool-tip-btn:hover + .hover-tooltip-container {
     visibility: visible;
     opacity: 1;
-    margin-left: 10px;
 }
 .arrow-left {
     width: 0;

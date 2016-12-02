@@ -24,27 +24,33 @@
       <input class="form-control" ng-model="channel_search" type="text" placeholder="Filter channels">
       <div class="setting-btn-row">
         <div class="subscriptions-btn-box">
-          <button type="button" class="subscriptions-btn" ng-click="open_subscriptions()"></button>
-          <div class="hover-tooltip">
-            <div class="arrow-left"></div>
-            <span>Edit subscriptions</span>
+          <button type="button" class="subscriptions-btn tool-tip-btn" ng-click="open_subscriptions()"></button>
+          <div class="hover-tooltip-container">
+            <div class="hover-tooltip">
+              <div class="arrow-left"></div>
+              <span>Edit subscriptions</span>
+            </div>
           </div>
         </div>
 
         <div class="history-btn-box">
-          <button type="button" class="history-btn" ng-click="toggle_history()"
+          <button type="button" class="history-btn tool-tip-btn" ng-click="toggle_history()"
                   ng-class="vs.history_mode ? 'history-selected' : ''"></button>
-          <div class="hover-tooltip">
-            <div class="arrow-left"></div>
-            <span>Toggle history mode</span>
+          <div class="hover-tooltip-container">
+            <div class="hover-tooltip">
+              <div class="arrow-left"></div>
+              <span>Toggle history mode</span>
+            </div>
           </div>
         </div>
 
-        <div class="settings-btn-box">
-          <button type="button" class="settings-btn" ng-click="open_settings()"></button>
-          <div class="hover-tooltip">
-            <div class="arrow-left"></div>
-            <span>Settings</span>
+        <div class="settings-btn-box tool-tip">
+          <button type="button" class="settings-btn tool-tip-btn" ng-click="open_settings()"></button>
+          <div class="hover-tooltip-container">
+            <div class="hover-tooltip">
+              <div class="arrow-left"></div>
+              <span>Settings</span>
+            </div>
           </div>
         </div>
       </div>
