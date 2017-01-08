@@ -225,47 +225,32 @@ function check_all () {
             return;
         }
 
-        let promises = channel_list.map(channel => new Promise((resolve, reject) => {
-            // get timestamp for latest video and the filters for a channel,
-            // then send out requests accordingly
-            util.cb_join([done => storage.check_stamp.get_for_channel(check, channel.id, done),
-                          done => storage.filter.get_for_channel(check, channel.id, done)],
-                (err, latest_date, filters) => {
-                    if (err) {
-                        return reject(err);
-                    }
-                    let fetch = request.get_activities(channel, latest_date);
-                    if (filters.some(filter => filter.inspect_tags)) {
-                        fetch = fetch_more(fetch);
-                    }
-                    fetch.then(resolve, reject);
-                });
-        }));
+        let promises = channel_list.map(channel => util.run((function* () {
+            let [latest_date, filters] =
+                yield [[storage.check_stamp.get_for_channel, check, channel.id],
+                       [storage.filter.get_for_channel, check, channel.id]];
+
+            let res = yield request.get_activities(channel, latest_date);
+            if (!('items' in res)) {
+                return res;
+            }
+            if (filters.some(filter => filter.inspect_tags)) {
+                let full_fetches = res.items.filter(api_util.activity.is_upload)
+                    .map(activity => {
+                        let video_id = api_util.activity.get_video_id(activity);
+                        return request.get_tags_and_duration(video_id)
+                            .then(({duration, tags}) => {
+                                activity.duration = duration;
+                                activity.tags = tags;
+                            });
+                    });
+                yield all(full_fetches);
+            }
+            return res;
+        })()));
         handle_check_results(promises);
         storage.update_last_check(check);
     });
-
-    // return a new promise which fetches video duration and tags in addition
-    function fetch_more(activity_fetch) {
-        let res_ref;
-        return activity_fetch.then(res => {
-            res_ref = res;
-            if (!('items' in res)) {
-                return;
-            }
-
-            let full_fetches = res.items.filter(api_util.activity.is_upload)
-                .map(activity => {
-                    let video_id = api_util.activity.get_video_id(activity);
-                    return request.get_tags_and_duration(video_id)
-                        .then(({duration, tags}) => {
-                            activity.duration = duration;
-                            activity.tags = tags;
-                        });
-                });
-            return all(full_fetches);
-        }).then(() => res_ref);
-    }
 }
 
 function handle_check_results(request_promises) {

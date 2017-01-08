@@ -5,7 +5,7 @@ If a copy of the MPL was not distributed with this file,
 You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
-const { cb_settle, cb_each, cb_join } = require("../lib/util");
+const { cb_settle, cb_each, cb_join, run } = require("../lib/util");
 const { setTimeout } = require("sdk/timers");
 
 function SettleResult(success, value) {
@@ -200,4 +200,85 @@ exports["test cb_join"] = {
         });
     },
 };
+
+exports["test orchestrator"] = {
+    "test simple callback"(assert, done) {
+        run((function* () {
+            let result = yield [fake_async_id, 100];
+            return result;
+        })()).then(r => {
+            assert.equal(100, r);
+            done();
+        }, err => {
+            assert.ok(false);
+            done(err);
+        });
+    },
+    "test simple callback error"(assert, done) {
+        run((function* () {
+            yield [async_error];
+        })()).then(r => {
+            assert.ok(false);
+            done();
+        }, err => {
+            done();
+        });
+    },
+    "test list callback"(assert, done) {
+        run((function* () {
+            let result = yield [[fake_async_id, 100], [fake_async_id, 200]];
+            return result;
+        })()).then(r => {
+            assert.deepEqual([100, 200], r);
+            done();
+        }, err => {
+            assert.ok(false);
+            done(err);
+        });
+    },
+    "test list callback error"(assert, done) {
+        run((function* () {
+            let result = yield [[fake_async_id, 100], [async_error]];
+            return result;
+        })()).then(r => {
+            assert.ok(false);
+            done();
+        }, () => {
+            done();
+        });
+    },
+    "test promise"(assert, done) {
+        run((function* () {
+            let result = yield Promise.resolve(100);
+            return result;
+        })()).then(r => {
+            assert.equal(100, r);
+            done();
+        }, () => {
+            assert.ok(false);
+            done();
+        });
+    },
+    "test promise fail"(assert, done) {
+        run((function* () {
+            let result = yield Promise.reject(100);
+            return result;
+        })()).then(r => {
+            assert.ok(false);
+            done();
+        }, err => {
+            assert.equal(err, 100);
+            done();
+        });
+    },
+}
+
+function fake_async_id(cb, x) {
+    cb(null, x);
+}
+
+function async_error(cb) {
+    cb(Error());
+}
+
 require("sdk/test").run(exports);

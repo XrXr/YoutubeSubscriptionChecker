@@ -16,6 +16,7 @@ exports.sort_videos = sort_videos;
 exports.cb_settle = cb_settle;
 exports.cb_each = cb_each;
 exports.cb_join = cb_join;
+exports.run = run;
 
 const config = require("./config");
 const { log_error } = require("./logger");
@@ -155,7 +156,7 @@ function cb_settle(list, f, cb) {
     }
 }
 
-// run async operation of a list of data, terminate when one of them fail or
+// run async operation on a list of data, terminate when one of them fail or
 // all of them complete. Main callback called with first failure.
 // f is a function that gets passed an element of list and
 // a callback to call when the operation is complete
@@ -241,4 +242,48 @@ function open_video (trans, id) {
 // fetch_properties :: Object -> [String] -> [a]
 function fetch_properties (obj, property_names) {
     return property_names.map(name => obj[name]);
+}
+
+
+// orchestrate an async generator
+function run (gen) {
+    return new Promise(function (resolve, reject) {
+        function step (err, x) {
+            let done, value;
+            if (err) {
+                try {
+                    ({done, value} = gen.throw(err));
+                } catch (e) {
+                    reject(e);
+                    return;
+                }
+            } else {
+                ({done, value} = gen.next(x));
+            }
+
+            if (done) {
+                resolve(value);
+                return;
+            }
+            if (typeof value.then === "function") {
+                value.then(result => step(null, result),
+                           err => step(err));
+                return;
+            }
+            let first = value[0];
+            if (typeof first === "function") {
+                first.apply(null, value.slice(1).concat(step));
+            } else if (Array.isArray(first)) {
+                cb_join(value.map(l => {
+                    return done => {
+                        l[0].apply(null, l.slice(1).concat(done));
+                    };
+                }), function (err) {
+                    step(err, Array.from(arguments).slice(1));
+                });
+            }
+        }
+
+        step(null, gen);
+    });
 }
