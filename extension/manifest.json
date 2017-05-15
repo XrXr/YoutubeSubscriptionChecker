@@ -1,7 +1,6 @@
 {
   "manifest_version": 2,
   "name": "Youtube Subscription Checker",
-  "id": "youtube-subscription-checker@xrxr",
   "description": "Get notifications about new uploads from your favorite YouTube channels.",
   "icons": {
     "64": "icons/active64.png"
@@ -12,6 +11,12 @@
     "scripts": ["main.bundle.js"]
   },
   "permissions": [
-    "https://www.googleapis.com/*"
-  ]
+    "https://www.googleapis.com/*",
+    "notifications"
+  ],
+  "applications": {
+    "gecko": {
+      "id": "youtube-subscription-checker@xrxr"
+    }
+  }
 }
