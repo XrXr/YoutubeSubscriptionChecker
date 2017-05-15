@@ -5,8 +5,9 @@ If a copy of the MPL was not distributed with this file,
 You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
-const source = require('vinyl-source-stream');
+const source = require("vinyl-source-stream");
 const gulp = require("gulp");
+const rollup = require("rollup");
 const JSZip = require("jszip");
 const fs = require("fs");
 const path = require("path"),
@@ -30,6 +31,23 @@ function jpm(command, cb) {
 
     child.stdout.pipe(process.stdout);
     child.stderr.pipe(process.stderr);
+}
+
+function run_rollup(dest_path) {
+    return rollup.rollup({
+        entry: "./extension/src/main.js"
+    }).then(function (bundle) {
+        bundle.write({
+            format: "iife",
+            moduleName: "checkYoutube",
+            dest: dest_path,
+        });
+    });
+}
+
+function copy_extension_except_src(dest_path) {
+    return gulp.src(["./extension/**", "!./extension/{src,src/**}"])
+        .pipe(gulp.dest(dest_path));
 }
 
 gulp.task("build", function (cb) {
@@ -67,6 +85,13 @@ gulp.task("strip-dev-code", ["copy-xpi"], function () {
 });
 
 gulp.task("default", ["strip-dev-code"]);
+
+gulp.task("watch", [], () => {
+    return gulp.watch("extension/**/*", () => {
+        copy_extension_except_src("./build/dev-build-output");
+        run_rollup("./build/dev-build-output/main.bundle.js");
+    });
+})
 
 gulp.task("unit-tests", cb => {
     jpm("test", cb);

@@ -9,7 +9,7 @@
   "author": "XrXr",
   "version": "2.4.0",
   "background": {
-    "scripts": ["src/main.js"]
+    "scripts": ["main.bundle.js"]
   },
   "permissions": [
     "https://www.googleapis.com/*"
