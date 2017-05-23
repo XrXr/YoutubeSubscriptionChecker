@@ -10,8 +10,14 @@
   "background": {
     "scripts": ["main.bundle.js"]
   },
+  "web_accessible_resources": [
+    "hub/home.html"
+  ],
   "permissions": [
+    "webRequest",
+    "webRequestBlocking",
     "https://www.googleapis.com/*",
+    "<all_urls>",
     "notifications"
   ],
   "applications": {

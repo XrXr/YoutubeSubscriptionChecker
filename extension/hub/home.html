@@ -1,0 +1,78 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+   - Author: XrXr
+ -->
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+  <title>Youtube Subscription Checker</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="style/bootstrap.min.css">
+  <link rel="stylesheet" href="style/style.css">
+  <link rel="stylesheet" href="style/loading.css">
+
+  <script src="lib/angular.js"></script>
+  <script src="lib/angular-animate.js"></script>
+  <script src="lib/ui-bootstrap-tpls-1.3.3.min.js"></script>
+  <script src="lib/isotope.pkgd.min.js"></script>
+  <script src="app/app.js"></script>
+</head>
+<body ng-app="subscription_checker">
+  <div class="main-container">
+    <div class="container-fluid left-pannel" ng-controller="frame">
+      <input class="form-control" ng-model="channel_search" type="text" placeholder="Filter channels">
+      <div class="setting-btn-row">
+        <div class="subscriptions-btn-box">
+          <button type="button" class="subscriptions-btn tool-tip-btn" ng-click="open_subscriptions()"></button>
+          <div class="hover-tooltip-container">
+            <div class="hover-tooltip">
+              <div class="arrow-left"></div>
+              <span>Edit subscriptions</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="history-btn-box">
+          <button type="button" class="history-btn tool-tip-btn" ng-click="toggle_history()"
+                  ng-class="vs.history_mode ? 'history-selected' : ''"></button>
+          <div class="hover-tooltip-container">
+            <div class="hover-tooltip">
+              <div class="arrow-left"></div>
+              <span>Toggle history mode</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-btn-box">
+          <button type="button" class="settings-btn tool-tip-btn" ng-click="open_settings()"></button>
+          <div class="hover-tooltip-container">
+            <div class="hover-tooltip">
+              <div class="arrow-left"></div>
+              <span>Settings</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="channel-button" ng-click="switch_channel('')" ng-class="chnl.current_channel === '' ? 'selected-button': ''">
+        <span class="channel-title ellipses">{{vs.history_mode ? "All History" : "All Videos"}}</span>
+        <span class="video-count" ng-bind="video_count()" ng-style="chnl.current_channel === '' ? {color: 'white'} : ''"></span>
+      </div>
+      <div ng-repeat="channel in chnl.channels | filter:{title: channel_search}"
+           ng-click="switch_channel(channel.id)"
+           ng-class="chnl.current_channel === channel.id ? 'selected-button': ''"
+           class="channel-button">
+        <span class="channel-title ellipses" ng-bind="channel.title"></span>
+        <span ng-bind="channel.video_count - 0"
+              ng-if="channel.video_count - 0 > 0"
+              ng-style="chnl.current_channel === channel.id ? {color: 'white'} : ''"
+              class="video-count"></span>
+      </div>
+
+      <div ng-if="vs.history_mode" class="history-info">Only 50 of the most recent videos are shown</div>
+    </div>
+    <div video-canvas ng-controller="videos" class="video-canvas"></div>
+  </div>
+
+</body>
+</html>
