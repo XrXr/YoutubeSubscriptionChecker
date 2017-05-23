@@ -5,20 +5,10 @@ If a copy of the MPL was not distributed with this file,
 You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
-const tabs = require("sdk/tabs");
+const config = {};  // TODO: require("./config");
+const { log_error } = {}  // TODO: require("./logger");
 
-exports.noop = function () {};
-exports.fetch_properties = fetch_properties;
-exports.open_video = open_video;
-exports.nice_duration = nice_duration;
-exports.wrap_promise = wrap_promise;
-exports.sort_videos = sort_videos;
-exports.cb_settle = cb_settle;
-exports.cb_each = cb_each;
-exports.cb_join = cb_join;
-
-const config = require("./config");
-const { log_error } = require("./logger");
+function noop () {};
 
 function nice_duration (ISO_8601_string) {
     let time = ISO_8601_string.replace("PT", "").toUpperCase();
@@ -230,9 +220,9 @@ function open_video (trans, id) {
             log_error("could not get open in background setting for opening video", err);
             in_background = false;
         }
-        tabs.open({
+        chrome.tabs.create({
             url: "https://www.youtube.com/watch?v=" + id,
-            inBackground: in_background
+            active: !in_background
         });
     });
 }
@@ -242,3 +232,14 @@ function open_video (trans, id) {
 function fetch_properties (obj, property_names) {
     return property_names.map(name => obj[name]);
 }
+
+export {
+    fetch_properties,
+    open_video,
+    nice_duration,
+    wrap_promise,
+    sort_videos,
+    cb_settle,
+    cb_each,
+    cb_join,
+};

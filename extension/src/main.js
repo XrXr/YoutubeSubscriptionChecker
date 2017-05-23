@@ -7,6 +7,8 @@ Author: XrXr
 
 */
 import * as request from "./youtube/request";
+import * as youtube_util from "./youtube/util";
+import * as util from "./util";
 
 request.search_channel()
     .then(r => {
@@ -18,14 +20,16 @@ request.search_channel()
         console.log(r)
     });
 
+window.request = request;
+window.youtube_util = youtube_util;
+window.util = util;
 
-        browser.notifications.create(null, {
-            "type": "basic",
-            "title": "YoutubeSubscriptionChecker",
-            "message": "sd"
-        });
+browser.notifications.create(null, {
+    "type": "basic",
+    "title": "YoutubeSubscriptionChecker",
+    "message": "extension loaded"
+});
 
-window.request = request
 
 // const { data } = require("sdk/self");
 // const tabs = require("sdk/tabs");

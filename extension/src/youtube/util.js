@@ -63,4 +63,6 @@ let activity = {
                                response.contentDetails.upload.videoId)
 };
 
-exports.activity = activity;
+export {
+    activity,
+};
