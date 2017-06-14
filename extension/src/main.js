@@ -9,16 +9,19 @@ Author: XrXr
 import * as request from "./youtube/request";
 import * as youtube_util from "./youtube/util";
 import * as util from "./util";
+import * as browser_button from "./browser/button";
 
-request.search_channel()
-    .then(r => {
-        // browser.notifications.create(null, {
-        //     "type": "basic",
-        //     "title": "YoutubeSubscriptionChecker",
-        //     "message": JSON.stringify(r)
-        // });
-        console.log(r)
-    });
+// request.search_channel()
+//     .then(r => {
+//         // browser.notifications.create(null, {
+//         //     "type": "basic",
+//         //     "title": "YoutubeSubscriptionChecker",
+//         //     "message": JSON.stringify(r)
+//         // });
+//         console.log(r)
+//     });
+
+browser_button.init(() => browser_button.update(Math.random() < .5 ? 0 : Math.random() * 5000));
 
 window.request = request;
 window.youtube_util = youtube_util;
@@ -29,7 +32,6 @@ browser.notifications.create(null, {
     "title": "YoutubeSubscriptionChecker",
     "message": "extension loaded"
 });
-
 
 // const { data } = require("sdk/self");
 // const tabs = require("sdk/tabs");
