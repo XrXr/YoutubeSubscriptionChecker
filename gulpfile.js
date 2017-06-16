@@ -36,12 +36,19 @@ function jpm(command, cb) {
 function run_rollup(dest_path) {
     return rollup.rollup({
         entry: "./extension/src/main.js"
-    }).then(function (bundle) {
+    })
+    .then(function (bundle) {
         bundle.write({
             format: "iife",
             moduleName: "checkYoutube",
             dest: dest_path,
         });
+        console.log("Build succeed");
+    }, error => {
+        console.error("Build failed:", error.message);
+    })
+    .then(() => {
+        console.log('----');
     });
 }
 
@@ -87,10 +94,14 @@ gulp.task("strip-dev-code", ["copy-xpi"], function () {
 gulp.task("default", ["strip-dev-code"]);
 
 gulp.task("watch", [], () => {
-    return gulp.watch("extension/**/*", () => {
-        copy_extension_except_src("./build/dev-build-output");
+    let build_output_dir = "./build/dev-build-output";
+    let dev_build = () => {
+        copy_extension_except_src(build_output_dir);
         run_rollup("./build/dev-build-output/main.bundle.js");
-    });
+    };
+    console.log("Outputting builds to " + path.resolve(build_output_dir));
+    dev_build();
+    return gulp.watch("extension/**/*", dev_build);
 })
 
 gulp.task("unit-tests", cb => {
