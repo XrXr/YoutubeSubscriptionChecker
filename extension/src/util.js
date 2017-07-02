@@ -234,12 +234,13 @@ function fetch_properties (obj, property_names) {
 }
 
 export {
-    fetch_properties,
-    open_video,
-    nice_duration,
-    wrap_promise,
-    sort_videos,
-    cb_settle,
     cb_each,
     cb_join,
+    cb_settle,
+    fetch_properties,
+    nice_duration,
+    noop,
+    open_video,
+    sort_videos,
+    wrap_promise,
 };

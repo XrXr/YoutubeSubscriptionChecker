@@ -7,8 +7,8 @@ Author: XrXr
 
 storage.config is used for storing all the values
 */
-const { forward_idb_request } = require("./core/storage");
-const util = require("./util");
+import { forward_idb_request } from "./persistent/storage";
+import * as util from "./util";
 
 const _name = 0;
 const _value = 2;
@@ -109,7 +109,9 @@ function get_all (trans, cb) {
     };
 }
 
-exports.update = update;
-exports.get_all = get_all;
-exports.get_one = get_one;
-exports.maybe_fill_defaults = maybe_fill_defaults;
+export {
+    get_all,
+    get_one,
+    maybe_fill_defaults,
+    update,
+}

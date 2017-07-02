@@ -10,6 +10,7 @@ import * as request from "./youtube/request";
 import * as youtube_util from "./youtube/util";
 import * as util from "./util";
 import * as browser_button from "./browser/button";
+import * as storage from "./persistent/storage";
 
 // request.search_channel()
 //     .then(r => {
