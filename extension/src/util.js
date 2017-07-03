@@ -5,8 +5,8 @@ If a copy of the MPL was not distributed with this file,
 You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
-const config = {};  // TODO: require("./config");
-const { log_error } = {}  // TODO: require("./logger");
+import * as config from "./config";
+import { log_error } from "./logger";
 
 function noop () {};
 

@@ -64,7 +64,7 @@ notification.init(() => console.log('hi'));
 // const button = require("./ui/button");
 // const notification = require("./ui/notification");
 // const util = require("./util");
-// const { initialize: logger_init, log_error, assert } = require("./logger");
+import { initialize as logger_init, log_error, assert } from "./logger";
 // const api_util = require("./api/util");
 
 // const hub_url = data.url("hub/home.html");

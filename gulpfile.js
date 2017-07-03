@@ -45,7 +45,7 @@ function run_rollup(dest_path) {
         });
         console.log("Build succeed");
     }, error => {
-        console.error("Build failed:", error.message);
+        console.error("Build failed:", error);
     })
     .then(() => {
         console.log('----');

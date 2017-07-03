@@ -5,9 +5,10 @@ If a copy of the MPL was not distributed with this file,
 You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
-const { forward_idb_request } = require("./core/storage");
-const { noop } = require("./util");
-const { indexedDB: idb } = require('sdk/indexed-db');
+import { forward_idb_request } from "./persistent/storage";
+import { noop } from "./util";
+
+const idb = window.indexedDB;
 let db;
 const LOGGER_DB_NAME = "youtube-checker-logs";
 const ERROR_STORE_NAME = "errors";
@@ -121,8 +122,10 @@ function assert(val) {
     }
 }
 
-exports.initialize = initialize;
-exports.log_error = log_error;
-exports.dump = dump;
-exports.assert = assert;
-exports.clear = clear;
+export {
+    initialize,
+    log_error,
+    dump,
+    assert,
+    clear,
+}
