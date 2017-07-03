@@ -7,14 +7,9 @@ Author: XrXr
 
 Tools for notifiying the user about new video uploads.
 */
-const { data } = require("sdk/self");
-const { notify } = require("sdk/notifications");
-const { Page } = require("sdk/page-worker");
+import * as config from "../config";
 
-const config = require("../config");
-
-let sound_player = null;  // this is set by init()
-let notification_on_click = null;  // this is set by init()
+let sound = null;  // set by init()
 
 // Takes an array of channel names to display a desktop notification about new
 // video upload
@@ -23,33 +18,28 @@ function show_notification (channels) {
         return;
     }
     let base = " uploaded new video(s)!";
-    let text = "";
+    let message = "";
     if (channels.length === 1) {
-        text = channels[0] + base;
+        message = channels[0] + base;
     } else {
         base = " uploaded new videos!";
-        text = channels[0] + " (and " + (channels.length - 1) +
-                             " others)" + base;
+        message = channels[0] + " (and " + (channels.length - 1) +
+                  " others)" + base;
     }
-    notify({
-        title: "Youtube Subscription Checker",
-        text,
-        onClick: notification_on_click
+
+    browser.notifications.create(null, {
+        "type": "basic",
+        "title": "Youtube Subscription Checker",
+        message
     });
 }
 
 // Play the notification sound. Must be used after a call to init
 function play_sound () {
-    sound_player.port.emit("play");
+    sound.play();
 }
 
-// The exported notification function. Show desktop notification and depending
-// on config, play notificaiton sound
 function notify_new_upload (trans, channels) {
-    if (sound_player === null || notification_on_click === null) {
-        throw Error("ui/notification: Attmpt to notify before init call");
-    }
-
     config.get_one(trans, "play_sound", (_, play_config) => {
         show_notification(channels);
         if (play_config) {
@@ -58,15 +48,13 @@ function notify_new_upload (trans, channels) {
     });
 }
 
-// Create the background page used for playing notification audio
-// save the reference to the onClick function of notification
 function init (on_click) {
-    notification_on_click = on_click;
-    sound_player = Page({
-        contentScriptFile: data.url("ui/notification/player.js"),
-        contentURL: data.url("ui/notification/dummy.html")
-    });
+    sound = new Audio("notification.ogg");
+    // this is the only place we create notification
+    browser.notifications.onClicked.addListener(() => on_click());
 }
 
-exports.init = init;
-exports.notify_new_upload = notify_new_upload;
+export {
+    init,
+    notify_new_upload,
+}

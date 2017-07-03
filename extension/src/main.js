@@ -11,6 +11,7 @@ import * as youtube_util from "./youtube/util";
 import * as util from "./util";
 import * as browser_button from "./browser/button";
 import * as storage from "./persistent/storage";
+import * as notification from "./browser/notification";
 
 // request.search_channel()
 //     .then(r => {
@@ -33,6 +34,8 @@ browser.notifications.create(null, {
     "title": "YoutubeSubscriptionChecker",
     "message": "extension loaded"
 });
+
+notification.init(() => console.log('hi'));
 
 // const { data } = require("sdk/self");
 // const tabs = require("sdk/tabs");
