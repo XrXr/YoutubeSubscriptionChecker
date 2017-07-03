@@ -8,16 +8,9 @@ Author: XrXr
 This module provide functions for making api certain YouTube Data API V3
 requests. All functions return promise.
 */
-function noop () {
-}
+import { nice_duration } from "../util";
 
 const log_error = e => console.error(e);
-const util = {
-    nice_duration: noop
-};
-
-// const util = require("../util");
-// const { log_error } = require("../logger");
 
 const api_request = (() => {
     function make_request (url) {
@@ -62,7 +55,7 @@ function get_duration (video_id) {
         }
         return {
             video_id,
-            duration: util.nice_duration(json.items[0].contentDetails.duration)
+            duration: nice_duration(json.items[0].contentDetails.duration)
         };
     });
 }
@@ -75,7 +68,7 @@ function get_tags_and_duration (video_id) {
     }).then(res => {
         res = res.items[0];
         return {
-            duration: util.nice_duration(res.contentDetails.duration),
+            duration: nice_duration(res.contentDetails.duration),
             tags: (res.snippet && res.snippet.tags) || []
         };
     });
