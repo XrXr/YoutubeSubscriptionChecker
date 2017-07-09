@@ -4,7 +4,6 @@ Mozilla Public License, v. 2.0.
 If a copy of the MPL was not distributed with this file,
 You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
-
 */
 import * as request from "./youtube/request";
 import * as youtube_util from "./youtube/util";
@@ -23,7 +22,7 @@ import * as notification from "./browser/notification";
 //         console.log(r)
 //     });
 
-browser_button.init(() => browser_button.update(Math.random() < .5 ? 0 : Math.random() * 5000));
+// browser_button.init(() => browser_button.update(Math.random() < .5 ? 0 : Math.random() * 5000));
 
 window.request = request;
 window.youtube_util = youtube_util;
@@ -36,6 +35,75 @@ browser.notifications.create(null, {
 });
 
 notification.init(() => console.log('hi'));
+
+const hub_url = browser.extension.getURL("/frontend/home.html");
+
+let creating_hub_tab = false;
+let hub_tab_id;
+browser_button.init(() => {
+    if (hub_tab_id) {
+        browser.tabs.get(hub_tab_id)
+            .then(tab_info => {
+                if (tab_info.url == hub_url) {
+                    browser.tabs.update(tab_info.id, { active: true });
+                    browser.windows.update(tab_info.windowId, { focused: true });
+                } else {
+                    // user navigated away
+                    hub_tab_id = null;
+                    make_hub_tab();
+                }
+            }, make_hub_tab);
+    } else {
+        make_hub_tab();
+    }
+
+    function make_hub_tab() {
+        if (creating_hub_tab) {
+            return;
+        }
+        creating_hub_tab = true;
+        browser.tabs.create({
+            active: true,
+            url: "/frontend/home.html"
+        }).then(tab => tab, err => {
+            log_error("Failed to create hub tab", err);
+        }).then(tab => {
+            hub_tab_id = tab.id;
+            creating_hub_tab = false;
+            init_hub_tab(tab.id);
+        });
+    }
+});
+
+browser.webNavigation.onCommitted.addListener(details => {
+    if (hub_tab_id) {
+        browser.tabs.query({}).then(tab_list => {
+            for (let tab of tab_list) {
+                if (tab.id === details.tabId) {
+                    continue;
+                }
+                if (tab.url === hub_url) {
+                    browser.tabs.remove(tab.id);
+                }
+            }
+        });
+
+        hub_tab_id = details.tabId;
+    }
+    init_hub_tab(hub_tab_id);
+}, {
+    url: [{
+        urlEquals: hub_url,
+    }]
+});
+
+
+function init_hub_tab(tabId) {
+    browser.tabs.executeScript(tabId, {
+        allFrames: false,
+        file: "/bridge.js",
+    }).then(null, log_error);
+}
 
 // const { data } = require("sdk/self");
 // const tabs = require("sdk/tabs");

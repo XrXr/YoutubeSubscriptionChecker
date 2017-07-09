@@ -12,13 +12,17 @@
   },
   "permissions": [
     "https://www.googleapis.com/*",
-    "notifications"
+    "notifications",
+    "activeTab",
+    "tabs",
+    "webNavigation"
   ],
   "applications": {
     "gecko": {
       "id": "youtube-subscription-checker@xrxr"
     }
   },
+
   "browser_action": {
     "default_icon": {
       "64": "icons/active64.png"
