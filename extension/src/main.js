@@ -8,9 +8,10 @@ Author: XrXr
 import * as request from "./youtube/request";
 import * as youtube_util from "./youtube/util";
 import * as util from "./util";
-import * as browser_button from "./browser/button";
+import * as button from "./browser/button";
 import * as storage from "./persistent/storage";
 import * as notification from "./browser/notification";
+import * as events from "./events";
 
 // request.search_channel()
 //     .then(r => {
@@ -22,11 +23,15 @@ import * as notification from "./browser/notification";
 //         console.log(r)
 //     });
 
-// browser_button.init(() => browser_button.update(Math.random() < .5 ? 0 : Math.random() * 5000));
+// button.init(() => button.update(Math.random() < .5 ? 0 : Math.random() * 5000));
 
 window.request = request;
 window.youtube_util = youtube_util;
 window.util = util;
+
+const timers = {
+    setTimeout: window.setTimeout.bind(window)
+};
 
 browser.notifications.create(null, {
     "type": "basic",
@@ -40,7 +45,93 @@ const hub_url = browser.extension.getURL("/frontend/home.html");
 
 let creating_hub_tab = false;
 let hub_tab_id;
-browser_button.init(() => {
+
+browser.webNavigation.onCommitted.addListener(details => {
+    if (hub_tab_id) {
+        browser.tabs.query({}).then(tab_list => {
+            for (let tab of tab_list) {
+                if (tab.id === details.tabId) {
+                    continue;
+                }
+                if (tab.url === hub_url) {
+                    browser.tabs.remove(tab.id);
+                }
+            }
+        });
+
+        hub_tab_id = details.tabId;
+    }
+}, {
+    url: [{
+        urlEquals: hub_url,
+    }]
+});
+
+browser.runtime.onMessage.addListener(log_error);
+
+// const { data } = require("sdk/self");
+// const tabs = require("sdk/tabs");
+// const timers = require("sdk/timers");
+// const { browserWindows } = require("sdk/windows");
+// const { all } = require("sdk/core/promise");
+// const self = require("sdk/self");
+
+let db;  // will be set once db is opened
+// let fatal_error;  // puts hub page into a fail state when set
+// // pagemod workers that attach before db opens. See `actual_init()` and pagemod
+let pre_db_worker_buffer = new Set();
+
+// exports.get_db = get_db;
+
+function get_db() {
+    return db;
+}
+
+// const request = require("./api/request");
+// const storage = require("./core/storage");
+// const migration = require("./core/migration");
+// const config = require("./config");
+// const filters = require("./core/filters");
+// const events = require("./events");
+// const button = require("./ui/button");
+// const notification = require("./ui/notification");
+// const util = require("./util");
+import { initialize as logger_init, log_error, assert } from "./logger";
+// const api_util = require("./api/util");
+
+// const hub_url = data.url("hub/home.html");
+
+/*#BUILD_TIME_REPLACE_START*/
+function init(cb=util.noop) {
+    // if ("YTCHECKERDEBUG" in require("sdk/system").env) {
+    //     require("./development").run(actual_init.bind(null, cb));
+    // } else {
+    // }
+    actual_init(cb);
+}
+/*#BUILD_TIME_REPLACE_END*/
+
+// // try to focus on the hub page, omitting a tab
+// // return true if focus was successful
+// function focus_on_hub (omit) {
+//     for (let win of browserWindows) {
+//         for (let tab of win.tabs) {
+//             if (tab === omit) {
+//                 continue;
+//             }
+//             if (tab.url === hub_url) {
+//                 win.activate();
+//                 tab.activate();
+//                 return true;
+//             }
+//         }
+//     }
+//     return false;
+// }
+
+// // Opens the hub page in a new tab or focus on it. Searches through all opened
+// // windows. Return whether a new hub tab was opened;
+function open_or_focus () {
     if (hub_tab_id) {
         browser.tabs.get(hub_tab_id)
             .then(tab_info => {
@@ -70,110 +161,9 @@ browser_button.init(() => {
         }).then(tab => {
             hub_tab_id = tab.id;
             creating_hub_tab = false;
-            init_hub_tab(tab.id);
         });
     }
-});
-
-browser.webNavigation.onCommitted.addListener(details => {
-    if (hub_tab_id) {
-        browser.tabs.query({}).then(tab_list => {
-            for (let tab of tab_list) {
-                if (tab.id === details.tabId) {
-                    continue;
-                }
-                if (tab.url === hub_url) {
-                    browser.tabs.remove(tab.id);
-                }
-            }
-        });
-
-        hub_tab_id = details.tabId;
-    }
-    init_hub_tab(hub_tab_id);
-}, {
-    url: [{
-        urlEquals: hub_url,
-    }]
-});
-
-
-function init_hub_tab(tabId) {
-    browser.tabs.executeScript(tabId, {
-        allFrames: false,
-        file: "/bridge.js",
-    }).then(null, log_error);
 }
-
-// const { data } = require("sdk/self");
-// const tabs = require("sdk/tabs");
-// const timers = require("sdk/timers");
-// const { browserWindows } = require("sdk/windows");
-// const { all } = require("sdk/core/promise");
-// const self = require("sdk/self");
-
-// let db;  // will be set once db is opened
-// let fatal_error;  // puts hub page into a fail state when set
-// // pagemod workers that attach before db opens. See `actual_init()` and pagemod
-// let pre_db_worker_buffer = new Set();
-
-// exports.get_db = get_db;
-
-// function get_db() {
-//     return db;
-// }
-
-// const request = require("./api/request");
-// const storage = require("./core/storage");
-// const migration = require("./core/migration");
-// const config = require("./config");
-// const filters = require("./core/filters");
-// const events = require("./events");
-// const button = require("./ui/button");
-// const notification = require("./ui/notification");
-// const util = require("./util");
-import { initialize as logger_init, log_error, assert } from "./logger";
-// const api_util = require("./api/util");
-
-// const hub_url = data.url("hub/home.html");
-
-// /*#BUILD_TIME_REPLACE_START*/
-// function init(cb=util.noop) {
-//     if ("YTCHECKERDEBUG" in require("sdk/system").env) {
-//         require("./development").run(actual_init.bind(null, cb));
-//     } else {
-//         actual_init(cb);
-//     }
-// }
-// /*#BUILD_TIME_REPLACE_END*/
-
-// // try to focus on the hub page, omitting a tab
-// // return true if focus was successful
-// function focus_on_hub (omit) {
-//     for (let win of browserWindows) {
-//         for (let tab of win.tabs) {
-//             if (tab === omit) {
-//                 continue;
-//             }
-//             if (tab.url === hub_url) {
-//                 win.activate();
-//                 tab.activate();
-//                 return true;
-//             }
-//         }
-//     }
-//     return false;
-// }
-
-// // Opens the hub page in a new tab or focus on it. Searches through all opened
-// // windows. Return whether a new hub tab was opened;
-// function open_or_focus () {
-//     if (!focus_on_hub()) {
-//         tabs.open(hub_url);
-//         return true;
-//     }
-//     return false;
-// }
 
 // // listen for navigations of a tab and close all other hub pages when it
 // // navigates to the hub page
@@ -522,42 +512,41 @@ import { initialize as logger_init, log_error, assert } from "./logger";
 //     });
 // }
 
-// function actual_init(cb=util.noop) {
-//     notification.init(open_or_focus);
+function actual_init(cb=util.noop) {
+    notification.init(open_or_focus);
+    storage.open((err, opened_db) => {
+        if (err) {
+            log_error("Fatal: Can't open database");
+            fatal_error = "open-db-error";
+            return cb(err);
+        }
+        db = opened_db;
+        timers.setTimeout(() => cb(), 0);
 
-//     storage.open((err, opened_db) => {
-//         if (err) {
-//             log_error("Fatal: Can't open database");
-//             fatal_error = "open-db-error";
-//             return cb(err);
-//         }
-//         db = opened_db;
-//         timers.setTimeout(() => cb(), 0);
+        const get_vid_count = db.transaction("video", "readonly");
+        storage.video.count(get_vid_count, (err, count) => {
+            // should init button even if initial get fails
+            button.init(open_or_focus);
+            if (err) {
+                log_error("Failed to get video count to update button", err);
+                return;
+            }
+            button.update(count);
+        });
 
-//         const get_vid_count = db.transaction("video", "readonly");
-//         storage.video.count(get_vid_count, (err, count) => {
-//             // should init button even if initial get fails
-//             button.init(open_or_focus);
-//             if (err) {
-//                 log_error("Failed to get video count to update button", err);
-//                 return;
-//             }
-//             button.update(count);
-//         });
+        if (pre_db_worker_buffer) {
+            // pre_db_worker_buffer.forEach(init_hub); TODO
+            pre_db_worker_buffer = null;
+        }
 
-//         if (pre_db_worker_buffer) {
-//             pre_db_worker_buffer.forEach(init_hub);
-//             pre_db_worker_buffer = null;
-//         }
-
-//         logger_init(err => {
-//             if (err) {
-//                 log_error("Could not initialize logger. Logs won't be persisted", err);
-//             }
-//             start_checking();
-//         });
-//     });
-// }
+        logger_init(err => {
+            if (err) {
+                log_error("Could not initialize logger. Logs won't be persisted", err);
+            }
+            // start_checking(); TODO
+        });
+    });
+}
 
 // {
 //     const show_fatal_error = err => {
@@ -599,3 +588,11 @@ import { initialize as logger_init, log_error, assert } from "./logger";
 //         }
 //     });
 // }
+
+storage.initialize_db(err => {
+    init();
+})
+
+export {
+    get_db,
+}

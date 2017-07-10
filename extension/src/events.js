@@ -5,49 +5,56 @@ If a copy of the MPL was not distributed with this file,
 You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 
-This module manage communication between hub instances and add-on code.
+This module manages communication between hub instances and add-on code.
 */
-const config = require("./config");
-const storage = require("./core/storage");
-const backup = require("./core/backup");
-const filters = require("./core/filters");
-const request = require("./api/request");
-const util = require("./util");
-const noop = util.noop;
-const button = require("./ui/button");
-const { get_db } = require("./main");
-const { log_error, dump: dump_logs, clear: clear_logs } = require("./logger");
+import * as config from "./config";
+import * as storage from "./persistent/storage";
+// import * as backup from "./persistent/backup"; TODO
+// import * as filters from "./persistent/filters"; TODO
+import * as request from"./youtube/request";
+import * as util from "./util";
+import * as button from "./browser/button";
+import { get_db } from "./main";
+import {
+    log_error,
+    dump as dump_logs,
+    clear as clear_logs,
+} from "./logger";
 
-let current_target = null;
+const noop = util.noop;
+let current_port = null;
 let change_listeners = [];
 
 // due to the async nature of many operation such as channel search new video
 // notification, target might be invalid when it is time to send the event.
-function safe_emit (target, name, pay_load) {
+function safe_emit (target, name, payload) {
     try {
-        target.emit(name, pay_load);
+        target.postMessage({
+            name,
+            payload
+        });
     } catch(_) {}
 }
 
-// registers a listener to be ran once for when current_target changes
-function once_new_target (fn) {
+// registers a listener to be ran once for when current_port changes
+function once_new_receiver (fn) {
     change_listeners.push(fn);
 }
 
-// handle all the event required by a hub instance
-function handle_basic_events (target) {
-    const emit = safe_emit.bind(null, target);
+function on_connection (port) {
+    let callbacks = new Map();
+    const emit = safe_emit.bind(null, port);
+    const listen = (name, cb) => {
+        callbacks.set(name, cb);
+    };
 
-    send_channels();
-    send_configs();
-
-    target.on("get-videos", send_videos);
-    target.on("search-channel", query => {
+    listen("get-videos", send_videos);
+    listen("search-channel", query => {
         request.search_channel(query).then(result =>
             emit("search-result", result)
         );
     });
-    target.on("add-channel", new_channel => {
+    listen("add-channel", new_channel => {
         let trans = get_db().transaction(["channel", "check_stamp"], "readwrite");
         storage.channel.add_one(trans, new_channel, err => {
             if (err) {
@@ -61,7 +68,7 @@ function handle_basic_events (target) {
             send_configs(() => emit("channel-added"));
         });
     });
-    target.on("export", () => {
+    listen("export", () => {
         let trans = get_db().transaction(["channel", "video", "filter", "config"], "readonly");
         backup.export_all(trans, (err, export_result) => {
             if (err) {
@@ -71,7 +78,7 @@ function handle_basic_events (target) {
             emit("export-result", export_result);
         });
     });
-    target.on("import", input => {
+    listen("import", input => {
         let trans = get_db().transaction(["channel", "video", "check_stamp", "filter", "config"], "readwrite");
         backup.import_all(trans, input, err => {
             if (err) {
@@ -83,7 +90,7 @@ function handle_basic_events (target) {
             send_configs(() => emit("import-success"));
         });
     });
-    target.on("remove-channel", channel => {
+    listen("remove-channel", channel => {
         let trans = get_db().transaction(["channel", "video", "check_stamp"], "readwrite");
         storage.channel.remove_one(trans, channel, err => {
             if (err) {
@@ -120,23 +127,23 @@ function handle_basic_events (target) {
         });
     }
 
-    target.on("remove-video", id => remove_video(id, true));
-    target.on("skip-video", id => remove_video(id, false));
-    target.on("open-video", id => {
+    listen("remove-video", id => remove_video(id, true));
+    listen("skip-video", id => remove_video(id, false));
+    listen("open-video", id => {
         let trans = get_db().transaction("config");
         util.open_video(trans, id);
     });
-    target.on("update-config", new_config => {
+    listen("update-config", new_config => {
         let trans = get_db().transaction(["config", "filter"], "readwrite");
         filters.update(trans, new_config.filters);
         delete new_config.filters;
         config.update(trans, new_config, noop);
     });
-    target.on("clear-history", () => {
+    listen("clear-history", () => {
         let trans = get_db().transaction("history", "readwrite");
         storage.history.clear(trans, noop);
     });
-    target.on("get-error-logs", () => {
+    listen("get-error-logs", () => {
         dump_logs((err, logs) => {
             if (err) {
                 emit("dump-logs-failed");
@@ -145,16 +152,9 @@ function handle_basic_events (target) {
             }
         });
     });
-    target.on("clear-logs", () => {
+    listen("clear-logs", () => {
         clear_logs();
     });
-
-    current_target = target;
-    for (let fn of change_listeners) {
-        fn();
-    }
-    change_listeners = [];
-
 
     function send_channels() {
         let get_channels = get_db().transaction("channel", "readonly");
@@ -196,6 +196,32 @@ function handle_basic_events (target) {
                 emit("videos", [video, history]);
             });
     }
+
+    port.onMessage.addListener(message => {
+        if (message && typeof message.name == "string" &&
+                callbacks.has(message.name)) {
+            handle_message(callbacks.get(message.name), message.payload);
+        } else {
+            log_error("Malformed message", message);
+        }
+    });
+
+    current_port = port;
+    for (let fn of change_listeners) {
+        fn();
+    }
+    change_listeners = [];
+
+    send_channels();
+    send_configs();
+}
+
+function handle_message(handler, payload) {
+    try {
+        handler(payload);
+    } catch (e) {
+        log_error("Exception while handling message from hub page", e);
+    }
 }
 
 function send_event (name, content) {
@@ -210,6 +236,9 @@ const notify = {
     migration_failed_notice: () => send_event("migration-failed"),
 };
 
-exports.once_new_target = once_new_target;
-exports.notify = notify;
-exports.handle_basic_events = handle_basic_events;
+browser.runtime.onConnect.addListener(on_connection)
+
+export {
+    once_new_target,
+    notify,
+}

@@ -13,7 +13,6 @@
   "permissions": [
     "https://www.googleapis.com/*",
     "notifications",
-    "activeTab",
     "tabs",
     "webNavigation"
   ],
