@@ -9,8 +9,8 @@ This module manages communication between hub instances and add-on code.
 */
 import * as config from "./config";
 import * as storage from "./persistent/storage";
-// import * as backup from "./persistent/backup"; TODO
-import * as filters from "./persistent/filters"; TODO
+import * as backup from "./persistent/backup";
+import * as filters from "./persistent/filters";
 import * as request from"./youtube/request";
 import * as util from "./util";
 import * as button from "./browser/button";

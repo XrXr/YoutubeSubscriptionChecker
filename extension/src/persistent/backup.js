@@ -5,13 +5,13 @@ If a copy of the MPL was not distributed with this file,
 You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
-const base64 = require("sdk/base64");
+import b64decode from "../base64";
+import * as util from "../util";
+import * as storage from "./storage";
+import * as filters from "./filters";
+import * as config from "../config";
 
-const util = require("../util");
-const storage = require("./storage");
-let { forward_idb_request } = storage;
-const filters = require("./filters");
-const config = require("../config");
+const { forward_idb_request } = storage;
 
 function export_all (trans, cb) {
     util.cb_join([done => {
@@ -55,7 +55,7 @@ function import_all (trans, encoded, cb) {
         backup = JSON.parse(encoded);
     } catch (e) {
         try {
-            backup = JSON.parse(base64.decode(encoded, "utf-8"));
+            backup = JSON.parse(b64decode(encoded));
         } catch (e) {
             return cb(malform());
         }
@@ -129,5 +129,7 @@ function import_all (trans, encoded, cb) {
     }
 }
 
-exports.import_all = import_all;
-exports.export_all = export_all;
+export {
+    export_all,
+    import_all,
+};
