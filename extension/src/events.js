@@ -10,7 +10,7 @@ This module manages communication between hub instances and add-on code.
 import * as config from "./config";
 import * as storage from "./persistent/storage";
 // import * as backup from "./persistent/backup"; TODO
-// import * as filters from "./persistent/filters"; TODO
+import * as filters from "./persistent/filters"; TODO
 import * as request from"./youtube/request";
 import * as util from "./util";
 import * as button from "./browser/button";
@@ -236,9 +236,9 @@ const notify = {
     migration_failed_notice: () => send_event("migration-failed"),
 };
 
-browser.runtime.onConnect.addListener(on_connection)
+browser.runtime.onConnect.addListener(on_connection);
 
 export {
     once_new_target,
     notify,
-}
+};

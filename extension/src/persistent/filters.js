@@ -9,17 +9,14 @@ Filters are stored inside each channel objects, instead a centralized location.
 This property make them hard to work with as a group. This module provide
 utilities to help with said issue plus tools for working with individual filters
 */
-const { isString } = require('sdk/lang/type');
-
-const { fetch_properties } = require('../util');
-const core = require("./storage");
-const filter_store = core.filter_store;
+import { fetch_properties } from '../util';
+import { filter_store } from "./storage";
 
 const is_bool = val => (val === true || val === false);
 
 const raw_filter_expectations = [
-    ["channel_id", isString],
-    ["video_title_pattern", isString],
+    ["channel_id", is_string],
+    ["video_title_pattern", is_string],
     ["video_title_is_regex", is_bool],
     ["include_on_match", is_bool],
     ["inspect_tags", is_bool]
@@ -27,11 +24,15 @@ const raw_filter_expectations = [
 
 const full_filter_expectations = [
     raw_filter_expectations[0],
-    ["video_title_pattern", val => isString(val) && val.toLowerCase() === val],
+    ["video_title_pattern", val => is_string(val) && val.toLowerCase() === val],
     raw_filter_expectations[2],
     raw_filter_expectations[3],
     raw_filter_expectations[4],
 ];
+
+function is_string(val) {
+    return (typeof val === "string");
+}
 
 // Checks an object against some expectations
 function validate (property_expectations, raw_filter) {
@@ -151,7 +152,9 @@ function filters_equal (x, y) {
 
 const is_full_filter = validate.bind(null, full_filter_expectations);
 
-exports.filter_videos = filter_videos;
-exports.update = update;
-exports.is_full_filter = is_full_filter;
-exports.filters_equal = filters_equal;
+export {
+    filter_videos,
+    update,
+    is_full_filter,
+    filters_equal,
+};
