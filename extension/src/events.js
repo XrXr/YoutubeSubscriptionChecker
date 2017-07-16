@@ -239,6 +239,6 @@ const notify = {
 browser.runtime.onConnect.addListener(on_connection);
 
 export {
-    once_new_target,
+    once_new_receiver,
     notify,
 };
