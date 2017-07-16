@@ -20,16 +20,6 @@ const timers = {
     setTimeout: window.setTimeout.bind(window)
 };
 
-/*#BUILD_TIME_REPLACE_START*/
-function init(cb=util.noop) {
-    // if ("YTCHECKERDEBUG" in require("sdk/system").env) {
-    //     require("./development").run(actual_init.bind(null, cb));
-    // } else {
-    // }
-    actual_init(cb);
-}
-/*#BUILD_TIME_REPLACE_END*/
-
 let db;  // will be set once db is opened
 let fatal_error;  // puts hub page into a fail state when set
 
@@ -102,19 +92,19 @@ function process_channel_activities (response_json, cb) {
         return cb(null, null);
     }
 
-    let new_uploads = response_json.items.filter(api_util.activity.is_upload);
+    let new_uploads = response_json.items.filter(youtube_util.activity.is_upload);
 
     if (new_uploads.length === 0) {
         return cb(null, null);
     }
     let include, exclude;
 
-    const publish_dates = new_uploads.map(e => (new Date(api_util.activity.
+    const publish_dates = new_uploads.map(e => (new Date(youtube_util.activity.
         get_publish_date(e))).getTime());
     const most_recent = Math.max(...publish_dates);
 
     let trans = db.transaction(["video", "history", "check_stamp", "filter"], "readwrite");
-    let channel_id = api_util.activity.get_channel_id(new_uploads[0]);
+    let channel_id = youtube_util.activity.get_channel_id(new_uploads[0]);
     storage.filter.get_for_channel(trans, channel_id, (err, video_filters) => {
         if (err) {
             log_error(`Can't get filters for ${channel_id} in a check `, err);
@@ -124,7 +114,7 @@ function process_channel_activities (response_json, cb) {
         // video. One second more since two videos uploaded during the
         // same second is treated as both "later than each other".
         storage.check_stamp.update(trans, channel_id, most_recent + 1000);
-        new_uploads.forEach(api_util.activity.normalize);
+        new_uploads.forEach(youtube_util.activity.normalize);
         [include, exclude] = filters.filter_videos(new_uploads, video_filters);
         new_uploads.forEach(e => delete e.tags);
 
@@ -224,9 +214,9 @@ function check_all () {
                 return;
             }
 
-            let full_fetches = res.items.filter(api_util.activity.is_upload)
+            let full_fetches = res.items.filter(youtube_util.activity.is_upload)
                 .map(activity => {
-                    let video_id = api_util.activity.get_video_id(activity);
+                    let video_id = youtube_util.activity.get_video_id(activity);
                     return youtube_request.get_tags_and_duration(video_id)
                         .then(({duration, tags}) => {
                             activity.duration = duration;
@@ -389,6 +379,13 @@ browser.runtime.onInstalled.addListener(reason => {
     }
 });
 
+/*#BUILD_TIME_REPLACE_START*/
+import run_development_tasks from "./development";
+function init(cb=util.noop) {
+    run_development_tasks(actual_init.bind(null, cb));
+}
+/*#BUILD_TIME_REPLACE_END*/
+
 storage.initialize_db(err => {
     events.once_new_receiver(() => {
         if (err) {
@@ -398,12 +395,15 @@ storage.initialize_db(err => {
     init();
 })
 
-browser.notifications.create(null, {
-    "type": "basic",
-    "title": "YoutubeSubscriptionChecker",
-    "message": "extension loaded"
-});
+// browser.notifications.create(null, {
+//     "type": "basic",
+//     "title": "YoutubeSubscriptionChecker",
+//     "message": "extension loaded"
+// });
 
 export {
     get_db,
+    check_all, // for debugging purposes
+    fetch_unfetched_durations, // for debugging purposes
+    notification
 }

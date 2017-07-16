@@ -14,9 +14,6 @@ let sound = null;  // set by init()
 // Takes an array of channel names to display a desktop notification about new
 // video upload
 function show_notification (channels) {
-    if (channels.length === 0) {
-        return;
-    }
     let base = " uploaded new video(s)!";
     let message = "";
     if (channels.length === 1) {
@@ -41,6 +38,10 @@ function play_sound () {
 
 function notify_new_upload (trans, channels) {
     config.get_one(trans, "play_sound", (_, play_config) => {
+        if (channels.length === 0) {
+            return;
+        }
+
         show_notification(channels);
         if (play_config) {
             play_sound();
@@ -49,6 +50,7 @@ function notify_new_upload (trans, channels) {
 }
 
 function init (on_click) {
+    console.log('notification init called')
     sound = new Audio("notification.ogg");
     // this is the only place we create notification
     browser.notifications.onClicked.addListener(() => on_click());

@@ -9,15 +9,10 @@ This module fills test data into either the indexed-db or simple storage for
 testing during development. This file is stripped out by the build tool from
 the final xpi file.
 */
-"use strict";
+import * as storage from "./persistent/storage";
+import * as filters from "./persistent/filters";
 
-if (!("YTCHECKERDEBUG" in require("sdk/system").env)) {
-    throw Error("this module is only for development");
-}
-console.log("Youtube Subscription Checker in development mode");
-
-const storage = require("./core/storage");
-const filters = require("./core/filters");
+console.log("Running in development mode");
 
 function run(cb) {
     storage.open((err, db) => {
@@ -96,4 +91,4 @@ function run(cb) {
 // });
 
 
-exports.run = run;
+export default run;

@@ -225,7 +225,7 @@ function handle_message(handler, payload) {
 }
 
 function send_event (name, content) {
-    safe_emit(current_target, name, content);
+    safe_emit(current_port, name, content);
 }
 
 const notify = {
