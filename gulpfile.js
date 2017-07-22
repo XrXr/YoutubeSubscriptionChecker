@@ -19,6 +19,8 @@ const main_path = join(__dirname, "jetpack");
 const xpi_name = `${main_pkg.id}-${main_pkg.version}.xpi`;
 const original_xpi_path = join(main_path, xpi_name);
 
+const build_output_dir = project_path("build/dev-build-output");
+
 function jpm(command, cb) {
     let base = "jpm";
     if (process.env.FIREFOX_PATH) {
@@ -36,6 +38,10 @@ function jpm(command, cb) {
 function copy_extension_except_src(dest_path) {
     return gulp.src(["./extension/**", "!./extension/{src,src/**}"])
         .pipe(gulp.dest(dest_path));
+}
+
+function project_path(relative_path) {
+    return path.join(__dirname, relative_path);
 }
 
 gulp.task("build", function (cb) {
@@ -75,16 +81,15 @@ gulp.task("strip-dev-code", ["copy-xpi"], function () {
 gulp.task("default", ["strip-dev-code"]);
 
 gulp.task("web-ext-dev-build", function () {
-    let build_output_dir = "./build/dev-build-output";
     copy_extension_except_src(build_output_dir);
     return rollup.rollup({
-        entry: "./extension/src/main.js"
+        entry: project_path("extension/src/main.js")
     })
     .then(function (bundle) {
         bundle.write({
             format: "iife",
             moduleName: "checkYoutube",
-            dest: "./build/dev-build-output/main.bundle.js",
+            dest: project_path("build/dev-build-output/main.bundle.js"),
         });
         console.log("Built to " + path.resolve(build_output_dir));
     });
