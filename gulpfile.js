@@ -44,6 +44,21 @@ function project_path(relative_path) {
     return path.join(__dirname, relative_path);
 }
 
+function ls_all_files_under(dir) {
+    let results = []
+    let list = fs.readdirSync(dir)
+    list.forEach(function(file) {
+        file = path.join(dir, file);
+        let stat = fs.statSync(file)
+        if (stat && stat.isDirectory()) {
+            results = results.concat(ls_all_files_under(file));
+        } else {
+            results.push(file);
+        }
+    })
+    return results;
+}
+
 gulp.task("build-jetpack", function (cb) {
     jpm("xpi", cb);
 });
@@ -60,22 +75,6 @@ gulp.task("jetpack-release", ["copy-xpi", "web-ext-dev-build"], function () {
     let zip = fs.readFileSync(join("build", file_name));
     let main = fs.readFileSync(join("jetpack", "lib", "main.js"), "utf8");
     return xpi.loadAsync(zip).then(xpi => {
-
-function ls_all_files_under(dir) {
-    let results = []
-    let list = fs.readdirSync(dir)
-    list.forEach(function(file) {
-        file = path.join(dir, file);
-        let stat = fs.statSync(file)
-        if (stat && stat.isDirectory()) {
-            results = results.concat(ls_all_files_under(file));
-        } else {
-            results.push(file);
-        }
-    })
-    // return results.map(file_path => path.join(dir, file_path));
-    return results;
-}
 
     let web_extension_files = ls_all_files_under(build_output_dir);
     for (let file_path of web_extension_files) {
