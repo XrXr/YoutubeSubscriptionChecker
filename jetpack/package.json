@@ -4,9 +4,10 @@
   "id": "youtube-subscription-checker@xrxr",
   "description": "Checks for new uploads from Youtube channels periodically. Sends notification when there are new videos!",
   "icon": "resource://youtube-subscription-checker-at-xrxr/data/icons/active64.png",
+  "hasEmbeddedWebExtension": true,
   "author": "XrXr",
   "license": "MPL 2.0",
-  "version": "2.3.4",
+  "version": "3.0.0",
   "main": "lib/main.js",
   "permissions": {
     "multiprocess": true

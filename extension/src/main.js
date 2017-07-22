@@ -392,7 +392,22 @@ storage.initialize_db(err => {
             events.notify.migration_failed_notice();
         }
     });
-    init();
+    init(err => {
+        if (err) {
+            return;
+        }
+
+        browser.runtime.sendMessage("jetpack-data-please").then(reply => {
+            if (reply) {
+                let trans = get_db().transaction(["channel", "video", "check_stamp", "filter", "config"], "readwrite");
+                backup.import_all(trans, reply, () => {
+                    events.notify.migration_finished();
+                });
+            } else {
+                events.notify.migration_finished();
+            }
+        });
+    });
 })
 
 // browser.notifications.create(null, {

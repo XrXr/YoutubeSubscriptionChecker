@@ -19,7 +19,7 @@ Author: XrXr
         "channel-added", "channel-duplicate", "duration-update",
         "import-error", "export-result", "import-success", "error-logs",
         "dump-logs-failed", "fail-state", "drop-db-success", "drop-db-error",
-        "migration-failed",
+        "migration-failed", "migration-finished",
     ]);
 
     const outbound_events = new Set(["search-channel", "add-channel",
