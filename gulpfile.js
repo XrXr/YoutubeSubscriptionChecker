@@ -33,25 +33,6 @@ function jpm(command, cb) {
     child.stderr.pipe(process.stderr);
 }
 
-function run_rollup(dest_path) {
-    return rollup.rollup({
-        entry: "./extension/src/main.js"
-    })
-    .then(function (bundle) {
-        bundle.write({
-            format: "iife",
-            moduleName: "checkYoutube",
-            dest: dest_path,
-        });
-        console.log("Build succeed");
-    }, error => {
-        console.error("Build failed:", error);
-    })
-    .then(() => {
-        console.log('----');
-    });
-}
-
 function copy_extension_except_src(dest_path) {
     return gulp.src(["./extension/**", "!./extension/{src,src/**}"])
         .pipe(gulp.dest(dest_path));
@@ -93,15 +74,24 @@ gulp.task("strip-dev-code", ["copy-xpi"], function () {
 
 gulp.task("default", ["strip-dev-code"]);
 
-gulp.task("watch", [], () => {
+gulp.task("web-ext-dev-build", function () {
     let build_output_dir = "./build/dev-build-output";
-    let dev_build = () => {
-        copy_extension_except_src(build_output_dir);
-        run_rollup("./build/dev-build-output/main.bundle.js");
-    };
-    console.log("Outputting builds to " + path.resolve(build_output_dir));
-    dev_build();
-    return gulp.watch("extension/**/*", dev_build);
+    copy_extension_except_src(build_output_dir);
+    return rollup.rollup({
+        entry: "./extension/src/main.js"
+    })
+    .then(function (bundle) {
+        bundle.write({
+            format: "iife",
+            moduleName: "checkYoutube",
+            dest: "./build/dev-build-output/main.bundle.js",
+        });
+        console.log("Built to " + path.resolve(build_output_dir));
+    });
+});
+
+gulp.task("watch", ["web-ext-dev-build"], () => {
+    return gulp.watch("extension/**/*", ["web-ext-dev-build"]);
 })
 
 gulp.task("unit-tests", cb => {
