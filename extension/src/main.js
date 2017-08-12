@@ -8,6 +8,7 @@ Author: XrXr
 import * as youtube_request from "./youtube/request";
 import * as youtube_util from "./youtube/util";
 import * as storage from "./persistent/storage";
+import * as backup from "./persistent/backup";
 import * as config from "./config";
 import * as filters from "./persistent/filters";
 import * as events from "./events";
