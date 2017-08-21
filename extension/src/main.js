@@ -387,7 +387,7 @@ function init(cb=util.noop) {
 }
 /*#BUILD_TIME_REPLACE_END*/
 
-storage.initialize_db(err => {
+storage.initialize_db((err, first_ever_boot) => {
     events.once_new_receiver(() => {
         if (err) {
             events.notify.migration_failed_notice();
@@ -397,19 +397,20 @@ storage.initialize_db(err => {
         if (err) {
             return;
         }
-
-        browser.runtime.sendMessage("jetpack-data-please").then(reply => {
-            if (reply) {
-                let trans = get_db().transaction(["channel", "video", "check_stamp", "filter", "config"], "readwrite");
-                backup.import_all(trans, reply, () => {
+        if (first_ever_boot) {
+            browser.runtime.sendMessage("jetpack-data-please").then(reply => {
+                if (reply) {
+                    let trans = get_db().transaction(backup.import_all.store_dependencies, "readwrite");
+                    backup.import_all(trans, reply, () => {
+                        events.notify.migration_finished();
+                    });
+                } else {
                     events.notify.migration_finished();
-                });
-            } else {
-                events.notify.migration_finished();
-            }
-        });
+                }
+            });
+        }
     });
-})
+});
 
 // browser.notifications.create(null, {
 //     "type": "basic",

@@ -307,7 +307,7 @@ function initialize_db(cb, db_name=DB_NAME) {
         cb(new DBSetupError("Failed to open db for setup", open_req.error));
     };
 
-    let just_populated = false;
+    let did_schema_setup = false;
     open_req.onupgradeneeded = () => {
         let db = open_req.result;
         db.createObjectStore("config", { keyPath: "name" });
@@ -331,12 +331,12 @@ function initialize_db(cb, db_name=DB_NAME) {
         filter.createIndex("channel,pattern",
             ["channel_id", "video_title_pattern"], { unique: true });
 
-        just_populated = true;
+        did_schema_setup = true;
     };
 
     open_req.onsuccess = () => {
         let db = open_req.result;
-        if (!just_populated) {
+        if (!did_schema_setup) {
             // we opened the database but it doens't have all the expected stores
             if (idb.cmp(Array.from(db.objectStoreNames), STORE_NAMES) !== 0) {
                 db.close();
@@ -346,7 +346,7 @@ function initialize_db(cb, db_name=DB_NAME) {
         let trans = db.transaction("config", "readwrite");
         config.maybe_fill_defaults(trans);
         db.close();
-        trans.oncomplete = () => cb(null, just_populated);
+        trans.oncomplete = () => cb(null, did_schema_setup);
         trans.onerror = () => {
             let error = new DBSetupError(
                 "Failed to populate db with default configs", trans.error);

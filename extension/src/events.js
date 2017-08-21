@@ -79,7 +79,7 @@ function on_connection (port) {
         });
     });
     listen("import", input => {
-        let trans = get_db().transaction(["channel", "video", "check_stamp", "filter", "config"], "readwrite");
+        let trans = get_db().transaction(backup.import_all.store_dependencies, "readwrite");
         backup.import_all(trans, input, err => {
             if (err) {
                 return emit("import-error");

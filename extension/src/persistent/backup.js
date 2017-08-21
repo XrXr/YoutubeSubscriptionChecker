@@ -45,6 +45,7 @@ function export_all (trans, cb) {
     });
 }
 
+import_all.store_dependencies = ["channel", "video", "check_stamp", "filter", "config"];
 function import_all (trans, encoded, cb) {
     let malform = () => Error("Malform backup");
     if (typeof encoded !== "string") {
