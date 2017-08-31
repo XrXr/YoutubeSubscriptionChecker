@@ -15,7 +15,7 @@ import * as events from "./events";
 import * as button from "./browser/button";
 import * as notification from "./browser/notification";
 import * as util from "./util";
-import { initialize as logger_init, log_error, assert } from "./logger";
+import { initialize as logger_init, log_error } from "./logger";
 
 const timers = {
     setTimeout: window.setTimeout.bind(window)
@@ -26,6 +26,14 @@ let fatal_error;  // puts hub page into a fail state when set
 
 function get_db() {
     return db;
+}
+
+function get_fatal_error() {
+    return fatal_error;
+}
+
+function fatal_error_recovered() {
+    fatal_error = null;
 }
 
 const hub_url = browser.extension.getURL("/frontend/home.html");
@@ -275,29 +283,6 @@ function notify_new_uploads(uploaded_channels) {
     };
 }
 
-// function handle_recovery_events(port) {
-//     if (fatal_error === "open-db-error") {
-//         port.on("drop-db", function () {
-//             assert(!db);
-
-//             storage.drop_db(err => {
-//                 if (err) {
-//                     log_error("Could not drop db", err);
-//                     return port.emit("drop-db-error");
-//                 }
-//                 fresh_install_init(err => {
-//                     if (err) {
-//                         log_error("Could not init after dropping db", err);
-//                         return port.emit("drop-db-error");
-//                     }
-//                     fatal_error = null;
-//                     port.emit("drop-db-success");
-//                 });
-//             });
-//         });
-//     }
-// }
-
 function start_checking() {
     function check_cycle () {
         // check then start a timer according to current config
@@ -390,6 +375,7 @@ function init(cb=util.noop) {
 storage.initialize_db((err, first_ever_boot) => {
     events.once_new_receiver(() => {
         if (err) {
+            log_error(err);
             events.notify.migration_failed_notice();
         }
     });
@@ -422,5 +408,8 @@ export {
     get_db,
     check_all, // for debugging purposes
     fetch_unfetched_durations, // for debugging purposes
-    notification
+    notification,
+    get_fatal_error,
+    fatal_error_recovered,
+    init
 }

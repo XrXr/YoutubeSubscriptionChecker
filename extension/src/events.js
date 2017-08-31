@@ -14,8 +14,9 @@ import * as filters from "./persistent/filters";
 import * as request from"./youtube/request";
 import * as util from "./util";
 import * as button from "./browser/button";
-import { get_db } from "./main";
+import { get_db, get_fatal_error, fatal_error_recovered, init as main_init } from "./main";
 import {
+    assert,
     log_error,
     dump as dump_logs,
     clear as clear_logs,
@@ -47,6 +48,34 @@ function on_connection (port) {
     const listen = (name, cb) => {
         callbacks.set(name, cb);
     };
+
+    if (get_fatal_error() === "open-db-error") {
+        emit("fail-state", "open-db-error");
+        port.onMessage.addListener(message => {
+            if (message && message.name == "drop-db") {
+                assert(!get_db());
+                storage.drop_db(err => {
+                    if (err) {
+                        log_error("Could not drop db", err);
+                        return emit("drop-db-error");
+                    }
+                    storage.initialize_db(err => {
+                        if (err) {
+                            return emit("drop-db-error");
+                        }
+                        main_init(err => {
+                            if (err) {
+                                return emit("drop-db-error");
+                            }
+                            fatal_error_recovered();
+                            emit("drop-db-success");
+                        });
+                    });
+                });
+            }
+        });
+        return;
+    }
 
     listen("get-videos", send_videos);
     listen("search-channel", query => {

@@ -13,7 +13,7 @@ Author: XrXr
             detail: typeof(data) === "string" ? data : JSON.stringify(data)
         }));
     }
-
+    // from the perspective of the hub page.
     const inbound_events = new Set(["open-settings", "videos", "config",
         "search-result", "open-changelog", "subscribed-channels",
         "channel-added", "channel-duplicate", "duration-update",

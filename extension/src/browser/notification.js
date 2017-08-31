@@ -50,6 +50,9 @@ function notify_new_upload (trans, channels) {
 }
 
 function init (on_click) {
+    if (sound) {
+        return;
+    }
     sound = new Audio("notification.ogg");
     // this is the only place we create notification
     browser.notifications.onClicked.addListener(() => on_click());
