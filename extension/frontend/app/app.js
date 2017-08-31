@@ -623,15 +623,24 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 Bridge.emit("get-error-logs");
                 Bridge.once("error-logs", ev => {
                     Bridge.removeListener("dump-logs-failed");
-                    let a = document.createElement("a");
-                    a.download = "logs.json";
-                    a.href = URL.createObjectURL(new Blob([ev.detail], {
-                        type: "application/json"
+                    // TODO: this method of triggering download doesn't seem to
+                    // work in the extension page. The method we use doesn't
+                    // give a nice file name so there is room for improvement
+
+                    // let a = document.createElement("a");
+                    // a.download = "logs.json";
+                    // a.href = URL.createObjectURL(new Blob([ev.detail], {
+                    //     type: "application/json"
+                    // }));
+                    // document.body.appendChild(a);
+                    // a.click();
+                    // document.body.removeChild(a);
+                    // setTimeout(() => URL.revokeObjectURL(a.href));
+
+                    let download_link = URL.createObjectURL(new Blob([ev.detail], {
+                        type: "application/octlet-stream"
                     }));
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    setTimeout(() => URL.revokeObjectURL(a.href));
+                    window.open(download_link, 'log.txt');
                 });
                 Bridge.once("dump-logs-failed", () => {
                     Bridge.removeListener("error-logs");
