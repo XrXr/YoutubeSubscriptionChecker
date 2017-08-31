@@ -5,12 +5,10 @@ If a copy of the MPL was not distributed with this file,
 You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
-exports.forward_idb_request = forward_idb_request;
+import * as config from "../config";
+import * as util from "../util";
 
-const { indexedDB: idb } = require('sdk/indexed-db');
-const config = require("../config");
-const util = require("../util");
-
+const idb = window.indexedDB;
 const max_history_size = 50;
 const DB_NAME = "youtube-checker";
 const STORE_NAMES = ["channel", "check_stamp", "config", "filter", "history", "video"];
@@ -36,12 +34,6 @@ const history_store = trans => trans.objectStore("history");
 const channel_store = trans => trans.objectStore("channel");
 const filter_store = trans => trans.objectStore("filter");
 const check_stamp_store = trans => trans.objectStore("check_stamp");
-
-exports.video_store = video_store;
-exports.history_store = history_store;
-exports.channel_store = channel_store;
-exports.filter_store = filter_store;
-exports.check_stamp_store = check_stamp_store;
 
 const video = {
     // remove a video from the video storage, then put it into the history
@@ -238,10 +230,12 @@ const filter = {
                     if (err) {
                         return done(err);
                     }
-                    filter.channel_title = channel.title;
+                    if (channel) {
+                        filter.channel_title = channel.title;
+                    }
                     done(null);
                 });
-            }, () => cb(null, filter_list));
+            }, cb);
         });
     }
 };
@@ -313,7 +307,7 @@ function initialize_db(cb, db_name=DB_NAME) {
         cb(new DBSetupError("Failed to open db for setup", open_req.error));
     };
 
-    let just_populated = false;
+    let did_schema_setup = false;
     open_req.onupgradeneeded = () => {
         let db = open_req.result;
         db.createObjectStore("config", { keyPath: "name" });
@@ -337,12 +331,12 @@ function initialize_db(cb, db_name=DB_NAME) {
         filter.createIndex("channel,pattern",
             ["channel_id", "video_title_pattern"], { unique: true });
 
-        just_populated = true;
+        did_schema_setup = true;
     };
 
     open_req.onsuccess = () => {
         let db = open_req.result;
-        if (!just_populated) {
+        if (!did_schema_setup) {
             // we opened the database but it doens't have all the expected stores
             if (idb.cmp(Array.from(db.objectStoreNames), STORE_NAMES) !== 0) {
                 db.close();
@@ -352,7 +346,7 @@ function initialize_db(cb, db_name=DB_NAME) {
         let trans = db.transaction("config", "readwrite");
         config.maybe_fill_defaults(trans);
         db.close();
-        trans.oncomplete = () => cb(null, just_populated);
+        trans.oncomplete = () => cb(null, did_schema_setup);
         trans.onerror = () => {
             let error = new DBSetupError(
                 "Failed to populate db with default configs", trans.error);
@@ -366,15 +360,23 @@ function drop_db(cb=util.noop) {
     forward_idb_request(req, cb);
 }
 
-exports.video = video;
-exports.channel = channel;
-exports.open = open;
-exports.drop_db = drop_db;
-exports.update_last_check = update_last_check;
-exports.initialize_db = initialize_db;
-exports.update_duration = update_duration;
-exports.history = history;
-exports.check_stamp = check_stamp;
-exports.filter = filter;
-exports.STORE_NAMES = STORE_NAMES;
-exports.DBSetupError = DBSetupError;
+export {
+    channel,
+    channel_store,
+    check_stamp,
+    check_stamp_store,
+    DBSetupError,
+    drop_db,
+    filter,
+    filter_store,
+    forward_idb_request,
+    history,
+    history_store,
+    initialize_db,
+    open,
+    STORE_NAMES,
+    update_duration,
+    update_last_check,
+    video,
+    video_store,
+}

@@ -8,29 +8,16 @@ Author: XrXr
 This module provide functions for making api certain YouTube Data API V3
 requests. All functions return promise.
 */
-const { defer } = require("sdk/core/promise");
+import { nice_duration } from "../util";
 
-const util = require("../util");
-const { log_error } = require("../logger");
+const log_error = e => console.error(e);
 
 const api_request = (() => {
-    const api_key = "AIzaSyB6mi40O6WOd17yjeYkK-y5lIU4FvoR8fo";
-
     function make_request (url) {
-        let deferred = defer();
-        require("sdk/request").Request({
-            url: url,
-            onComplete: response => {
-                if (response.status === 200) {
-                    deferred.resolve(response.json);
-                } else {
-                    deferred.reject(response);
-                }
-            }
-        }).get();
-        return deferred.promise;
+        return window.fetch(url).then(response => response.json());
     }
 
+    const api_key = "AIzaSyB6mi40O6WOd17yjeYkK-y5lIU4FvoR8fo";
     function api_url (method, param) {
         let url = "https://www.googleapis.com/youtube/v3/" + method + '?';
         for (var key in param) {
@@ -41,6 +28,7 @@ const api_request = (() => {
         url += "key=" + api_key;
         return url;
     }
+
     return (action, api_args) => make_request(api_url(action, api_args));
 })();
 
@@ -56,7 +44,6 @@ function get_activities (channel, after) {
 }
 
 const VIDEO_DOES_NOT_EXIST = Symbol("Video does not exist");
-exports.VIDEO_DOES_NOT_EXIST = VIDEO_DOES_NOT_EXIST;
 function get_duration (video_id) {
     return api_request("videos", {
         part: "contentDetails",
@@ -68,7 +55,7 @@ function get_duration (video_id) {
         }
         return {
             video_id,
-            duration: util.nice_duration(json.items[0].contentDetails.duration)
+            duration: nice_duration(json.items[0].contentDetails.duration)
         };
     });
 }
@@ -81,7 +68,7 @@ function get_tags_and_duration (video_id) {
     }).then(res => {
         res = res.items[0];
         return {
-            duration: util.nice_duration(res.contentDetails.duration),
+            duration: nice_duration(res.contentDetails.duration),
             tags: (res.snippet && res.snippet.tags) || []
         };
     });
@@ -114,7 +101,10 @@ function search_channel (query) {
     }, log_error).then(null, log_error);
 }
 
-exports.search_channel = search_channel;
-exports.get_duration = get_duration;
-exports.get_activities = get_activities;
-exports.get_tags_and_duration = get_tags_and_duration;
+export {
+    search_channel,
+    get_duration,
+    get_activities,
+    get_tags_and_duration,
+    VIDEO_DOES_NOT_EXIST,
+};

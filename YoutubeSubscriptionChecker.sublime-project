@@ -3,7 +3,7 @@
 	[
 		{
 			"path": ".",
-			"folder_exclude_patterns": ["data/hub/lib"],
+			"folder_exclude_patterns": ["data/hub/lib", "build"],
 			"file_exclude_patterns": ["*.min.css"]
 		}
 	]

@@ -1,0 +1,29 @@
+{
+  "manifest_version": 2,
+  "name": "Youtube Checker",
+  "description": "Get notifications for new uploads from your favorite YouTube channels.",
+  "icons": {
+    "64": "icons/active64.png"
+  },
+  "author": "XrXr",
+  "version": "2.4.0",
+  "background": {
+    "page": "background.html"
+  },
+  "permissions": [
+    "https://www.googleapis.com/*",
+    "notifications",
+    "tabs",
+    "webNavigation"
+  ],
+  "applications": {
+    "gecko": {
+      "id": "youtube-subscription-checker@xrxr"
+    }
+  },
+  "browser_action": {
+    "default_icon": {
+      "64": "icons/inactive64.png"
+    }
+  }
+}

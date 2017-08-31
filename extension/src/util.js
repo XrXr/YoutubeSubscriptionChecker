@@ -5,20 +5,10 @@ If a copy of the MPL was not distributed with this file,
 You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
-const tabs = require("sdk/tabs");
+import * as config from "./config";
+import { log_error } from "./logger";
 
-exports.noop = function () {};
-exports.fetch_properties = fetch_properties;
-exports.open_video = open_video;
-exports.nice_duration = nice_duration;
-exports.wrap_promise = wrap_promise;
-exports.sort_videos = sort_videos;
-exports.cb_settle = cb_settle;
-exports.cb_each = cb_each;
-exports.cb_join = cb_join;
-
-const config = require("./config");
-const { log_error } = require("./logger");
+function noop () {};
 
 function nice_duration (ISO_8601_string) {
     let time = ISO_8601_string.replace("PT", "").toUpperCase();
@@ -163,7 +153,7 @@ function cb_each(list, f, cb) {
     let done = false;
     let total = list.length;
     if (list.length === 0) {
-        return cb(null);
+        return cb(null, list);
     }
     for (let i = 0; i < list.length; i++) {
         try {
@@ -182,7 +172,7 @@ function cb_each(list, f, cb) {
             cb(err);
         } else if (--total === 0) {
             done = true;
-            cb(null);
+            cb(null, list);
         }
     }
 }
@@ -230,9 +220,9 @@ function open_video (trans, id) {
             log_error("could not get open in background setting for opening video", err);
             in_background = false;
         }
-        tabs.open({
+        chrome.tabs.create({
             url: "https://www.youtube.com/watch?v=" + id,
-            inBackground: in_background
+            active: !in_background
         });
     });
 }
@@ -242,3 +232,15 @@ function open_video (trans, id) {
 function fetch_properties (obj, property_names) {
     return property_names.map(name => obj[name]);
 }
+
+export {
+    cb_each,
+    cb_join,
+    cb_settle,
+    fetch_properties,
+    nice_duration,
+    noop,
+    open_video,
+    sort_videos,
+    wrap_promise,
+};

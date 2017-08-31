@@ -43,13 +43,16 @@ function do_migration(video_migration, cb) {
             if (err) {
                 return cb(err);
             }
-            let migrate = db.transaction(storage.STORE_NAMES, "readwrite");
-            fill_configs(migrate, util.noop);
-            fill_channels(migrate, util.noop);
-            video_migration(migrate, util.noop);
-            migrate.oncomplete = () => cb();
-            migrate.onabort = () => cb(Error("migration failed"));
-            db.close();
+            try {
+                let migrate = db.transaction(storage.STORE_NAMES, "readwrite");
+                migrate.oncomplete = () => cb();
+                migrate.onabort = () => cb(Error("migration failed"));
+                fill_configs(migrate, util.noop);
+                fill_channels(migrate, util.noop);
+                video_migration(migrate, util.noop);
+            } finally {
+                db.close();
+            }
         });
     });
 }
