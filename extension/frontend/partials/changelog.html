@@ -6,124 +6,14 @@
 <h3 class="heading">Changelog</h3>
 
 <div class="modal-body">
-    <h5>2.4.0 (August 31st 2017)</h5>
-    <ul>
-      <li>This is a maintenance release for compatibility with Firefox 57 in the future</li>
-    </ul>
-    <h5>2.3.4 (January 3rd 2017)</h5>
-    <ul>
-      <li>
-        Fix tooltip style in Firefox 52
-      </li>
-    </ul>
-    <h5>2.3.3 (August 8th 2016)</h5>
-    <ul>
-      <li>
-        Fix the filter list being broken when there is a filter that belongs
-        to a channel not in the subscription list
-      </li>
-    </ul>
-    <h5>2.3.2 (July 1st 2016)</h5>
-    <ul>
-      <li>Switch to indexed-db for data storage which should fix random wipes</li>
-      <li>
-        Order videos only by upload time. Previously they were also grouped by uploader
-      </li>
-      <li>Remove the ability to order filters. The order didn't matter anyways</li>
-      <li>Add local logging which should provide insights about future bugs</li>
-      <li>UI improvements for extra large and extra small windows</li>
-      <li>Many miscellaneous small fixes</li>
-    </ul>
+  <h5>2.4.1 (October 22nd 2017)</h5>
+  <ul>
+    <li>Compatibility with Firefox 57</li>
+  </ul>
 
-    <h5>2.2.0 (March 6th 2016)</h5>
-    <ul>
-      <li>Fix certain responses disabling the checker</li>
-      <li>Use standard API for icon badging</li>
-      <li>Make tooltips for buttons go away immediately in hub</li>
-    </ul>
-
-    <h5>2.1.0 (February 12th 2016)</h5>
-    <ul>
-      <li>Fix duration display for some videos</li>
-      <li>Improve UX of subscription manager</li>
-      <li>Add ability for filters to also inspect video tags</li>
-    </ul>
-
-    <h5>2.0.6 (January 6th 2016)</h5>
-    <ul>
-        <li>Fix displaying include and exclude for filters</li>
-        <li>Fix icon in addon manager</li>
-    </ul>
-
-    <h5>2.0.5 (December 30th 2015)</h5>
-    <ul>
-        <li>Bug fixes:
-            <ul>
-                <li>Re-package the add-on to fix review problem</li>
-            </ul>
-        </li>
-    </ul>
-
-    <h5>2.0.4 (December 28th 2015)</h5>
-    <ul>
-        <li>Bug fixes:
-            <ul>
-                <li>Align the "-" button with channel name in subscription manager</li>
-                <li>Make video thumbnails links</li>
-                <li>Fix skipping videos on Macs</li>
-                <li>Migrate to JPM for packaging the add-on</li>
-            </ul>
-        </li>
-    </ul>
-
-    <h5>2.0.3 (June 20th 2015)</h5>
-    <ul>
-        <li>Bug fixes:
-            <ul>
-                <li>Fix not being able to add filters for a newly added channel without reopening the hub page</li>
-            </ul>
-        </li>
-    </ul>
-
-    <h5>2.0.2 (June 7th 2015)</h5>
-    <ul>
-        <li>Bug fixes:
-            <ul>
-                <li>Subscription edit modal styling. Search results used to extend out of the modal when subscribed to a small amount of channels.</li>
-                <li>Multiple instances of the same channel sometimes added to the left hand side of the subscription modal (only in the modal)</li>
-                <li>Fix typo in settings modal (Changlog -> Changelog)</li>
-            </ul>
-        </li>
-    </ul>
-
-    <h5>2.0.1 (June 4th 2015)</h5>
-    <ul>
-        <li>Fix a minor issue that causes bogus error messages to be logged into the error console</li>
-    </ul>
-
-    <h5>2.0 (February 10th 2015)</h5>
-    <ul>
-        <li>New features:
-            <ul>
-                <li>Skip videos by holding down <kbd>Ctrl</kbd> (or <kbd>⌘</kbd> on Mac) and clicking</li>
-                <li>Add video filters to automatically discard videos you don't want to watch</li>
-                <li>Preference/subscription import/export</li>
-                <li>History mode</li>
-                <li>Add ability to open settings from add-on manager</li>
-            </ul>
-        </li>
-        <li>Bug fixes:
-            <ul>
-                <li>Check interval not being saved</li>
-                <li>Not grabbing enough activities from YouTube API, causing uploads being missed from channels with a lot of activities (rare)</li>
-                <li>Complete revamp of the internals</li>
-            </ul>
-        </li>
-    </ul>
-
-    <h5>1.0 (July 11th 2014)</h5>
-    <ul>
-        <li>Initial release</li>
-    </ul>
+  <h5>2.4.0 (August 31st 2017)</h5>
+  <ul>
+    <li>This is a maintenance release for compatibility with Firefox 57 in the future</li>
+  </ul>
 </div>
 <div class="modal-footer"><button class="btn btn-primary" ng-click="$dismiss()">Close</button></div>

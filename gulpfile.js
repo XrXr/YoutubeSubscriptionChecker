@@ -13,28 +13,15 @@ const fs = require("fs");
 const path = require("path"),
       join = path.join;
 const { exec } = require('child_process');
-const jetpack_packgejson = require("./jetpack/package.json");
+const ext_manifest = require("./extension/manifest.json");
 
-const main_path = project_path("jetpack");
-const xpi_name = `${jetpack_packgejson.name}.xpi`;
-const original_xpi_path = join(main_path, xpi_name);
+let xpi_name = `${ext_manifest.name}-${ext_manifest.version}`
+    .toLowerCase()
+    .replace(/\s/g, '-') + '.xpi';
 
 const build_output_dir = project_path("build/dev-build-output");
+const final_tree_dir = project_path("build/tmp-final-tree/");
 const tmp_mainjs_path = project_path("build/tmp-ext-src/main.js");
-
-function jpm(command, cb) {
-    let base = "jpm";
-    if (process.env.FIREFOX_PATH) {
-        base += " -b " + process.env.FIREFOX_PATH;
-    }
-
-    let child = exec(`${base} ${command}`, {
-        cwd: main_path
-    }, cb);
-
-    child.stdout.pipe(process.stdout);
-    child.stderr.pipe(process.stderr);
-}
 
 function project_path(relative_path) {
     return path.join(__dirname, relative_path);
@@ -55,43 +42,12 @@ function ls_all_files_under(dir) {
     return results;
 }
 
-gulp.task("build-jetpack", function (cb) {
-    jpm("xpi", cb);
-});
-
-gulp.task("copy-xpi", ["build-jetpack"], function () {
-    return gulp.src(original_xpi_path).pipe(gulp.dest("build/"));
-});
-
-gulp.task("jetpack-release", ["copy-xpi", "web-ext-release-build"], function () {
-    let xpi = new JSZip();
-    let file_name = path.basename(original_xpi_path);
-    let zip = fs.readFileSync(join("build", file_name));
-    let main = fs.readFileSync(join("jetpack", "lib", "main.js"), "utf8");
-    return xpi.loadAsync(zip).then(xpi => {
-        let web_extension_files = ls_all_files_under(build_output_dir);
-        for (let file_path of web_extension_files) {
-            let stream = fs.createReadStream(file_path);
-            let path_within_xpi = path.join("webextension", file_path.replace(build_output_dir, ""));
-            xpi.file(path_within_xpi, stream);
-        }
-
-        return xpi.generateNodeStream({
-            compression: "DEFLATE",
-            compressionOptions : { level:9 }
-        }).pipe(source(file_name))
-          .pipe(gulp.dest(project_path("build/")));
-    });
-});
-
-gulp.task("default", ["jetpack-release"]);
-
 gulp.task("copy-ext-assets", function () {
     return gulp.src(["./extension/**", "!./extension/{src,src/**}"])
-        .pipe(gulp.dest(build_output_dir));
+        .pipe(gulp.dest(final_tree_dir));
 });
 
-gulp.task("furnish-temp-src", function () {
+gulp.task("furnish-temp-src", ["copy-ext-assets"], function () {
     return gulp.src(["./extension/src/**/*"])
         .pipe(gulp.dest(project_path("build/tmp-ext-src")));
 });
@@ -120,24 +76,42 @@ function rollup_task() {
         return bundle.write({
             format: "iife",
             moduleName: "checkYoutube",
-            dest: project_path("build/dev-build-output/main.bundle.js"),
+            dest: path.join(final_tree_dir, "main.bundle.js"),
         });
     });
 }
 
 const mainjs_path = project_path("extension/src/main.js");
-gulp.task("web-ext-dev-build", ["furnish-temp-src", "copy-ext-assets"], rollup_task);
-gulp.task("web-ext-release-build", ["strip-dev-code", "copy-ext-assets"], rollup_task);
+gulp.task("web-ext-dev-tree", ["furnish-temp-src"], rollup_task);
+gulp.task("web-ext-release-tree", ["strip-dev-code"], rollup_task);
+gulp.task("web-ext-xpi", ["web-ext-release-tree"], function () {
+    let xpi = new JSZip();
+    let web_extension_files = ls_all_files_under(final_tree_dir);
+    for (let file_path of web_extension_files) {
+        let stream = fs.createReadStream(file_path);
+        let path_within_xpi = file_path.replace(final_tree_dir, "");
+        xpi.file(path_within_xpi, stream);
+    }
 
-let watch_task_dependency = ["web-ext-release-build"];
+    return xpi.generateNodeStream({
+        compression: "DEFLATE",
+        compressionOptions : { level:9 }
+    }).pipe(source(xpi_name))
+      .pipe(gulp.dest(project_path("build/")));
+});
+
+
+let watch_task_dependency = ["web-ext-release-tree"];
 if (process.env["CHECKER_DEV"]) {
-    watch_task_dependency = ["web-ext-dev-build"];
+    watch_task_dependency = ["web-ext-dev-tree"];
 }
 
 gulp.task("watch", watch_task_dependency, () => {
-    console.log("Built to " + path.resolve(build_output_dir));
+    console.log("Built to " + path.resolve(final_tree_dir));
     return gulp.watch("extension/**/*", watch_task_dependency);
 })
+
+gulp.task("default", ["web-ext-xpi"]);
 
 gulp.task("unit-tests", cb => {
     jpm("test", cb);
