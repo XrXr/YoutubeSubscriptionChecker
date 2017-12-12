@@ -101,10 +101,23 @@ function search_channel (query) {
     }, log_error).then(null, log_error);
 }
 
+function get_playlist_id_for_upload(channel_id) {
+    return api_request('channels', {
+        part: 'contentDetails',
+        id: channel_id
+    }).then(response_json => {
+        let channel = response_json.items[0];
+        // This might throw, in which case it rejects the promise,
+        // which is fine
+        return channel.contentDetails.relatedPlaylists.uploads;
+    });
+}
+
 export {
     search_channel,
     get_duration,
     get_activities,
     get_tags_and_duration,
+    get_playlist_id_for_upload,
     VIDEO_DOES_NOT_EXIST,
 };

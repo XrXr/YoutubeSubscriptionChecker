@@ -168,7 +168,7 @@ const channel = {
     add_one(trans, channel, cb=util.noop) {
         // would call cb with error if channel is already there
         util.cb_join([cb => {  // add the channel
-            let req = channel_store(trans).add(new Channel(channel.id, channel.title));
+            let req = channel_store(trans).add(new Channel(channel.id, channel.title, channel.upload_playlist_id));
             forward_idb_request(req, cb);
         }, cb => {  // add check_stamp
             check_stamp.update(trans, channel.id, Date.now(), cb);
@@ -209,9 +209,10 @@ const channel = {
     }
 };
 
-function Channel(id, title) {
+function Channel(id, title, upload_playlist_id) {
     this.id = id;
     this.title = title;
+    this.upload_playlist_id = upload_playlist_id;
 }
 
 const filter = {
