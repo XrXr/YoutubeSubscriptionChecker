@@ -24,13 +24,10 @@ If all else fails: **execute at your own risk and be very careful**
  -   Open Firefox again. It will take a moment before the addon becomes responsive, Firefox is not used to this kind situation.
 
 
-# General architecture
+# Building
 
-The background add-on code is responsible for all the API requests to YouTube
-and persisting data using `indexedDB`. The UI page talks to the add-on code
-through `hub/app/bridge.js`. The general philosophy is to keep the responsibility of the UI page as small as possible.
-
-The layout of the db can be found in `initialize_db()` in `storage.js`
+The main gulp task to use is `gulp watch`. I Use it with `web-ext`. If the `CHECKER_DEV`
+environmental variable is set when gulp is running, code in `development.js` will run.
 
 [amo-listing]: https://addons.mozilla.org/en-US/firefox/addon/youtube-subscription-checker/
 [mpl]: https://www.mozilla.org/en-US/MPL/2.0/
