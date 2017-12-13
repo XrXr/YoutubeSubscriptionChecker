@@ -78,7 +78,7 @@ function rollup_task() {
             moduleName: "checkYoutube",
             dest: path.join(final_tree_dir, "main.bundle.js"),
         });
-    });
+    }, err => console.log(err));
 }
 
 const mainjs_path = project_path("extension/src/main.js");
