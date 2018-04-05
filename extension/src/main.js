@@ -359,8 +359,8 @@ function actual_init(cb=util.noop) {
     });
 }
 
-browser.runtime.onInstalled.addListener(reason => {
-    if (reason === "update") {
+browser.runtime.onInstalled.addListener(details => {
+    if (details.reason === "update") {
         events.once_new_receiver(() => events.notify.open_changelog());
     }
 });
