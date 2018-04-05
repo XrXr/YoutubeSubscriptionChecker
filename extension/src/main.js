@@ -186,32 +186,6 @@ function fetch_unfetched_durations() {
     }
 }
 
-function backfill_upload_playlist_ids() {
-    let read_channels = db.transaction(["channel"], "readonly");
-    storage.channel.get_all(read_channels, (err, channel_list) => {
-        if (err) {
-            log_error("Fatal: Can't get channel list for backfill", err);
-            return;
-        }
-        for (let channel of channel_list) {
-            if (typeof channel.upload_playlist_id === 'string') {
-                continue;
-            }
-            youtube_request.get_playlist_id_for_upload(channel.id).then(playlist_id => {
-                let write_back = db.transaction(["channel"], "readwrite");
-                let cursor_req = storage.channel_store(write_back).index("id").openCursor(channel.id);
-                cursor_req.onsuccess = ev => {
-                    let cursor = ev.target.result;
-                    cursor.value.upload_playlist_id = playlist_id;
-                    cursor.update(cursor.value);
-                    // fire and forget. Once this is stored it will be used in
-                    // the next iteration
-                }
-            });
-        }
-    });
-}
-
 function check_all () {
     let check = db.transaction(["channel", "config", "check_stamp", "filter"], "readwrite");
     storage.channel.get_all(check, (err, channel_list) => {
@@ -220,33 +194,25 @@ function check_all () {
             return;
         }
 
-        let with_playlist = channel_list.filter(channel => channel.upload_playlist_id);
-        console.log(JSON.stringify(channel_list))
-        let with_activities = channel_list.filter(channel => !(channel.upload_playlist_id));
-        check_using_activities(check, with_activities);
-
+        let promises = channel_list.map(channel => new Promise((resolve, reject) => {
+            // get timestamp for latest video and the filters for a channel,
+            // then send out requests accordingly
+            util.cb_join([done => storage.check_stamp.get_for_channel(check, channel.id, done),
+                          done => storage.filter.get_for_channel(check, channel.id, done)],
+                (err, latest_date, filters) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    let fetch = youtube_request.get_activities(channel, latest_date);
+                    if (filters.some(filter => filter.inspect_tags)) {
+                        fetch = fetch_more(fetch);
+                    }
+                    fetch.then(resolve, reject);
+                });
+        }));
+        handle_check_results(promises);
         storage.update_last_check(check);
     });
-}
-
-function check_using_activities(trans, channel_list) {
-    let promises = channel_list.map(channel => new Promise((resolve, reject) => {
-        // get timestamp for latest video and the filters for a channel,
-        // then send out requests accordingly
-        util.cb_join([done => storage.check_stamp.get_for_channel(trans, channel.id, done),
-                      done => storage.filter.get_for_channel(trans, channel.id, done)],
-            (err, latest_date, filters) => {
-                if (err) {
-                    return reject(err);
-                }
-                let fetch = youtube_request.get_activities(channel, latest_date);
-                if (filters.some(filter => filter.inspect_tags)) {
-                    fetch = fetch_more(fetch);
-                }
-                fetch.then(resolve, reject);
-            });
-    }));
-    handle_check_results(promises);
 
     // return a new promise which fetches video duration and tags in addition
     function fetch_more(activity_fetch) {
@@ -332,8 +298,6 @@ function start_checking() {
             }
             timers.setTimeout(check_cycle, interval * 60 * 1000);
         });
-
-        backfill_upload_playlist_ids();
     }
     // decide when to start the cycle
     let trans = db.transaction("config");

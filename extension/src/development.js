@@ -32,7 +32,6 @@ function run(cb) {
         add_channel({
             "title": "Northernlion",
             "id": "UC3tNpTOHsTnkmbwztCs30sA",
-            "upload_playlist_id":"UU3tNpTOHsTnkmbwztCs30sA"
         });
 
         add_channel({
