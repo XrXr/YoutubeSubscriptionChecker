@@ -391,6 +391,10 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             Isotope.layout();
         };
 
+        $scope.sortVideoCountFirst = function (channel) {
+            return channel.video_count > 0 ? 0 : 1;
+        };
+
         Bridge.on("open-settings", () => $scope.open_settings());
         let show_changelog, migration_failed;
         Bridge.on("open-changelog", () => show_changelog = true);
