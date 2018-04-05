@@ -96,17 +96,24 @@ browser.webNavigation.onCommitted.addListener(details => {
     }]
 });
 
-function filter_and_store(new_uploads) {
+function process_channel_activities (response_json, cb) {
+    if (!response_json.hasOwnProperty("items")) {
+        return cb(null, null);
+    }
+
+    let new_uploads = response_json.items.filter(youtube_util.activity.is_upload);
+
     if (new_uploads.length === 0) {
-        return Promise.resolve(null);
+        return cb(null, null);
     }
     let include, exclude;
 
-    const publish_dates = new_uploads.map(video => (new Date(video.published_at)).getTime());
+    const publish_dates = new_uploads.map(e => (new Date(youtube_util.activity.
+        get_publish_date(e))).getTime());
     const most_recent = Math.max(...publish_dates);
 
     let trans = db.transaction(["video", "history", "check_stamp", "filter"], "readwrite");
-    let channel_id = new_uploads[0].channel_id;
+    let channel_id = youtube_util.activity.get_channel_id(new_uploads[0]);
     storage.filter.get_for_channel(trans, channel_id, (err, video_filters) => {
         if (err) {
             log_error(`Can't get filters for ${channel_id} in a check `, err);
@@ -116,7 +123,7 @@ function filter_and_store(new_uploads) {
         // video. One second more since two videos uploaded during the
         // same second is treated as both "later than each other".
         storage.check_stamp.update(trans, channel_id, most_recent + 1000);
-
+        new_uploads.forEach(youtube_util.activity.normalize);
         [include, exclude] = filters.filter_videos(new_uploads, video_filters);
         new_uploads.forEach(e => delete e.tags);
 
@@ -128,10 +135,8 @@ function filter_and_store(new_uploads) {
             .forEach(fetch_duration);
     });
 
-    return new Promise((resolve, reject) => {
-        trans.oncomplete = () => resolve(include.length > 0 ? channel_id : null);
-        trans.onabort = () => reject(Error("Failed to filter and store"));
-    });
+    trans.oncomplete = () => cb(null, include.length > 0 ? channel_id : null);
+    trans.onabort = () => cb(Error("processing aborted"));
 }
 
 // fetch and update the duration of a video
@@ -207,87 +212,85 @@ function backfill_upload_playlist_ids() {
     });
 }
 
-function gather_check_info(trans) {
-    return new Promise((resolve, reject) => {
-        storage.channel.get_all(trans, (err, channel_list) => {
-            if (err) {
-                return reject(err);
+function check_all () {
+    let check = db.transaction(["channel", "config", "check_stamp", "filter"], "readwrite");
+    storage.channel.get_all(check, (err, channel_list) => {
+        if (err) {
+            log_error("Fatal: Can't get channel list for check", err);
+            return;
+        }
+
+        let with_playlist = channel_list.filter(channel => channel.upload_playlist_id);
+        console.log(JSON.stringify(channel_list))
+        let with_activities = channel_list.filter(channel => !(channel.upload_playlist_id));
+        check_using_activities(check, with_activities);
+
+        storage.update_last_check(check);
+    });
+}
+
+function check_using_activities(trans, channel_list) {
+    let promises = channel_list.map(channel => new Promise((resolve, reject) => {
+        // get timestamp for latest video and the filters for a channel,
+        // then send out requests accordingly
+        util.cb_join([done => storage.check_stamp.get_for_channel(trans, channel.id, done),
+                      done => storage.filter.get_for_channel(trans, channel.id, done)],
+            (err, latest_date, filters) => {
+                if (err) {
+                    return reject(err);
+                }
+                let fetch = youtube_request.get_activities(channel, latest_date);
+                if (filters.some(filter => filter.inspect_tags)) {
+                    fetch = fetch_more(fetch);
+                }
+                fetch.then(resolve, reject);
+            });
+    }));
+    handle_check_results(promises);
+
+    // return a new promise which fetches video duration and tags in addition
+    function fetch_more(activity_fetch) {
+        let res_ref;
+        return activity_fetch.then(res => {
+            res_ref = res;
+            if (!('items' in res)) {
+                return;
             }
 
-            let info_promises = channel_list.map((channel, cb) => {
-                return new Promise((resolve_info, reject_info) => {
-                    util.cb_join([done => storage.check_stamp.get_for_channel(trans, channel.id, done),
-                                  done => storage.filter.get_for_channel(trans, channel.id, done)],
-                        (err, latest_date, filters) => {
-                            if (err) {
-                                return reject_info(err);
-                            }
-                            resolve_info({channel, latest_date, filters});
+            let full_fetches = res.items.filter(youtube_util.activity.is_upload)
+                .map(activity => {
+                    let video_id = youtube_util.activity.get_video_id(activity);
+                    return youtube_request.get_tags_and_duration(video_id)
+                        .then(({duration, tags}) => {
+                            activity.duration = duration;
+                            activity.tags = tags;
                         });
                 });
-            });
-            resolve(Promise.all(info_promises));
+            return Promise.all(full_fetches);
+        }).then(() => res_ref);
+    }
+}
+
+function handle_check_results(request_promises) {
+    let wrapped = request_promises.map(util.wrap_promise);
+    Promise.all(wrapped).then(results => {
+        for (let e of results) {
+            if (!e.success) {
+                log_error("Video check failed", e.value);
+            }
+        }
+        util.cb_settle(results.filter(e => e.success), (req_result, cb) => {
+            process_channel_activities(req_result.value, cb);
+        }, (_, process_results) => {
+            let uploaded = process_results
+                .filter(e => e.success)
+                .map(e => e.value)
+                .filter(e => e !== null);
+            if (uploaded.length > 0) {
+                notify_new_uploads(uploaded);
+            }
         });
-    });
-}
-
-function check_all () {
-    let check = db.transaction(["channel", "check_stamp", "filter"], "readwrite");
-    gather_check_info(check).then(info => {
-        storage.update_last_check(db.transaction("config", "readwrite"));
-
-        return Promise.all(info.map(({channel, latest_date, filters}) => {
-            let promise;
-            if (channel.upload_playlist_id) {
-                promise = Promise.reject('not yet')
-            } else {
-                promise = check_using_activities(check, channel, latest_date, filters);
-            }
-
-            if (filters.some(filter => filter.inspect_tags)) {
-                promise = promise.then(fetch_duration_and_tags);
-            }
-
-            return util.wrap_promise(promise.then(filter_and_store));
-        }));
-    }).then(check_result_list => {
-        let uploaded = check_result_list
-            .filter(e => e.success)
-            .map(e => e.value)
-            .filter(e => e !== null);
-        if (uploaded.length > 0) {
-            notify_new_uploads(uploaded);
-        }
-        for (let result of check_result_list) {
-            if (!result.success) {
-                log_error('Check failed', result.value)
-            }
-        }
-    }).then(null, err => log_error('Check failed', err));
-}
-
-function check_using_activities(trans, channel, latest_date, filters) {
-    return youtube_request.get_activities(channel, latest_date).then(response_json => {
-        if (!response_json.hasOwnProperty("items")) {
-            return [];
-        }
-
-        let new_uploads = response_json.items.filter(youtube_util.activity.is_upload);
-        new_uploads.forEach(youtube_util.activity.normalize);
-        return new_uploads;
-    });
-}
-
-function fetch_duration_and_tags(video_list) {
-    let extra_fetches = video_list.map(video => {
-        return youtube_request.get_tags_and_duration(video.video_id)
-            .then(({duration, tags}) => {
-                video.duration = duration;
-                video.tags = tags;
-                return video;
-            });
-    });
-    return Promise.all(extra_fetches);
+    }, log_error).then(null, log_error);
 }
 
 function notify_new_uploads(uploaded_channels) {
