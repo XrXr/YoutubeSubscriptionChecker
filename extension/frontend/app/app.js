@@ -75,6 +75,28 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         };
     })
 
+    .directive("morphToButton", function ($parse) {
+        return {
+            link(scope, elem, attrs) {
+                let additional_class = "";
+                let getMorphPredicate = $parse(attrs.morphToButton);
+                let getFilter = $parse(attrs.ngModel);
+                scope.$watch(function () {
+                    return getMorphPredicate(scope);
+                }, function(newVal) {
+                    let raw_elem = elem[0];
+                    if (newVal) {
+                        raw_elem.type = "button";
+                        raw_elem.value = "Clear Videos"
+                    } else {
+                        raw_elem.type = "text";
+                        raw_elem.value = getFilter(scope);
+                    }
+                });
+            }
+        };
+    })
+
     .factory("Isotope", function(ConfigManager, $timeout) {
         let isotope;
         return Object.assign(wrap_in_timeout({
@@ -138,6 +160,26 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                     gutter: 19
                 }
             });
+        }
+    })
+
+    .factory("BatchRemove", function ($timeout) {
+        let is_active = false;
+        let cancel_promise = null;
+        return {
+            activate() {
+                if (cancel_promise) {
+                    $timeout.cancel(cancel_promise);
+                }
+                is_active = true;
+                cancel_promise = $timeout(() => {
+                    is_active = false;
+                    cancel_promise = null;
+                }, 5000);
+            },
+            is_active() {
+                return is_active;
+            }
         }
     })
 
@@ -344,9 +386,11 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
     })
 
     .controller("frame", function($scope, $uibModal, VideoStorage, Bridge,
-                                  ChannelList, Isotope) {
+                                  ChannelList, Isotope, BatchRemove) {
         $scope.chnl = ChannelList;
         $scope.vs = VideoStorage;
+        $scope.BatchRemove = BatchRemove;
+        $scope.channel_search = "";
 
         $scope.video_count = () => {
             let count = VideoStorage.video_count();
@@ -417,7 +461,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
     })
 
     .controller("videos", function($scope, Isotope, VideoStorage, ChannelList,
-                                   Bridge) {
+                                   Bridge, BatchRemove) {
         $scope.v = VideoStorage;
         // state to keep the no video message hidden until the first playload
         $scope.first_payload = false;
@@ -434,7 +478,13 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 return Bridge.emit("open-video", video.video_id);
             }
             if (VideoStorage.remove_video(video)) {
-                let event_name = event.ctrlKey || event.metaKey ? "skip-video" : "remove-video";
+                let event_name;
+                if (event.ctrlKey || event.metaKey) {
+                    event_name = "skip-video";
+                    record_skip();
+                } else {
+                    event_name = "remove-video";
+                }
                 Bridge.emit(event_name, video.video_id);
                 let video_div = event.target;
                 // walk upwards to the root of the video node
@@ -461,6 +511,30 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
 
         $scope.no_video_subject = () => VideoStorage.history_mode ?
             "history" : "new videos";
+
+        let video_skip_timestamps = [];
+        function total_elasped_time() {
+            let total = 0;
+            for (let i = 0; i < video_skip_timestamps.length-1; i++) {
+                total += video_skip_timestamps[i+1] - video_skip_timestamps[i];
+            }
+            return total
+        }
+
+        function record_skip() {
+            if (total_elasped_time() > 5000) {
+                video_skip_timestamps.length = 0;
+            }
+            video_skip_timestamps.push(Date.now());
+
+            if (video_skip_timestamps.length == 5) {
+                let total_elapsed = total_elasped_time();
+                if (total_elapsed <= 5000) {
+                    BatchRemove.activate();
+                }
+                video_skip_timestamps.length = 0;
+            }
+        }
 
         Bridge.on("videos", event => {
             let details = JSON.parse(event.detail);

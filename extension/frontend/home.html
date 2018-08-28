@@ -21,7 +21,7 @@
 <body ng-app="subscription_checker">
   <div class="main-container">
     <div class="container-fluid left-pannel" ng-controller="frame">
-      <input class="form-control" ng-model="channel_search" type="text" placeholder="Filter channels">
+      <input class="form-control" ng-model="channel_search" morph-to-button="BatchRemove.is_active()" ng-class="{'batch-remove-button': BatchRemove.is_active() }" placeholder="Filter channels" value="Clear Videos">
       <div class="setting-btn-row">
         <div class="subscriptions-btn-box">
           <button type="button" class="subscriptions-btn tool-tip-btn" ng-click="open_subscriptions()"></button>

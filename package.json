@@ -11,9 +11,9 @@
   "devDependencies": {
     "gulp": "3.9.1",
     "jszip": "^3.0.0",
-    "request": "2.72.0",
+    "request": "^2.88.0",
     "rollup": "0.41.6",
-    "selenium-webdriver": "2.53.2",
+    "selenium-webdriver": "^3.6.0",
     "vinyl-source-stream": "^1.1.0"
   }
 }
