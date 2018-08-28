@@ -129,6 +129,16 @@ function on_connection (port) {
             update_button_count("after removing a channel");
         });
     });
+    listen("clear-unwatched", channel => {
+        let trans = get_db().transaction(["video"], "readwrite");
+        if (channel) {
+            storage.video.remove_all_videos_by_channel(trans, channel, noop);
+            update_button_count("after videos for " + channel);
+        } else {
+            storage.video.remove_all(trans, noop);
+            update_button_count("after clearing all videos");
+        }
+    });
 
     function update_button_count(when) {
         let count = get_db().transaction("video", "readonly");

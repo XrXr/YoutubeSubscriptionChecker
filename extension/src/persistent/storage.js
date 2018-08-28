@@ -76,6 +76,24 @@ const video = {
             forward_idb_request(req, done);
         }, cb);
     },
+    remove_all(trans, cb) {
+        let req = video_store(trans).clear();
+        forward_idb_request(req, cb);
+    },
+    remove_all_videos_by_channel(trans, channel_id, cb) {
+        let vs = video_store(trans);
+        let index = vs.index("channel_id");
+        index.openCursor(channel_id).onsuccess = ev => {
+            let cursor = ev.target.result;
+            if (cursor) {
+                let del_req = cursor.delete();
+                del_req.onsuccess = () => cursor.continue();
+                del_req.onerror = () => cb(del_req.error);
+            } else {
+                cb();
+            }
+        };
+    }
 };
 
 const video_property_names = ["channel_id", "video_id", "title", "duration",
@@ -184,18 +202,7 @@ const channel = {
                 forward_idb_request(del_req, cb);
             };
         }, cb => {  // delete all videos the channel has
-            let vs = video_store(trans);
-            let index = vs.index("channel_id");
-            index.openCursor(id).onsuccess = ev => {
-                let cursor = ev.target.result;
-                if (cursor) {
-                    let del_req = cursor.delete();
-                    del_req.onsuccess = () => cursor.continue();
-                    del_req.onerror = () => cb(del_req.error);
-                } else {
-                    cb();
-                }
-            };
+            video.remove_videos_by_channel(trans, id, cb);
         }, cb => {  // delete the check_stamp of the channel
             let req = check_stamp_store(trans).delete(id);
             forward_idb_request(req, cb);
@@ -379,4 +386,4 @@ export {
     update_last_check,
     video,
     video_store,
-}
+};

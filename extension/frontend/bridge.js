@@ -24,8 +24,8 @@ Author: XrXr
 
     const outbound_events = new Set(["search-channel", "add-channel",
         "remove-channel", "clear-history", "remove-video", "skip-video",
-        "export", "import", "open-video", "drop-db", "update-config",
-        "open-settings", "get-error-logs", "clear-logs",
+        "clear-unwatched", "export", "import", "open-video", "drop-db",
+        "update-config", "open-settings", "get-error-logs", "clear-logs",
     ]);
 
     const port = chrome.runtime.connect();

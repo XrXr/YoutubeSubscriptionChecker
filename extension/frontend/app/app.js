@@ -6,7 +6,7 @@ You can obtain one at http://mozilla.org/MPL/2.0/.
 Author: XrXr
 */
 /* global angular */
-/* jshint unused:strict */
+/* jshint unused:strict, browser: true */
 angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
     .config(function ($httpProvider) {
         /*
@@ -78,19 +78,22 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
     .directive("morphToButton", function ($parse) {
         return {
             link(scope, elem, attrs) {
-                let additional_class = "";
                 let getMorphPredicate = $parse(attrs.morphToButton);
                 let getFilter = $parse(attrs.ngModel);
                 scope.$watch(function () {
                     return getMorphPredicate(scope);
-                }, function(newVal) {
+                }, function(newVal, oldVal) {
                     let raw_elem = elem[0];
                     if (newVal) {
                         raw_elem.type = "button";
-                        raw_elem.value = "Clear Videos"
+                        raw_elem.value = "Clear Videos";
                     } else {
                         raw_elem.type = "text";
                         raw_elem.value = getFilter(scope);
+                    }
+
+                    if (newVal !== oldVal) {
+                        raw_elem.blur();
                     }
                 });
             }
@@ -139,6 +142,11 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 while (con.firstElementChild) {
                     con.removeChild(con.firstElementChild);
                 }
+            },
+            remove_matching,
+            animated_remove(predicate) {
+                remove_matching(predicate);
+                isotope.layout();
             }
         });
 
@@ -161,26 +169,66 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 }
             });
         }
+
+        function remove_matching(predicate) {
+            let container = document.querySelector(".video-container");
+            for (let node of container.children) {
+                if (predicate(node)) {
+                    isotope.remove(node);
+                }
+            }
+        }
     })
 
     .factory("BatchRemove", function ($timeout) {
         let is_active = false;
         let cancel_promise = null;
+        let video_skip_timestamps = [];
+        function total_elasped_time() {
+            let total = 0;
+            for (let i = 0; i < video_skip_timestamps.length-1; i++) {
+                total += video_skip_timestamps[i+1] - video_skip_timestamps[i];
+            }
+            return total;
+        }
+
+        function activate() {
+            if (cancel_promise) {
+                $timeout.cancel(cancel_promise);
+            }
+            is_active = true;
+            cancel_promise = $timeout(() => {
+                is_active = false;
+                cancel_promise = null;
+            }, 5000);
+        }
+
         return {
-            activate() {
-                if (cancel_promise) {
-                    $timeout.cancel(cancel_promise);
-                }
-                is_active = true;
-                cancel_promise = $timeout(() => {
-                    is_active = false;
-                    cancel_promise = null;
-                }, 5000);
-            },
             is_active() {
                 return is_active;
+            },
+            reset_skip_count() {
+                video_skip_timestamps.length = 0;
+            },
+            deactivate() {
+                is_active = false;
+            },
+            record_skip() {
+                const time_limit = 10000;
+                if (total_elasped_time() > time_limit) {
+                    video_skip_timestamps.length = 0;
+                }
+                video_skip_timestamps.push(Date.now());
+
+                if (video_skip_timestamps.length == 5) {
+                    let total_elapsed = total_elasped_time();
+                    if (total_elapsed <= time_limit) {
+                        activate();
+                    }
+                    video_skip_timestamps.length = 0;
+                }
             }
-        }
+        };
     })
 
     /*
@@ -286,7 +334,8 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             return false;
         };
 
-        this.clear_history = () => history = [];
+        this.clear_history = () => history.length = 0;
+        this.clear_unwatched = () => main.length = 0;
 
         this.remove_videos_by_channel = channel_id => {
             for (let i = main.length - 1; i >= 0; i--) {
@@ -385,8 +434,16 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         this.has_channel = Map.prototype.has.bind(map);
     })
 
+    .factory("SwitchChannel", function (ChannelList, Isotope, BatchRemove) {
+        return function SwitchChannel (channel_id) {
+            ChannelList.current_channel = channel_id;
+            Isotope.filter(channel_id);
+            BatchRemove.reset_skip_count();
+        };
+    })
+
     .controller("frame", function($scope, $uibModal, VideoStorage, Bridge,
-                                  ChannelList, Isotope, BatchRemove) {
+                                  ChannelList, Isotope, BatchRemove, SwitchChannel) {
         $scope.chnl = ChannelList;
         $scope.vs = VideoStorage;
         $scope.BatchRemove = BatchRemove;
@@ -422,10 +479,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
             });
         };
 
-        $scope.switch_channel = function(channel_id) {
-            ChannelList.current_channel = channel_id;
-            Isotope.filter(channel_id);
-        };
+        $scope.switch_channel = SwitchChannel;
 
         $scope.toggle_history = function() {
             Isotope.clear_container_immediately();
@@ -437,6 +491,31 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
 
         $scope.sortVideoCountFirst = function (channel) {
             return channel.video_count > 0 ? 0 : 1;
+        };
+
+
+        $scope.clear_videos = function () {
+            if (BatchRemove.is_active()) {
+                let channel_id = ChannelList.current_channel;
+                let confirm_message = "Clear all videos?";
+                if (channel_id) {
+                    let channel = ChannelList.get_channel_by_id(channel_id);
+                    confirm_message = `Clear all videos for "${channel.title}"?`;
+                }
+                if (window.confirm(confirm_message)) {
+                    Bridge.emit("clear-unwatched", channel_id);
+                    if (channel_id) {
+                        VideoStorage.remove_videos_by_channel(channel_id);
+                        Isotope.remove_matching(node => node.dataset.channelId == channel_id);
+                        SwitchChannel("");
+                    } else {
+                        VideoStorage.clear_unwatched();
+                        Isotope.animated_remove(() => true);
+                    }
+                    ChannelList.update_video_count();
+                    BatchRemove.deactivate();
+                }
+            }
         };
 
         Bridge.on("open-settings", () => $scope.open_settings());
@@ -481,7 +560,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 let event_name;
                 if (event.ctrlKey || event.metaKey) {
                     event_name = "skip-video";
-                    record_skip();
+                    BatchRemove.record_skip();
                 } else {
                     event_name = "remove-video";
                 }
@@ -511,30 +590,6 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
 
         $scope.no_video_subject = () => VideoStorage.history_mode ?
             "history" : "new videos";
-
-        let video_skip_timestamps = [];
-        function total_elasped_time() {
-            let total = 0;
-            for (let i = 0; i < video_skip_timestamps.length-1; i++) {
-                total += video_skip_timestamps[i+1] - video_skip_timestamps[i];
-            }
-            return total
-        }
-
-        function record_skip() {
-            if (total_elasped_time() > 5000) {
-                video_skip_timestamps.length = 0;
-            }
-            video_skip_timestamps.push(Date.now());
-
-            if (video_skip_timestamps.length == 5) {
-                let total_elapsed = total_elasped_time();
-                if (total_elapsed <= 5000) {
-                    BatchRemove.activate();
-                }
-                video_skip_timestamps.length = 0;
-            }
-        }
 
         Bridge.on("videos", event => {
             let details = JSON.parse(event.detail);
@@ -764,7 +819,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
 
     .controller("subscriptions", function ($scope, $uibModalInstance, Isotope,
                                            ChannelList, VideoStorage, Bridge,
-                                           ConfigManager) {
+                                           ConfigManager, SwitchChannel) {
         $scope.chnl = ChannelList;
         $scope.search = {
             term: "",
@@ -808,22 +863,12 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 return;
             }
 
-            let container = document.querySelector(".video-container");
 
-            if (ChannelList.current_channel === channel.id ||
-                    ChannelList.channels.length === 0) {
-                ChannelList.current_channel = "";
-                Isotope.clear_container_immediately(container);
-                return Isotope.layout();
-            }
+            Isotope.animated_remove(node => node.dataset.channelId === channel.id);
 
-            let iso = Isotope.get_instance();
-            for (let node of container.children) {
-                if (node.dataset.channelId === channel.id) {
-                    iso.remove(node);
-                }
+            if (ChannelList.current_channel === channel.id || ChannelList.channels.length === 0) {
+                SwitchChannel("");
             }
-            iso.layout();
         };
 
         function search_result_listener (event) {
