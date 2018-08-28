@@ -214,11 +214,14 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                 is_active = false;
             },
             record_skip() {
+                let now = Date.now();
+                video_skip_timestamps.push(now);
+
                 const time_limit = 10000;
                 if (total_elasped_time() > time_limit) {
-                    video_skip_timestamps.length = 0;
+                    video_skip_timestamps[0] = now;
+                    video_skip_timestamps.length = 1;
                 }
-                video_skip_timestamps.push(Date.now());
 
                 if (video_skip_timestamps.length == 5) {
                     let total_elapsed = total_elasped_time();
