@@ -485,6 +485,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
         $scope.switch_channel = SwitchChannel;
 
         $scope.toggle_history = function() {
+            BatchRemove.deactivate();
             Isotope.clear_container_immediately();
             VideoStorage.toggle_history();
             ChannelList.current_channel = "";
@@ -498,7 +499,7 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
 
 
         $scope.clear_videos = function () {
-            if (BatchRemove.is_active()) {
+            if (BatchRemove.is_active() && !VideoStorage.history_mode) {
                 let channel_id = ChannelList.current_channel;
                 let confirm_message = "Clear all videos?";
                 if (channel_id) {
