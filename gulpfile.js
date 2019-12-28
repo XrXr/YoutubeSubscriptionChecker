@@ -13,28 +13,28 @@ const fs = require("fs");
 const path = require("path"),
       join = path.join;
 const { exec } = require('child_process');
-const ext_manifest = require("./extension/manifest.json");
+const extManifest = require("./extension/manifest.json");
 
-let xpi_name = `${ext_manifest.name}-${ext_manifest.version}`
+let xpiName = `${extManifest.name}-${extManifest.version}`
     .toLowerCase()
     .replace(/\s/g, '-') + '.xpi';
 
-const build_output_dir = project_path("build/dev-build-output");
-const final_tree_dir = project_path("build/tmp-final-tree/");
-const tmp_mainjs_path = project_path("build/tmp-ext-src/main.js");
+const finalTreeDir = projectPath("build/tmp-final-tree/");
+const tmpMainJsPath = projectPath("build/tmp-ext-src/main.js");
+const mainJsPath = projectPath("extension/src/main.js");
 
-function project_path(relative_path) {
-    return path.join(__dirname, relative_path);
+function projectPath(relativePath) {
+    return path.join(__dirname, relativePath);
 }
 
-function ls_all_files_under(dir) {
+function lsAllFilesUnder(dir) {
     let results = []
     let list = fs.readdirSync(dir)
     list.forEach(function(file) {
         file = path.join(dir, file);
         let stat = fs.statSync(file)
         if (stat && stat.isDirectory()) {
-            results = results.concat(ls_all_files_under(file));
+            results = results.concat(lsAllFilesUnder(file));
         } else {
             results.push(file);
         }
@@ -42,102 +42,75 @@ function ls_all_files_under(dir) {
     return results;
 }
 
-gulp.task("copy-ext-assets", function () {
+function copyExtAssets () {
     return gulp.src(["./extension/**", "!./extension/{src,src/**}"])
-        .pipe(gulp.dest(final_tree_dir));
-});
+        .pipe(gulp.dest(finalTreeDir));
+}
 
-gulp.task("furnish-temp-src", ["copy-ext-assets"], function () {
+function furnishTempSrc () {
     return gulp.src(["./extension/src/**/*"])
-        .pipe(gulp.dest(project_path("build/tmp-ext-src")));
-});
+        .pipe(gulp.dest(projectPath("build/tmp-ext-src")));
+}
 
-gulp.task("strip-dev-code", ["furnish-temp-src"], function () {
+function stripDevCode (cb) {
     const START_PRAGMA = "/*#BUILD_TIME_REPLACE_START*/";
     const END_PRAGMA = "/*#BUILD_TIME_REPLACE_END*/";
-    let main = fs.readFileSync(mainjs_path, { encoding: 'utf8' });
+    let main = fs.readFileSync(mainJsPath, { encoding: 'utf8' });
     let start = main.indexOf(START_PRAGMA);
     let end = main.indexOf(END_PRAGMA);
     if (start === -1 || end === -1) {
         return;
     }
-    let init_line = "const init = actual_init;  // from build tool";
-    let processed_bundle = main.substring(0, start) + init_line +
+    let initLine = "const init = actual_init;  // from build tool";
+    let processedBundle = main.substring(0, start) + initLine +
         main.substring(end + END_PRAGMA.length);
 
-    fs.writeFileSync(tmp_mainjs_path, processed_bundle, { encoding: 'utf8' });
-});
+    fs.writeFile(tmpMainJsPath, processedBundle, { encoding: 'utf8' }, cb);
+}
 
-function rollup_task() {
+function rollupTask() {
     return rollup.rollup({
-        entry: tmp_mainjs_path
+        entry: tmpMainJsPath
     })
     .then(function (bundle) {
         return bundle.write({
             format: "iife",
             moduleName: "checkYoutube",
-            dest: path.join(final_tree_dir, "main.bundle.js"),
+            dest: path.join(finalTreeDir, "main.bundle.js"),
         });
     });
 }
 
-const mainjs_path = project_path("extension/src/main.js");
-gulp.task("web-ext-dev-tree", ["furnish-temp-src"], rollup_task);
-gulp.task("web-ext-release-tree", ["strip-dev-code"], rollup_task);
-gulp.task("web-ext-xpi", ["web-ext-release-tree"], function () {
+function buildXpi() {
     let xpi = new JSZip();
-    let web_extension_files = ls_all_files_under(final_tree_dir);
-    for (let file_path of web_extension_files) {
-        let stream = fs.createReadStream(file_path);
-        let path_within_xpi = file_path.replace(final_tree_dir, "");
+    let webExtensionFiles = lsAllFilesUnder(finalTreeDir);
+    for (let filePath of webExtensionFiles) {
+        let stream = fs.createReadStream(filePath);
+        let path_within_xpi = filePath.replace(finalTreeDir, "");
         xpi.file(path_within_xpi, stream);
     }
 
-    return xpi.generateNodeStream({
+    let compressStream = xpi.generateNodeStream({
         compression: "DEFLATE",
-        compressionOptions : { level:9 }
-    }).pipe(source(xpi_name))
-      .pipe(gulp.dest(project_path("build/")));
-});
+        compressionOptions: { level: 9 }
+    })
+    let writeStream = fs.createWriteStream(projectPath(path.join("build", xpiName)));
+    compressStream.pipe(writeStream);
+    return writeStream;
+}
 
-
-let watch_task_dependency = ["web-ext-release-tree"];
+let webExtDevTree = gulp.series(copyExtAssets, furnishTempSrc, rollupTask);
+let webExtReleaseTree = gulp.series(copyExtAssets, furnishTempSrc, stripDevCode, rollupTask);
+let watchTaskDependency = webExtReleaseTree;
 if (process.env["CHECKER_DEV"]) {
-    watch_task_dependency = ["web-ext-dev-tree"];
+    watchTaskDependency = webExtDevTree;
 }
 
-gulp.task("watch", watch_task_dependency, () => {
-    console.log("Built to " + path.resolve(final_tree_dir));
-    return gulp.watch("extension/**/*", watch_task_dependency);
-})
-
-gulp.task("default", ["web-ext-xpi"]);
-
-gulp.task("unit-tests", cb => {
-    jpm("test", cb);
-});
-
-function run_tests(xpi_path, selenium_opt, cb) {
-    const selenium_path = join(__dirname, "selenium-tests", "run.js");
-    exec(`${process.execPath} ${selenium_path} ${selenium_opt} ${xpi_path}`, cb);
+function watch () {
+    console.log("Built to " + path.resolve(finalTreeDir));
+    return gulp.watch("extension/**/*", watchTaskDependency);
 }
 
-gulp.task("test-e2e", ["jetpack-release"], cb => {
-    run_tests(join("build", xpi_name), "--no-dev", cb);
-});
-
-gulp.task("test-migration", ["jetpack-release"], cb => {
-    run_tests(join("build", xpi_name), "--migration", cb);
-});
-
-gulp.task("test", ["jetpack-release", "unit-tests", "test-e2e", "test-migration"]);
-
-gulp.task("test-raw-e2e", ["build"], cb => {
-    run_tests(original_xpi_path, "--", cb);
-});
-
-gulp.task("test-raw-migration", ["build"], cb => {
-    run_tests(original_xpi_path, "--migration", cb);
-});
-
-gulp.task("test-raw", ["unit-tests", "test-raw-e2e", "test-raw-migration"]);
+exports.webExtXpi = gulp.series(webExtReleaseTree, buildXpi);
+exports.watch = gulp.series(watchTaskDependency, watch);
+exports.default = exports.webExtXpi;
