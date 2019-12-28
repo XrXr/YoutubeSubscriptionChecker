@@ -70,13 +70,14 @@ function stripDevCode (cb) {
 
 function rollupTask() {
     return rollup.rollup({
-        entry: tmpMainJsPath
+        input: tmpMainJsPath
     })
     .then(function (bundle) {
         return bundle.write({
             format: "iife",
-            moduleName: "checkYoutube",
-            dest: path.join(finalTreeDir, "main.bundle.js"),
+            name: "checkYoutube",
+            file: path.join(finalTreeDir, "main.bundle.js"),
+            sourcemap: true,
         });
     });
 }
