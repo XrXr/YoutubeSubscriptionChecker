@@ -318,7 +318,6 @@ async function refresh_all_videos_body(store) {
             let videoSlice = videos.slice(slice_start, slice_start + batch_size);
             let fresh_video_response = await youtube_request.get_video_info(videoSlice.map(v => v.video_id));
             let update_trans = db.transaction(["channel", "video", "history"], "readwrite");
-            console.debug(fresh_video_response)
             for (let video of fresh_video_response) {
                 store.update_one(update_trans, video, (err) => {
                     if (err) {

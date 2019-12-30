@@ -15,8 +15,12 @@ const api_key = "AIzaSyB6mi40O6WOd17yjeYkK-y5lIU4FvoR8fo";
 const log_error = e => console.error(e);
 
 const api_request = (() => {
-    function make_request (url) {
-        return window.fetch(url).then(response => response.json());
+    async function make_request (url) {
+        let response = await window.fetch(url);
+        if (!response.ok) {
+            throw Error(`HTTP ${response.status}: ${response.url}`);
+        }
+        return await response.json();
     }
 
     function api_url (action, param) {
