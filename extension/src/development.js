@@ -87,8 +87,8 @@ function run(cb) {
             "published_at": "2016-05-11T13:00:00.000Z"
         });
 
-        storage.history.add_one(trans, {
-            "video_id": "pgzEI4kvJFo",
+        storage.video.add_one(trans, {
+            "video_id": "6RlL2YeVGuU",
             "thumbnails": {
                 "medium": {
                     "url": "http://loremflickr.com/320/180",
@@ -96,26 +96,10 @@ function run(cb) {
                     "height": 180
                 },
             },
-            "title": `title is wrong (sci show video)`,
-            "channel_id": "UCZYTClx2T1of7BRZ86-8fow",
+            "title": `title is wrong (video from Youtube's channel)`,
+            "channel_id": "UCBR8-60-B28hp2BmDPdntcQ",
             "published_at": "2016-05-11T13:00:00.000Z"
         });
-
-        // storage.video.add_one(trans, {
-        //     "duration": "",
-        //     "video_id": "this video is dummy",
-        //     "thumbnails": {
-        //         "medium": {
-        //             "url": "http://loremflickr.com/320/180",
-        //             "width": 320,
-        //             "height": 180
-        //         },
-        //     },
-        //     "title": `Duration should say "Deleted"`,
-        //     "channel_id": "UC3tNpTOHsTnkmbwztCs30sA",
-        //     "channel_title": "Youtube Subscription Checker",
-        //     "published_at": "2016-05-11T13:00:00.000Z"
-        // });
 
         trans.oncomplete = trans.onabort = () => {
             db.close();

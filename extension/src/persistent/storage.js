@@ -234,6 +234,23 @@ const channel = {
             forward_idb_request(req, cb);
         }], cb);
     },
+    update_title(trans, channel_id, new_title, cb=util.noop) {
+        let req = channel_store(trans).index("id").openCursor(channel_id);
+        forward_idb_request(req, (err, cursor) => {
+            if (err) {
+                return cb(err);
+            }
+            if (!cursor) {
+                return cb(new Error("cannot update non-existent channel"));
+            }
+            if (cursor.value && new_title === cursor.value.title) {
+                return cb(null);
+            }
+            cursor.value.title = new_title;
+            let update_request = cursor.update(cursor.value);
+            forward_idb_request(update_request, cb);
+        });
+    },
     get_all(trans, cb) {
         // this ensure that the records are in order. The order of elements
         // in getAll doesn't seem well defined

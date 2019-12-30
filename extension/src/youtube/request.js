@@ -82,9 +82,9 @@ function get_video_info (video_id_list) {
             duration: nice_duration(video_item.contentDetails.duration),
             thumbnails: video_item.snippet.thumbnails,
             video_id: video_item.id,
-            channel_id: video_item.snippet.channelId,
             title: video_item.snippet.title,
             published_at: video_item.snippet.publishedAt,
+            channel_id: video_item.snippet.channelId,
             channel_title: video_item.snippet.channelTitle,
         }));
     });

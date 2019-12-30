@@ -69,15 +69,21 @@ function stripDevCode (cb) {
 }
 
 async function rollupTask() {
-    let bundle = await rollup.rollup({
-        input: tmpMainJsPath
-    })
-    await bundle.write({
-        format: "iife",
-        name: "checkYoutube",
-        file: path.join(finalTreeDir, "main.bundle.js"),
-        sourcemap: true,
-    });
+    try {
+        let bundle = await rollup.rollup({
+            input: tmpMainJsPath
+        })
+        await bundle.write({
+            format: "iife",
+            name: "checkYoutube",
+            file: path.join(finalTreeDir, "main.bundle.js"),
+            sourcemap: true,
+        });
+    } catch (err) {
+        console.error(err.loc);
+        console.error(err.frame);
+        throw err;
+    }
 }
 
 function buildXpi() {

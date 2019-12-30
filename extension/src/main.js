@@ -308,6 +308,7 @@ async function refresh_all_videos () {
 
 async function refresh_all_videos_body(store) {
     try {
+        let updated_channel = new Set();
         let db = get_db();
         let trans = db.transaction(["channel", "video", "history"], "readwrite");
         let videos = await get_all_videos(trans);
@@ -324,6 +325,16 @@ async function refresh_all_videos_body(store) {
                         log_error("failed to store updated video", err, video);
                     }
                 });
+                if (video.channel_id && video.channel_title) {
+                    if (!updated_channel.has(video.channel_id)) {
+                        updated_channel.add(video.channel_id);
+                        storage.channel.update_title(update_trans, video.channel_id, video.channel_title, err => {
+                            if (err) {
+                                log_error("failed to update channel title", err, video);
+                            }
+                        });
+                    }
+                }
             }
         }
     } catch (err) {
@@ -343,7 +354,7 @@ async function refresh_all_videos_body(store) {
     }
 }
 
-window.refresh_all_videos = refresh_all_videos
+window.refresh_all_videos = refresh_all_videos; // for debugging
 
 function start_checking() {
     function check_cycle () {
