@@ -10,6 +10,8 @@ requests. All functions return promise.
 */
 import { nice_duration } from "../util";
 
+const api_key = "AIzaSyB6mi40O6WOd17yjeYkK-y5lIU4FvoR8fo";
+
 const log_error = e => console.error(e);
 
 const api_request = (() => {
@@ -17,15 +19,9 @@ const api_request = (() => {
         return window.fetch(url).then(response => response.json());
     }
 
-    const api_key = "AIzaSyB6mi40O6WOd17yjeYkK-y5lIU4FvoR8fo";
-    function api_url (method, param) {
-        let url = "https://www.googleapis.com/youtube/v3/" + method + '?';
-        for (var key in param) {
-            if (param.hasOwnProperty(key)) {
-                url = url + key + "=" + param[key] + "&";
-            }
-        }
-        url += "key=" + api_key;
+    function api_url (action, param) {
+        let url = "https://www.googleapis.com/youtube/v3/" + action + '?';
+        url += new URLSearchParams({...param, key: api_key }).toString();
         return url;
     }
 
@@ -74,6 +70,28 @@ function get_tags_and_duration (video_id) {
     });
 }
 
+function get_video_info (video_id_list) {
+    let joined_id = video_id_list.join(",");
+    return api_request("videos", {
+        part: "snippet,contentDetails,id",
+        fields: "items(id,contentDetails/duration,snippet(title,channelTitle,channelId,publishedAt,thumbnails/medium))",
+        id: joined_id,
+        maxResults: 50,
+    }).then(response => {
+        return response.items.map(video_item => ({
+            duration: nice_duration(video_item.contentDetails.duration),
+            thumbnails: video_item.snippet.thumbnails,
+            video_id: video_item.id,
+            channel_id: video_item.snippet.channelId,
+            title: video_item.snippet.title,
+            published_at: video_item.snippet.publishedAt,
+            channel_title: video_item.snippet.channelTitle,
+        }));
+    });
+}
+
+get_video_info.batch_size = 50;
+
 // Request to search channel matching `query`. Return a promise that will
 // resolve to either [null] or [channels]
 function search_channel (query) {
@@ -106,5 +124,6 @@ export {
     get_duration,
     get_activities,
     get_tags_and_duration,
+    get_video_info,
     VIDEO_DOES_NOT_EXIST,
 };

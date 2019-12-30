@@ -283,9 +283,72 @@ function notify_new_uploads(uploaded_channels) {
     };
 }
 
+function shuffle(arr) {
+    for (let i = arr.length - 1; i >= 1; i--) {
+        let j = Math.trunc(Math.random() * (i + 1))
+        let tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+    }
+}
+
+
+let refreshing = false;
+async function refresh_all_videos () {
+    if (refreshing) {
+        return;
+    }
+    refreshing = true;
+    let refresh_videos = refresh_all_videos_body(storage.video);
+    let refresh_history = refresh_all_videos_body(storage.history);
+    await refresh_videos;
+    await refresh_history;
+    refreshing = false;
+}
+
+async function refresh_all_videos_body(store) {
+    try {
+        let db = get_db();
+        let trans = db.transaction(["channel", "video", "history"], "readwrite");
+        let videos = await get_all_videos(trans);
+        shuffle(videos); // so that even if we only get update a few batches before the user quits the browser, eventually we got everything
+        const batch_size = youtube_request.get_video_info.batch_size;
+        for (let slice_start = 0; slice_start < videos.length; slice_start += batch_size) {
+            let videoSlice = videos.slice(slice_start, slice_start + batch_size);
+            let fresh_video_response = await youtube_request.get_video_info(videoSlice.map(v => v.video_id));
+            let update_trans = db.transaction(["channel", "video", "history"], "readwrite");
+            console.debug(fresh_video_response)
+            for (let video of fresh_video_response) {
+                store.update_one(update_trans, video, (err) => {
+                    if (err) {
+                        log_error("failed to store updated video", err, video);
+                    }
+                });
+            }
+        }
+    } catch (err) {
+        log_error("refresh failed", err);
+    }
+
+    function get_all_videos(trans) {
+        return new Promise((resolve, reject) => {
+            store.get_all(trans, (err, videos) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(videos);
+                }
+            })
+        });
+    }
+}
+
+window.refresh_all_videos = refresh_all_videos
+
 function start_checking() {
     function check_cycle () {
         // check then start a timer according to current config
+        refresh_all_videos();
         check_all();
         fetch_unfetched_durations();
 
@@ -295,6 +358,12 @@ function start_checking() {
                 log_error("Failed to get interval, " +
                           "defaulting to 10 min for this check", err);
                 interval = 10;
+            }
+            if (interval < 0) {
+                interval = 10;
+            }
+            if (interval > 41760) {
+                interval = 41760;
             }
             timers.setTimeout(check_cycle, interval * 60 * 1000);
         });

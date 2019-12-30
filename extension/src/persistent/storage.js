@@ -69,6 +69,19 @@ const video = {
         let req = video_store(trans).add(new Video(video));
         forward_idb_request(req, cb);
     },
+    update_one(trans, video, cb=util.noop) {
+        let req = video_store(trans).openCursor(video.video_id);
+        forward_idb_request(req, (err, cursor) => {
+            if (err) {
+                return cb(err);
+            }
+            if (!cursor) {
+                return cb(new Error("cannot update non-existent video item"));
+            }
+            let update_request = cursor.update(new Video(video));
+            forward_idb_request(update_request, cb);
+        });
+    },
     add_list(trans, vids, cb=util.noop) {
         let store = trans.objectStore("video");
         util.cb_each(vids, (video, done) => {
@@ -156,9 +169,22 @@ const history = {
         let req = history_store(trans).clear();
         forward_idb_request(req, cb);
     },
+    update_one(trans, video, cb=util.noop) {
+        let req = history_store(trans).index("video_id").openCursor(video.video_id);
+        forward_idb_request(req, (err, cursor) => {
+            if (err) {
+                return cb(err);
+            }
+            if (!cursor) {
+                return cb(new Error("cannot update non-existent video item"));
+            }
+            let update_request = cursor.update(new Video(video));
+            forward_idb_request(update_request, cb);
+        });
+    },
     get_all(trans, cb) {
-        // this ensure that the records are in order. The order of elements
-        // in getAll doesn't seem well defined
+        // this ensures that the records are in order. The order of elements
+        // in store.getAll doesn't seem well defined
         let req = history_store(trans).openCursor(null, "prev");
         collect_cursor(req, cb);
     },

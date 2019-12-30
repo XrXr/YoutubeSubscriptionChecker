@@ -68,17 +68,15 @@ function stripDevCode (cb) {
     fs.writeFile(tmpMainJsPath, processedBundle, { encoding: 'utf8' }, cb);
 }
 
-function rollupTask() {
-    return rollup.rollup({
+async function rollupTask() {
+    let bundle = await rollup.rollup({
         input: tmpMainJsPath
     })
-    .then(function (bundle) {
-        return bundle.write({
-            format: "iife",
-            name: "checkYoutube",
-            file: path.join(finalTreeDir, "main.bundle.js"),
-            sourcemap: true,
-        });
+    await bundle.write({
+        format: "iife",
+        name: "checkYoutube",
+        file: path.join(finalTreeDir, "main.bundle.js"),
+        sourcemap: true,
     });
 }
 

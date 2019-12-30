@@ -11,6 +11,8 @@ the final xpi file.
 */
 import * as storage from "./persistent/storage";
 import * as filters from "./persistent/filters";
+import { get_db } from './main';
+import * as youtube_request from "./youtube/request";
 
 console.log("Running in development mode");
 
@@ -21,7 +23,7 @@ function run(cb) {
             return;
         }
 
-        let trans = db.transaction(["channel", "filter", "video", "check_stamp"], "readwrite");
+        let trans = db.transaction(["channel", "filter", "video", "history", "check_stamp"], "readwrite");
 
         const add_channel = (chan) => {
             storage.channel.add_one(trans, chan, () => {});
@@ -39,10 +41,10 @@ function run(cb) {
             "id": "UCBR8-60-B28hp2BmDPdntcQ",
         });
 
-        add_channel({
-            "title": "Minute Physic",
-            "id": "UCUHW94eEFW7hkUMVaZz4eDg",
-        });
+        // add_channel({
+        //     "title": "Minute Physic",
+        //     "id": "UCUHW94eEFW7hkUMVaZz4eDg",
+        // });
 
         add_channel({
             "title": `<div onmouseover="alert('cats')">hi!</div>`,
@@ -58,8 +60,7 @@ function run(cb) {
         }]);
 
         storage.video.add_one(trans, {
-            "duration": "",
-            "video_id": "this video is dummy",
+            "video_id": "Z3IPVWN-1ks",
             "thumbnails": {
                 "medium": {
                     "url": "http://loremflickr.com/320/180",
@@ -67,11 +68,54 @@ function run(cb) {
                     "height": 180
                 },
             },
-            "title": `Duration should say "Deleted"`,
+            "title": `title is wrong`,
             "channel_id": "UC3tNpTOHsTnkmbwztCs30sA",
-            "channel_title": "Youtube Subscription Checker",
             "published_at": "2016-05-11T13:00:00.000Z"
         });
+
+        storage.video.add_one(trans, {
+            "video_id": "m45rcGuC9v0",
+            "thumbnails": {
+                "medium": {
+                    "url": "http://loremflickr.com/320/180",
+                    "width": 320,
+                    "height": 180
+                },
+            },
+            "title": `deleted video`,
+            "channel_id": "UC3tNpTOHsTnkmbwztCs30sA",
+            "published_at": "2016-05-11T13:00:00.000Z"
+        });
+
+        storage.history.add_one(trans, {
+            "video_id": "pgzEI4kvJFo",
+            "thumbnails": {
+                "medium": {
+                    "url": "http://loremflickr.com/320/180",
+                    "width": 320,
+                    "height": 180
+                },
+            },
+            "title": `title is wrong (sci show video)`,
+            "channel_id": "UCZYTClx2T1of7BRZ86-8fow",
+            "published_at": "2016-05-11T13:00:00.000Z"
+        });
+
+        // storage.video.add_one(trans, {
+        //     "duration": "",
+        //     "video_id": "this video is dummy",
+        //     "thumbnails": {
+        //         "medium": {
+        //             "url": "http://loremflickr.com/320/180",
+        //             "width": 320,
+        //             "height": 180
+        //         },
+        //     },
+        //     "title": `Duration should say "Deleted"`,
+        //     "channel_id": "UC3tNpTOHsTnkmbwztCs30sA",
+        //     "channel_title": "Youtube Subscription Checker",
+        //     "published_at": "2016-05-11T13:00:00.000Z"
+        // });
 
         trans.oncomplete = trans.onabort = () => {
             db.close();
@@ -79,15 +123,5 @@ function run(cb) {
         };
     });
 }
-
-// var { Hotkey } = require("sdk/hotkeys");
-
-// var showHotKey = Hotkey({
-//   combo: "accel-p",
-//   onPress: () => {
-//     storage.subscriptions[0].latest_date = ((new Date()).getTime() - 12000000000);
-//     check_all();
-//   }
-// });
 
 export default run;

@@ -12,7 +12,7 @@ This module provide functions for processing response form Youtube's api.
 let normalize_property_set = {};
 for (let name of ["video_id", "thumbnails", "title", "channel_id",
                   "channel_title", "duration", "tags", "published_at"]) {
-    normalize_property_set[name] = null;
+    normalize_property_set[name] = true;
 }
 
 let activity = {
@@ -29,6 +29,7 @@ let activity = {
         },
         "title": string,
         "channel_id": string,
+        "published_at": string,
         "duration": ""  // will be filled later
     }
     properties that are not in the above structure are deleted.
