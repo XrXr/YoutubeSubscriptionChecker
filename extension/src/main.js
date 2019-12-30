@@ -355,6 +355,24 @@ async function refresh_all_videos_body(store) {
 
 window.refresh_all_videos = refresh_all_videos; // for debugging
 
+function get_check_interval(trans, cb) {
+    let get_interval = db.transaction("config");
+    config.get_one(get_interval, "interval", (err, interval) => {
+        if (err) {
+            log_error("Failed to get interval, " +
+                      "defaulting to 10 min for this check", err);
+            interval = 10;
+        }
+        if (interval < 0) {
+            interval = 10;
+        }
+        if (interval > 28800) {
+            interval = 28800;
+        }
+        cb(null, interval);
+    });
+}
+
 function start_checking() {
     function check_cycle () {
         // check then start a timer according to current config
@@ -365,15 +383,8 @@ function start_checking() {
         let get_interval = db.transaction("config");
         config.get_one(get_interval, "interval", (err, interval) => {
             if (err) {
-                log_error("Failed to get interval, " +
-                          "defaulting to 10 min for this check", err);
+                log_error("should be unreachable");
                 interval = 10;
-            }
-            if (interval < 0) {
-                interval = 10;
-            }
-            if (interval > 41760) {
-                interval = 41760;
             }
             timers.setTimeout(check_cycle, interval * 60 * 1000);
         });
@@ -382,8 +393,7 @@ function start_checking() {
     let trans = db.transaction("config");
     config.get_one(trans, "interval", (err, interval) => {
         if (err) {
-            log_error("Failed to get check interval setting. " +
-                      "Defaulting to 10 min for this check", err);
+            log_error("should be unreachable");
             interval = 10;
         }
         config.get_one(trans, "last_checked", (err, last_checked) => {
@@ -393,17 +403,20 @@ function start_checking() {
             }
             const since_last = Date.now() - last_checked;
             const interval_mili = interval * 60 * 1000;
+            let timeout;
             if (!last_checked || since_last >= interval_mili) {
                 // the check is past due, checking immediately
-                check_cycle();
+                timeout = 0;
             } else if (since_last <= 0) {
                 // system time would have to be altered for this to be possible
                 // first check occurs after 1 period to avoid flooding
-                timers.setTimeout(check_cycle, interval_mili);
+                timeout = interval_mili;
             } else {
                 // first check happens when the period finishes
-                timers.setTimeout(check_cycle, interval_mili - since_last);
+                timeout = interval_mili - since_last;
             }
+            timers.setTimeout(check_cycle, timeout);
+            console.info(`Time until first check: ${timeout}s`);
         });
     });
 }

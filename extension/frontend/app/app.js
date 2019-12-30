@@ -654,6 +654,8 @@ angular.module("subscription_checker", ["ngAnimate", "ui.bootstrap"])
                     if (value < 5) {
                         set_error(value <= 0 ? bad_interval_badge :
                                                "sticky:less_than_5");
+                    } else if (value > 28800) {
+                        set_error("sticky:too_long")
                     }
                 } else {
                     set_error(bad_interval_badge);

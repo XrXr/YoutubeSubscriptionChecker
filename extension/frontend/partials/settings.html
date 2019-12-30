@@ -140,6 +140,10 @@
       Check interval cannot be lower than 5 minutes
     </div>
     <div class="alert alert-danger setting-warning"
+         ng-if="badge_is('sticky:too_long')">
+      Check interval cannot be longer than 20 days
+    </div>
+    <div class="alert alert-danger setting-warning"
          ng-if="badge_is('sticky:bad_interval')">
       Check interval must be a positive number
     </div>
