@@ -113,9 +113,9 @@ if (process.env["CHECKER_DEV"]) {
 
 function watch () {
     console.log("Built to " + path.resolve(finalTreeDir));
-    return gulp.watch("extension/**/*", watchTaskDependency);
+    gulp.watch("extension/**/*", { ignoreInitial: false }, watchTaskDependency);
 }
 
 exports.webExtXpi = gulp.series(webExtReleaseTree, buildXpi);
-exports.watch = gulp.series(watchTaskDependency, watch);
+exports.watch = watch
 exports.default = exports.webExtXpi;
